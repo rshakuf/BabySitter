@@ -42,10 +42,11 @@ namespace BabySitter.Pages
 
         private async void LogInButton_Click(object sender, RoutedEventArgs e)
         {
-            string username = userNameTextBox.Text;
+            int tel =int.Parse( userNameTextBox.Text);
             string password = PasswordBox.Password;
-
-
+            ParentsList pList =await  apiService.GetAllParentsAsync();
+            Parents p1 =pList.Find(x=>x.Telephone== tel && x.== password);  
+            if(p1==null)
 
             if (await ValidateCredentials(username, password))
             {
