@@ -1,0 +1,11 @@
+﻿<Application x:Class="BabySitter.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:BabySitter"
+             StartupUri="Pages/LogInComputer.xaml">
+    <Application.Resources>
+        <ImageBrush x:Key="MainBackground" ImageSource="/Images/WhatsApp Image 2026-01-06 at 12.20.28 (1).jpeg" Stretch="UniformToFill"/>
+        <ImageBrush x:Key="ButtonBackground" ImageSource="/Images/WhatsApp Image 2026-01-06 at 12.20.28.jpeg" Stretch="UniformToFill"/>
+        <ImageBrush x:Key="TextBoxBackground" ImageSource="/Images/WhatsApp Image 2026-01-06 at 12.20.29.jpeg" Stretch="UniformToFill"/>
+    </Application.Resources>
+</Application>
