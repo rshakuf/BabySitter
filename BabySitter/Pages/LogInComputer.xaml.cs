@@ -45,22 +45,34 @@ namespace BabySitter.Pages
             int tel =int.Parse( userNameTextBox.Text);
             string password = PasswordBox.Password;
             ParentsList pList =await  apiService.GetAllParentsAsync();
-            Parents p1 =pList.Find(x=>x.Telephone== tel && x.== password);  
-            if(p1==null)
-
-            if (await ValidateCredentials(username, password))
+            Parents p1 =pList.Find(x=>x.Telephone== tel && x.Password== password);
+            if (p1 != null)
             {
+
                 NavigationService?.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+
             }
             else
             {
-                MessageBox.Show("Invalid username or password", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                BabySitterTeensList bstList = await apiService.GetAllBabySitterTeensAsync();
+                BabySitterTeens bst = bstList.Find(x => x.Telephone == tel && x.Password == password);
+                
+                if(bst==null)
+                {
+                    MessageBox.Show("Invalid username or password", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    NavigationService?.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+                }
             }
-        }
+            }
+            
+        
 
-        private async Task<bool> ValidateCredentials(string username, string password)
+        private async Task<bool> ValidateCredentials(int tel, string password)
         {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(tel.ToString()) || string.IsNullOrWhiteSpace(password))
             {
                 return false;
             }
