@@ -116,6 +116,35 @@
             </Button.Template>
         </Button>
 
+        <Button x:Name="AutoFillButton"
+        Content="⚡ Auto Login for parents"
+        Width="160"
+        Height="30"
+        HorizontalAlignment="Left"
+        VerticalAlignment="Top"
+        Margin="500,340,0,0"
+        FontSize="12"
+        Background="AliceBlue"
+        BorderBrush="BlueViolet"
+        BorderThickness="1"
+        Cursor="Hand"
+        Click="AutoFillButton_Click"/>
+        
+        <Button x:Name="AutoFillBabysitterButton"
+        Content="⚡ Auto Login for Babysitter"
+        Width="190"
+        Height="30"
+        HorizontalAlignment="Left"
+        VerticalAlignment="Top"
+        Margin="500,375,0,0"
+        FontSize="12"
+        Background="#D6EAF8"
+        BorderBrush="#3498DB"
+        BorderThickness="1"
+        Cursor="Hand"
+        Click="AutoFillBabysitterButton_Click"/>
+
+
         <!-- Parent Register button at bottom left -->
         <Button x:Name="ParentRegisterButton"
                 Content="Parent Register"

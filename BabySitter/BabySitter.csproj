@@ -31,6 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="ClApi">
       <HintPath>..\..\..\..\source\repos\RotemFinalProject1\ClApi\bin\Debug\net8.0\ClApi.dll</HintPath>
     </Reference>

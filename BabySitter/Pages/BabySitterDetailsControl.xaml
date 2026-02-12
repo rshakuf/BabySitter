@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="BabySitter.UserControls.BabySitterDetailsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="450" Width="600">
+
+    <Border Background="#F7F2FA" CornerRadius="28" Margin="10">
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" FlowDirection="RightToLeft" Orientation="Horizontal" Margin="0,0,0,25">
+                <Border Width="80" Height="80" Background="#6750A4" CornerRadius="40">
+                    <TextBlock Text="{Binding FirstName[0]}" Foreground="White" 
+                               FontSize="36" FontWeight="Bold" 
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Border>
+
+                <StackPanel VerticalAlignment="Center" Margin="20,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding FirstName}" FontSize="32" FontWeight="Bold" Foreground="#1C1B1F"/>
+                        <TextBlock Text="{Binding LastName}" FontSize="32" FontWeight="Bold" Foreground="#1C1B1F" Margin="8,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding CityNameId.CityName}" FontSize="16" Foreground="#49454F"/>
+                </StackPanel>
+            </StackPanel>
+
+            <UniformGrid Grid.Row="1" Columns="2" FlowDirection="RightToLeft">
+                <Border Background="White" CornerRadius="16" Margin="5" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="פרטים כלליים" FontWeight="Bold" Foreground="#6750A4" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="תאריך לידה:" FontSize="12" Foreground="#49454F"/>
+                        <TextBlock Text="{Binding DateOfBirth, StringFormat={}{0:dd/MM/yyyy}}" FontSize="15" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="מחיר מבוקש:" FontSize="12" Foreground="#49454F"/>
+                        <TextBlock Text="{Binding PriceForAnHour, StringFormat=₪{0} לשעה}" 
+                                   FontSize="18" FontWeight="Bold" Foreground="#00B894"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="White" CornerRadius="16" Margin="5" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="יצירת קשר" FontWeight="Bold" Foreground="#6750A4" Margin="0,0,0,10"/>
+
+                        <TextBlock Text="מספר טלפון:" FontSize="12" Foreground="#49454F"/>
+                        <TextBlock Text="{Binding Telephone}" FontSize="15" Margin="0,0,0,10" FontWeight="SemiBold"/>
+
+                        <TextBlock Text="מייל ממליץ:" FontSize="12" Foreground="#49454F"/>
+                        <TextBlock Text="{Binding MailOfRecommender}" FontSize="14" Foreground="#1D192B" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Button Grid.Row="2" Content="סגור חלון" 
+                    Width="150" Height="45"
+                    HorizontalAlignment="Center"
+                    Background="#6750A4" Foreground="White"
+                    FontSize="16" FontWeight="SemiBold"
+                    Cursor="Hand" BorderThickness="0">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="22"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>

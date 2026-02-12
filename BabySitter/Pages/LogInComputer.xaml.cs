@@ -29,11 +29,27 @@ namespace BabySitter.Pages
         {
             InitializeComponent();
         }
+        private void AutoFillButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 👇 שימי כאן משתמש בדיקה אמיתי שקיים לך בדאטהבייס
+            userNameTextBox.Text = "1528040991";
+            PasswordBox.Password = "1234";
+
+            // מפעיל אוטומטית את כפתור ההתחברות
+            LogInButton_Click(null, null);
+        }
 
         private void ParentRegisterButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService?.Navigate(new Uri("Pages/Register.xaml", UriKind.Relative));
         }
+
+        private void AutoFillBabysitterButton_Click(object sender, RoutedEventArgs e)
+        {
+            userNameTextBox.Text = "67676767";   // את תשני למספר אמיתי
+            PasswordBox.Password = "12345";         // את תשני לסיסמה אמיתית
+        }
+
 
         private void BabysitterRegisterButton_Click(object sender, RoutedEventArgs e)
         {
