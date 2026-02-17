@@ -18,5 +18,10 @@ namespace BabySitter.UserControls
         {
             Window.GetWindow(this)?.Close();
         }
+
+        private void ContactedButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

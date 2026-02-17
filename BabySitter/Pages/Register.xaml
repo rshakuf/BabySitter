@@ -61,42 +61,43 @@
             <UniformGrid Columns="3" Margin="0,0,0,20">
                 <StackPanel Margin="10,0">
                     <TextBlock Text="First Name" Margin="5,0,0,5" FontSize="18"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="fname" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
                 <StackPanel Margin="10,0">
                     <TextBlock Text="Last name" Margin="5,0,0,5" FontSize="18"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="lname" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
                 <StackPanel Margin="10,0">
                     <TextBlock Text="Date of birth" Margin="5,0,0,5" FontSize="18"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="dateofbirth" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
             </UniformGrid>
 
             <UniformGrid Columns="2" Margin="0,0,0,20">
                 <StackPanel Margin="40,0">
                     <TextBlock Text="City name" Margin="5,0,0,5" FontSize="18"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <ComboBox x:Name="cityname" />
                 </StackPanel>
                 <StackPanel Margin="40,0">
                     <TextBlock Text="Number of kids" Margin="5,0,0,5" FontSize="18"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="numofkids" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
             </UniformGrid>
 
             <UniformGrid Columns="2" Margin="0,0,0,30" >
                 <StackPanel Margin="40,0">
                     <TextBlock Text="Password" Margin="5,0,0,5" FontSize="18"/>
-                    <PasswordBox Style="{StaticResource RoundedPasswordBox}"/>
+                    <PasswordBox x:Name="pass" Style="{StaticResource RoundedPasswordBox}"/>
                 </StackPanel>
                 <StackPanel Margin="40,0">
                     <TextBlock Text="Confirm Password" Margin="5,0,0,5" FontSize="18"/>
-                    <PasswordBox Style="{StaticResource RoundedPasswordBox}"/>
+                    <PasswordBox x:Name="confirmpass" Style="{StaticResource RoundedPasswordBox}"/>
+                    <TextBlock x:Name="passerror" Text="סיסמאות לא שוות" Visibility="Collapsed" Foreground="Red" FontSize="18"/>
                 </StackPanel>
             </UniformGrid>
 
             <Button Content="Create Account" Background="Black" Foreground="White" 
-                    Width="160" Height="40"  Cursor="Hand" Margin="0,0,0,10" FontSize="18">
+                    Width="160" Height="40"  Cursor="Hand" Margin="0,0,0,10" FontSize="18" Click="CreateAccount">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="20"/>

@@ -54,18 +54,37 @@
                 </Border>
             </UniformGrid>
 
-            <Button Grid.Row="2" Content="סגור חלון" 
-                    Width="150" Height="45"
-                    HorizontalAlignment="Center"
-                    Background="#6750A4" Foreground="White"
-                    FontSize="16" FontWeight="SemiBold"
-                    Cursor="Hand" BorderThickness="0">
+            <Button Grid.Row="2"
+        Content="סגור חלון"
+        Width="150"
+        Height="45"
+        HorizontalAlignment="Center"
+        Background="#6750A4"
+        Foreground="White"
+        FontSize="16"
+        FontWeight="SemiBold"
+        Cursor="Hand"
+        BorderThickness="0"
+        Click="CloseButton_Click">
+
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="22"/>
                     </Style>
                 </Button.Resources>
             </Button>
+
+
+            <Button x:Name="ContactedButton"
+        Content="יצרתי קשר ✔"
+        Width="90"
+        Height="20"
+        Margin="210,45,210,-30"
+        Background="#B39DDB"
+        Foreground="White"
+        FontWeight="SemiBold"
+        Click="ContactedButton_Click" Grid.Row="2"/>
+
         </Grid>
     </Border>
 </UserControl>

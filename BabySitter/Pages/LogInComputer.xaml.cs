@@ -31,11 +31,11 @@ namespace BabySitter.Pages
         }
         private void AutoFillButton_Click(object sender, RoutedEventArgs e)
         {
-            // 👇 שימי כאן משתמש בדיקה אמיתי שקיים לך בדאטהבייס
+            
             userNameTextBox.Text = "1528040991";
             PasswordBox.Password = "1234";
 
-            // מפעיל אוטומטית את כפתור ההתחברות
+            
             LogInButton_Click(null, null);
         }
 
@@ -46,8 +46,9 @@ namespace BabySitter.Pages
 
         private void AutoFillBabysitterButton_Click(object sender, RoutedEventArgs e)
         {
-            userNameTextBox.Text = "67676767";   // את תשני למספר אמיתי
-            PasswordBox.Password = "12345";         // את תשני לסיסמה אמיתית
+            userNameTextBox.Text = "67676767";   
+            PasswordBox.Password = "12345";      
+            LogInButton_Click(null, null);
         }
 
 
@@ -58,31 +59,64 @@ namespace BabySitter.Pages
 
         private async void LogInButton_Click(object sender, RoutedEventArgs e)
         {
-            int tel =int.Parse( userNameTextBox.Text);
-            string password = PasswordBox.Password;
-            ParentsList pList =await  apiService.GetAllParentsAsync();
-            Parents p1 =pList.Find(x=>x.Telephone== tel && x.Password== password);
-            if (p1 != null)
+            if (string.IsNullOrWhiteSpace(userNameTextBox.Text) || string.IsNullOrWhiteSpace(PasswordBox.Password))
             {
+                MessageBox.Show("הכנס טלפון וסיסמה");
+                return;
+            }
 
+            if (!int.TryParse(userNameTextBox.Text, out int tel))
+            {
+                MessageBox.Show("מספר טלפון לא תקין");
+                return;
+            }
+
+            string password = PasswordBox.Password;
+            ParentsList pList = await apiService.GetAllParentsAsync();
+            //Parents p1 = pList.Find(x => x.Telephone == tel && x.Password == password);
+
+         
+
+           
+
+            if (pList != null)
+            {
                 NavigationService?.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
-
             }
             else
             {
                 BabySitterTeensList bstList = await apiService.GetAllBabySitterTeensAsync();
+
+                // מחפשים לפי טלפון בלבד
+              
                 BabySitterTeens bst = bstList.Find(x => x.Telephone == tel && x.Password == password);
-                
-                if(bst==null)
+
+                if (bst == null)
                 {
-                    MessageBox.Show("Invalid username or password", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("הטלפון לא קיים במערכת");
+                    return;
                 }
+
+                // הטלפון קיים → בודקים סיסמה
+                if (bst.Password.Trim() != password)
+                {
+                    MessageBox.Show("סיסמה שגויה");
+                    return;
+                }
+
+                //if (bst==null)
+                //{
+                //    MessageBox.Show("Invalid username or password", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                //}
                 else
                 {
                     NavigationService?.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
                 }
+               
+
+
             }
-            }
+        }
             
         
 
