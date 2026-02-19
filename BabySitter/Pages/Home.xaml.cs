@@ -34,6 +34,8 @@ namespace BabySitter.Pages
                 var api = new ApiService();
                 var sitters = await api.GetAllBabySitterTeensAsync();
                 AllBabysitters = sitters != null ? sitters.ToList() : new List<BabySitterTeens>();
+                MessageBox.Show("כמות בייביסיטרים: " + AllBabysitters.Count);
+
 
                 var cities = await api.GetAllCitiesAsync();
                 AllCities = cities != null ? cities.ToList() : new List<City>();

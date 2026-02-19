@@ -121,10 +121,14 @@
                                 <Border.Effect>
                                     <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05"/>
                                 </Border.Effect>
-                                <local:UserControlHome/>
+
+                                <!-- כאן הוספנו DataContext -->
+                                <local:UserControlHome DataContext="{Binding}"/>
+
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
+
                 </ItemsControl>
             </ScrollViewer>
         </Grid>

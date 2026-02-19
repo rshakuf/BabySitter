@@ -1,26 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ApiInterface;
+using ClApi;
+using Model;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ApiInterface;
-using ClApi;
-using Model;
 
 namespace BabySitter.Pages
 {
-    /// <summary>
-    /// Interaction logic for LogInComputer.xaml
-    /// </summary>
     public partial class LogInComputer : Page
     {
         private ApiService apiService = new ApiService();
@@ -29,37 +17,35 @@ namespace BabySitter.Pages
         {
             InitializeComponent();
         }
+
         private void AutoFillButton_Click(object sender, RoutedEventArgs e)
         {
-            
             userNameTextBox.Text = "1528040991";
             PasswordBox.Password = "1234";
+            LogInButton_Click(null, null);
+        }
 
-            
+        private void AutoFillBabysitterButton_Click(object sender, RoutedEventArgs e)
+        {
+            userNameTextBox.Text = "67676767";
+            PasswordBox.Password = "12345";
             LogInButton_Click(null, null);
         }
 
         private void ParentRegisterButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new Uri("Pages/Register.xaml", UriKind.Relative));
+            NavigationService.Navigate(new Uri("Pages/Register.xaml", UriKind.Relative));
         }
-
-        private void AutoFillBabysitterButton_Click(object sender, RoutedEventArgs e)
-        {
-            userNameTextBox.Text = "67676767";   
-            PasswordBox.Password = "12345";      
-            LogInButton_Click(null, null);
-        }
-
 
         private void BabysitterRegisterButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new Uri("Pages/RegisterAsBabysitter.xaml", UriKind.Relative));
+            NavigationService.Navigate(new Uri("Pages/RegisterAsBabysitter.xaml", UriKind.Relative));
         }
 
         private async void LogInButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(userNameTextBox.Text) || string.IsNullOrWhiteSpace(PasswordBox.Password))
+            if (string.IsNullOrWhiteSpace(userNameTextBox.Text) ||
+                string.IsNullOrWhiteSpace(PasswordBox.Password))
             {
                 MessageBox.Show("הכנס טלפון וסיסמה");
                 return;
@@ -72,68 +58,58 @@ namespace BabySitter.Pages
             }
 
             string password = PasswordBox.Password;
-            ParentsList pList = await apiService.GetAllParentsAsync();
-            //Parents p1 = pList.Find(x => x.Telephone == tel && x.Password == password);
-
-         
-
-           
-
-            if (pList != null)
-            {
-                NavigationService?.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
-            }
-            else
-            {
-                BabySitterTeensList bstList = await apiService.GetAllBabySitterTeensAsync();
-
-                // מחפשים לפי טלפון בלבד
-              
-                BabySitterTeens bst = bstList.Find(x => x.Telephone == tel && x.Password == password);
-
-                if (bst == null)
-                {
-                    MessageBox.Show("הטלפון לא קיים במערכת");
-                    return;
-                }
-
-                // הטלפון קיים → בודקים סיסמה
-                if (bst.Password.Trim() != password)
-                {
-                    MessageBox.Show("סיסמה שגויה");
-                    return;
-                }
-
-                //if (bst==null)
-                //{
-                //    MessageBox.Show("Invalid username or password", "Login Failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                //}
-                else
-                {
-                    NavigationService?.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
-                }
-               
-
-
-            }
-        }
-            
-        
-
-        private async Task<bool> ValidateCredentials(int tel, string password)
-        {
-            if (string.IsNullOrWhiteSpace(tel.ToString()) || string.IsNullOrWhiteSpace(password))
-            {
-                return false;
-            }
 
             try
             {
-                // TODO: Replace with your actual API login method
-                // Example: var user = await apiService.LoginAsync(username, password);
-                // return user != null;
+                // 🔹 CHECK PARENTS
+                ParentsList pList = await apiService.GetAllParentsAsync();
 
-                // Placeholder - replace with actual API call
+                Parents parent =
+                    pList?.Find(x => x.Telephone == tel && x.Password.Trim() == password);
+
+                if (parent != null)
+                {
+                    MessageBox.Show($"ברוך הבא {parent.FirstName}");
+                    NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+                    return;
+                }
+
+                // 🔹 CHECK BABYSITTERS
+                BabySitterTeensList bstList = await apiService.GetAllBabySitterTeensAsync();
+
+                BabySitterTeens bst =
+                    bstList?.Find(x => x.Telephone == tel && x.Password.Trim() == password);
+
+                if (bst != null)
+                {
+                    MessageBox.Show($"ברוכה הבאה {bst.FirstName}");
+                    NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+                    return;
+                }
+
+                MessageBox.Show("טלפון או סיסמה שגויים");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("שגיאת התחברות: " + ex.Message);
+            }
+        }
+
+        private async Task<bool> ValidateCredentials(int tel, string password)
+        {
+            if (string.IsNullOrWhiteSpace(password))
+                return false;
+
+            try
+            {
+                ParentsList pList = await apiService.GetAllParentsAsync();
+                if (pList?.Find(x => x.Telephone == tel && x.Password == password) != null)
+                    return true;
+
+                BabySitterTeensList bstList = await apiService.GetAllBabySitterTeensAsync();
+                if (bstList?.Find(x => x.Telephone == tel && x.Password == password) != null)
+                    return true;
+
                 return false;
             }
             catch
@@ -142,6 +118,4 @@ namespace BabySitter.Pages
             }
         }
     }
-
-    }
-
+}

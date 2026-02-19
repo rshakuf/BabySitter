@@ -63,6 +63,7 @@ namespace BabySitter.Pages
             {
                 Parents p = new Parents() { FirstName = fn, CityNameId = currcity, LastName=ln, NumOfKids= int.Parse(num), Password=pas };
                 api.InsertParentAsync(p);
+                //NavigationService?.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
             }
 
            
