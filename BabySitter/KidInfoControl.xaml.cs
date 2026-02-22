@@ -1,5 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using ClApi;
 using Model;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace BabySitter
 {
@@ -7,24 +9,30 @@ namespace BabySitter
     {
         private Parents parent;
 
+        // כמו שיש לך במסך יצירת הורה
+        private ApiService api = new ApiService();
+
         public KidInfoControl(Parents p)
         {
             InitializeComponent();
             parent = p;
         }
 
-        public string KidName => KidNameTextBox.Text;
-        public int Age => int.TryParse(KidAgeTextBox.Text, out int a) ? a : 0;
-        public string Notes => NotesTextBox.Text;
-
-        public ChildOfParent ToModel()
+        private void SaveKid_Click(object sender, RoutedEventArgs e)
         {
-            return new ChildOfParent
-            {
-                //IdParent = Parents.Id,
-                //FirstName = KidName,
-                //DateOfBirth = 
-            };
+            ChildOfParent child = new ChildOfParent();
+
+            child.FirstName = FirstNameTextBox.Text;
+            child.LastName = LastNameTextBox.Text;
+
+            if (BirthDatePicker.SelectedDate != null)
+                child.DateOfBirth = BirthDatePicker.SelectedDate.Value;
+
+            child.IdParent = parent; // קישור לילד להורה
+
+            api.InsertChildOfParentAsync(child); // ← שמירה למסד כמו הורה
+
+            MessageBox.Show("הילד נשמר בהצלחה");
         }
     }
 }

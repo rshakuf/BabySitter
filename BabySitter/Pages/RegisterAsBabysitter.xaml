@@ -57,36 +57,43 @@
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="620">
             <TextBlock FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,30" Foreground="#222"><Run Text="Babysitter "/><Run Text="Sign up"/></TextBlock>
 
+            <!-- שורה ראשונה -->
             <UniformGrid Columns="3" Margin="0,0,0,15">
                 <StackPanel Margin="15,0">
                     <TextBlock Text="First Name" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="fname" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
+
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Last name" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="lname" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
+
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Date of birth" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="dateofbirth" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
             </UniformGrid>
 
+            <!-- שורה שנייה -->
             <UniformGrid Columns="3" Margin="0,0,0,15">
                 <StackPanel Margin="15,0">
                     <TextBlock Text="City name" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <ComboBox x:Name="cityname" Height="35" VerticalContentAlignment="Center"/>
                 </StackPanel>
+
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Price for an hour" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="price" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
+
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Mail of recommender" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="recommenderMail" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
             </UniformGrid>
 
+            <!-- סיסמאות -->
             <Grid Margin="0,20,0,40">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -97,15 +104,25 @@
 
                 <StackPanel Grid.Column="1" Margin="15,0">
                     <TextBlock Text="Password" FontSize="13" Margin="5,0,0,5"/>
-                    <PasswordBox Style="{StaticResource RoundedPasswordBox}"/>
+                    <PasswordBox x:Name="pass" Style="{StaticResource RoundedPasswordBox}"/>
                 </StackPanel>
+
                 <StackPanel Grid.Column="2" Margin="15,0">
                     <TextBlock Text="Confirm Password" FontSize="13" Margin="5,0,0,5"/>
-                    <PasswordBox Style="{StaticResource RoundedPasswordBox}"/>
+                    <PasswordBox x:Name="confirmpass" Style="{StaticResource RoundedPasswordBox}"/>
                 </StackPanel>
             </Grid>
 
-            <Button Content="Create Account" Background="Black" Foreground="White" Width="180" Height="40" FontSize="13" FontWeight="SemiBold" Cursor="Hand">
+            <!-- כפתור הרשמה -->
+            <Button Content="Create Account"
+        Click="CreateAccount"
+        Background="Black"
+        Foreground="White"
+        Width="180"
+        Height="40"
+        FontSize="13"
+        FontWeight="SemiBold"
+        Cursor="Hand">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
@@ -114,7 +131,6 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-
             <TextBlock Text="or Log in" HorizontalAlignment="Center" Margin="0,15,0,0" FontSize="13" Cursor="Hand" Foreground="#444" MouseLeftButtonDown="LogIn_Click"/>
         </StackPanel>
     </Grid>

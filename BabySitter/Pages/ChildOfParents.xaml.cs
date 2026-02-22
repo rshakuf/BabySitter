@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Model;
+using ClApi;
+// Include your other usings as needed
 
 namespace BabySitter.Pages
 {
@@ -20,9 +11,28 @@ namespace BabySitter.Pages
     /// </summary>
     public partial class ChildOfParents : Page
     {
-        public ChildOfParents()
+        private Parents parent;
+
+        public ChildOfParents(Parents p)
         {
             InitializeComponent();
+            parent = p;
+            CreateKidControls();
+        }
+
+        private void CreateKidControls()
+        {
+            KidsContainer.Children.Clear();
+
+            for (int i = 0; i < parent.NumOfKids; i++)
+            {
+                KidInfoControl kidControl = new KidInfoControl(parent);
+
+                // Changed margin to 15 on all sides so they space out beautifully in the WrapPanel
+                kidControl.Margin = new Thickness(15);
+
+                KidsContainer.Children.Add(kidControl);
+            }
         }
     }
 }

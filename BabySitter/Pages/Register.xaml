@@ -72,13 +72,18 @@
                     <TextBox x:Name="dateofbirth" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
             </UniformGrid>
-
-            <UniformGrid Columns="2" Margin="0,0,0,20">
-                <StackPanel Margin="40,0">
+            <UniformGrid Columns="3" Margin="0,0,0,20">
+                <StackPanel Margin="10,0">
                     <TextBlock Text="City name" Margin="5,0,0,5" FontSize="18"/>
-                    <ComboBox x:Name="cityname" />
+                    <ComboBox x:Name="cityname" Height="35" VerticalContentAlignment="Center"/>
                 </StackPanel>
-                <StackPanel Margin="40,0">
+
+                <StackPanel Margin="10,0">
+                    <TextBlock Text="Phone number" Margin="5,0,0,5" FontSize="18"/>
+                    <TextBox x:Name="phone" Style="{StaticResource RoundedTextBox}"/>
+                </StackPanel>
+
+                <StackPanel Margin="10,0">
                     <TextBlock Text="Number of kids" Margin="5,0,0,5" FontSize="18"/>
                     <TextBox x:Name="numofkids" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
