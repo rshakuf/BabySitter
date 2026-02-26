@@ -12,8 +12,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- HEADER -->
         <Border Grid.Row="0" Padding="40,30,40,40" CornerRadius="0,0,30,30" Margin="0,0,0,20">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -21,9 +23,6 @@
                     <GradientStop Color="#764BA2" Offset="1.0" />
                 </LinearGradientBrush>
             </Border.Background>
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="15" ShadowDepth="5" Opacity="0.15" Direction="270" Color="Black"/>
-            </Border.Effect>
 
             <StackPanel>
                 <TextBlock Text="Children Profiles" FontSize="36" FontWeight="Bold" Foreground="White" />
@@ -31,12 +30,46 @@
             </StackPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" BorderThickness="0">
-            <WrapPanel x:Name="KidsContainer" 
-                       HorizontalAlignment="Center" 
-                       VerticalAlignment="Top" 
-                       Margin="20,0,20,40" />
+        <!-- KIDS LIST -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <WrapPanel x:Name="KidsContainer"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Top"
+                       Margin="20,0,20,40"/>
         </ScrollViewer>
+
+        <!-- FINISH AREA -->
+        <Border Grid.Row="2" Padding="20">
+            <StackPanel HorizontalAlignment="Center">
+
+                <!-- הודעת שגיאה -->
+                <TextBlock x:Name="ErrorText"
+                           Text="לא הזנת ילד"
+                           Foreground="Red"
+                           FontSize="16"
+                           Visibility="Collapsed"
+                           Margin="0,0,0,10"
+                           HorizontalAlignment="Center"/>
+
+                <Button Content="סיום הרשמה"
+                        Width="220"
+                        Height="50"
+                        FontSize="18"
+                        FontWeight="Bold"
+                        Foreground="White"
+                        Background="#667EEA"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="FinishRegistration">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="25"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
+            </StackPanel>
+        </Border>
 
     </Grid>
 </Page>

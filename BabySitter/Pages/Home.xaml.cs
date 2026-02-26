@@ -22,9 +22,41 @@ namespace BabySitter.Pages
             Loaded += Home_Loaded;
         }
 
+        //private async void Home_Loaded(object sender, RoutedEventArgs e)
+        //{
+        //    await LoadData();
+        //}
+
         private async void Home_Loaded(object sender, RoutedEventArgs e)
         {
+            ShowWelcomeMessage();
+
+            if (NavigationService != null)
+                NavigationService.Navigated += NavigationService_Navigated;
+
             await LoadData();
+        }
+
+        private void ShowWelcomeMessage()
+        {
+            if (LogInComputer.CurrentUser == null)
+                return;
+
+            string name = "";
+
+            if (LogInComputer.WhoAmI == "parent")
+                name = ((Parents)LogInComputer.CurrentUser).FirstName;
+
+            if (LogInComputer.WhoAmI == "babysitter")
+                name = ((BabySitterTeens)LogInComputer.CurrentUser).FirstName;
+
+            WelcomeText.Text = $"ברוכה הבאה {name} 💜";
+        }
+
+        private async void NavigationService_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
+        {
+            if (e.Content == this)
+                await LoadData();
         }
 
         private async Task LoadData()
@@ -34,7 +66,7 @@ namespace BabySitter.Pages
                 var api = new ApiService();
                 var sitters = await api.GetAllBabySitterTeensAsync();
                 AllBabysitters = sitters != null ? sitters.ToList() : new List<BabySitterTeens>();
-                MessageBox.Show("כמות בייביסיטרים: " + AllBabysitters.Count);
+                //MessageBox.Show("כמות בייביסיטרים: " + AllBabysitters.Count);
 
 
                 var cities = await api.GetAllCitiesAsync();
@@ -58,6 +90,8 @@ namespace BabySitter.Pages
                 MessageBox.Show($"שגיאה בטעינת נתונים: {ex.Message}");
             }
         }
+
+       
 
         private void ApplyFilters()
         {
@@ -113,6 +147,22 @@ namespace BabySitter.Pages
         private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(SearchBox.Text)) { SearchBox.Text = "הקלד שם..."; SearchBox.Foreground = Brushes.Gray; }
+        }
+
+        private void MyRequests(object sender, RoutedEventArgs e)
+        {
+            if (LogInComputer.WhoAmI == "parent")
+            {
+                NavigationService.Navigate(new RequestsParents());
+            }
+            else if (LogInComputer.WhoAmI == "babysitter")
+            {
+                NavigationService.Navigate(new RequestsBabysitter());
+            }
+            else
+            {
+                MessageBox.Show("לא זוהה סוג משתמש");
+            }
         }
     }
 }

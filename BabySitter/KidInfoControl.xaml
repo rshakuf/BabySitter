@@ -33,9 +33,9 @@
                             Margin="0,5"/>
 
                 <TextBlock Text="עיר"/>
-                <TextBox x:Name="CityTextBox"
-                         Height="35"
-                         Margin="0,5"/>
+                <ComboBox x:Name="CityComboBox"
+                          Height="35"
+                          Margin="0,5"/>
 
                 <Button Content="שמור ילד"
                         Height="40"
@@ -43,6 +43,24 @@
                         Background="Black"
                         Foreground="White"
                         Click="SaveKid_Click"/>
+
+                <!-- הודעת שגיאה -->
+                <TextBlock x:Name="ErrorText"
+                           Text="לא הזנת פרטים"
+                           Foreground="Red"
+                           FontSize="14"
+                           Visibility="Collapsed"
+                           HorizontalAlignment="Center"
+                           Margin="0,6,0,0"/>
+
+                <!-- הודעת הצלחה -->
+                <TextBlock x:Name="SavedText"
+                           Text="הילד נשמר בהצלחה"
+                           Foreground="Green"
+                           FontSize="14"
+                           Visibility="Collapsed"
+                           HorizontalAlignment="Center"
+                           Margin="0,6,0,0"/>
 
             </StackPanel>
         </Border>

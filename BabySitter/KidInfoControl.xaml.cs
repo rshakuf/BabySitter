@@ -1,5 +1,6 @@
 ﻿using ClApi;
 using Model;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -8,31 +9,65 @@ namespace BabySitter
     public partial class KidInfoControl : UserControl
     {
         private Parents parent;
-
-        // כמו שיש לך במסך יצירת הורה
         private ApiService api = new ApiService();
+        private List<City> cities;
+
+        public event Action KidSaved;
 
         public KidInfoControl(Parents p)
         {
             InitializeComponent();
             parent = p;
+
+            // שם משפחה אוטומטי מההורה
+            LastNameTextBox.Text = parent.LastName;
+
+            LoadCities();
         }
 
-        private void SaveKid_Click(object sender, RoutedEventArgs e)
+        private async void LoadCities()
         {
+            cities = await api.GetAllCitiesAsync();
+
+            List<string> names = new List<string>();
+            foreach (City c in cities)
+                names.Add(c.CityName);
+
+            CityComboBox.ItemsSource = names;
+
+            // בחירת העיר של ההורה כברירת מחדל
+            if (parent.CityNameId != null)
+                CityComboBox.SelectedItem = parent.CityNameId.CityName;
+        }
+
+        private async void SaveKid_Click(object sender, RoutedEventArgs e)
+        {
+            ErrorText.Visibility = Visibility.Collapsed;
+            SavedText.Visibility = Visibility.Collapsed;
+
+            // בדיקת שדות ריקים
+            if (string.IsNullOrWhiteSpace(FirstNameTextBox.Text) ||
+                string.IsNullOrWhiteSpace(LastNameTextBox.Text) ||
+                BirthDatePicker.SelectedDate == null ||
+                CityComboBox.SelectedIndex == -1)
+            {
+                ErrorText.Visibility = Visibility.Visible;
+                return;
+            }
+
             ChildOfParent child = new ChildOfParent();
 
             child.FirstName = FirstNameTextBox.Text;
             child.LastName = LastNameTextBox.Text;
+            child.DateOfBirth = BirthDatePicker.SelectedDate.Value;
+            child.IdParent = parent;
+            child.CityNameId = cities[CityComboBox.SelectedIndex];
 
-            if (BirthDatePicker.SelectedDate != null)
-                child.DateOfBirth = BirthDatePicker.SelectedDate.Value;
+            await api.InsertChildOfParentAsync(child);
 
-            child.IdParent = parent; // קישור לילד להורה
+            SavedText.Visibility = Visibility.Visible;
 
-            api.InsertChildOfParentAsync(child); // ← שמירה למסד כמו הורה
-
-            MessageBox.Show("הילד נשמר בהצלחה");
+            KidSaved?.Invoke();
         }
     }
 }

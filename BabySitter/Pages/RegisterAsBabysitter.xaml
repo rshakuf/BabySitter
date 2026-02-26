@@ -76,10 +76,16 @@
             </UniformGrid>
 
             <!-- שורה שנייה -->
-            <UniformGrid Columns="3" Margin="0,0,0,15">
+            <UniformGrid Columns="4" Margin="0,0,0,15">
+
                 <StackPanel Margin="15,0">
                     <TextBlock Text="City name" FontSize="13" Margin="5,0,0,5"/>
                     <ComboBox x:Name="cityname" Height="35" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Margin="15,0">
+                    <TextBlock Text="Phone number" FontSize="13" Margin="5,0,0,5"/>
+                    <TextBox x:Name="phone" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
 
                 <StackPanel Margin="15,0">
@@ -91,6 +97,7 @@
                     <TextBlock Text="Mail of recommender" FontSize="13" Margin="5,0,0,5"/>
                     <TextBox x:Name="recommenderMail" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
+
             </UniformGrid>
 
             <!-- סיסמאות -->

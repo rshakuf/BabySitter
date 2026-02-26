@@ -13,11 +13,29 @@ namespace BabySitter.Pages
     {
         private ApiService apiService = new ApiService();
 
+        public static User CurrentUser = null;
+        public static string WhoAmI = null;
+
+        // ⭐ נשמר כאן הטלפון אחרי הרשמה
+        public static int? LastRegisteredPhone { get; set; }
+
         public LogInComputer()
         {
             InitializeComponent();
+            Loaded += LogInComputer_Loaded;
         }
 
+        // ⭐ ממלא טלפון אוטומטית אחרי הרשמה
+        private void LogInComputer_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (LastRegisteredPhone.HasValue)
+            {
+                userNameTextBox.Text = LastRegisteredPhone.Value.ToString();
+                PasswordBox.Focus();
+            }
+        }
+
+        // ⭐ כפתור מילוי אוטומטי הורה
         private void AutoFillButton_Click(object sender, RoutedEventArgs e)
         {
             userNameTextBox.Text = "1528040991";
@@ -25,6 +43,7 @@ namespace BabySitter.Pages
             LogInButton_Click(null, null);
         }
 
+        // ⭐ כפתור מילוי אוטומטי בייביסיטר
         private void AutoFillBabysitterButton_Click(object sender, RoutedEventArgs e)
         {
             userNameTextBox.Text = "67676767";
@@ -61,28 +80,26 @@ namespace BabySitter.Pages
 
             try
             {
-                // 🔹 CHECK PARENTS
                 ParentsList pList = await apiService.GetAllParentsAsync();
-
                 Parents parent =
                     pList?.Find(x => x.Telephone == tel && x.Password.Trim() == password);
 
                 if (parent != null)
                 {
-                    MessageBox.Show($"ברוך הבא {parent.FirstName}");
+                    CurrentUser = parent;
+                    WhoAmI = "parent";
                     NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
                     return;
                 }
 
-                // 🔹 CHECK BABYSITTERS
                 BabySitterTeensList bstList = await apiService.GetAllBabySitterTeensAsync();
-
                 BabySitterTeens bst =
                     bstList?.Find(x => x.Telephone == tel && x.Password.Trim() == password);
 
                 if (bst != null)
                 {
-                    MessageBox.Show($"ברוכה הבאה {bst.FirstName}");
+                    CurrentUser = bst;
+                    WhoAmI = "babysitter";
                     NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
                     return;
                 }
@@ -92,29 +109,6 @@ namespace BabySitter.Pages
             catch (Exception ex)
             {
                 MessageBox.Show("שגיאת התחברות: " + ex.Message);
-            }
-        }
-
-        private async Task<bool> ValidateCredentials(int tel, string password)
-        {
-            if (string.IsNullOrWhiteSpace(password))
-                return false;
-
-            try
-            {
-                ParentsList pList = await apiService.GetAllParentsAsync();
-                if (pList?.Find(x => x.Telephone == tel && x.Password == password) != null)
-                    return true;
-
-                BabySitterTeensList bstList = await apiService.GetAllBabySitterTeensAsync();
-                if (bstList?.Find(x => x.Telephone == tel && x.Password == password) != null)
-                    return true;
-
-                return false;
-            }
-            catch
-            {
-                return false;
             }
         }
     }

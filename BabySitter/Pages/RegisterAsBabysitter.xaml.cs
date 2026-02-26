@@ -2,26 +2,17 @@
 using Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using BabySitter.Pages;
+
 namespace BabySitter.Pages
 {
     public partial class RegisterAsBabysitter : Page
     {
         List<City> cities;
         ApiService api = new ApiService();
-        
 
         public RegisterAsBabysitter()
         {
@@ -33,16 +24,12 @@ namespace BabySitter.Pages
         {
             cities = await api.GetAllCitiesAsync();
             List<string> clist = new List<string>();
-            foreach (City c in cities)
-            {
-                clist.Add(c.CityName);
-            }
 
-            //clist = (List<string>)cities.Select(x => x.CityName); 
+            foreach (City c in cities)
+                clist.Add(c.CityName);
+
             cityname.ItemsSource = clist;
         }
-
-      
 
         private void LogIn_Click(object sender, MouseButtonEventArgs e)
         {
@@ -57,11 +44,22 @@ namespace BabySitter.Pages
                 return;
             }
 
-            DateTime dob;
-            DateTime.TryParse(dateofbirth.Text, out dob);
+            if (cityname.SelectedIndex < 0)
+            {
+                MessageBox.Show("בחרי עיר");
+                return;
+            }
 
-            int pricePerHour;
-            int.TryParse(price.Text, out pricePerHour);
+            if (!int.TryParse(phone.Text, out int telephone))
+            {
+                MessageBox.Show("מספר טלפון לא תקין");
+                return;
+            }
+
+            DateTime.TryParse(dateofbirth.Text, out DateTime dob);
+            int.TryParse(price.Text, out int pricePerHour);
+
+            City selectedCity = cities[cityname.SelectedIndex];
 
             BabySitterTeens teen = new BabySitterTeens()
             {
@@ -71,15 +69,23 @@ namespace BabySitter.Pages
                 PriceForAnHour = pricePerHour,
                 MailOfRecommender = recommenderMail.Text,
                 Password = pass.Password,
-                Telephone = 0,          // אם אין שדה טלפון במסך
-                ProfilePicture = " "    // אם השרת דורש ערך
+                Telephone = telephone,
+                CityNameId = selectedCity,
+                ProfilePicture = " "
             };
 
-            await api.InsertBabySitterTeenAsync(teen);
+            int result = await api.InsertBabySitterTeenAsync(teen);
 
-            MessageBox.Show("הבייביסיטר נרשם בהצלחה");
-
-            NavigationService?.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+            if (result > 0)
+            {
+                LogInComputer.LastRegisteredPhone = telephone;
+                MessageBox.Show("הבייביסיטר נרשם בהצלחה");
+                NavigationService.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
+            }
+            else
+            {
+                MessageBox.Show("שגיאה בהרשמה");
+            }
         }
     }
 }

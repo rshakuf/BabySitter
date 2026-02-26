@@ -1,17 +1,14 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using Model;
-using ClApi;
-// Include your other usings as needed
 
 namespace BabySitter.Pages
 {
-    /// <summary>
-    /// Interaction logic for ChildOfParents.xaml
-    /// </summary>
     public partial class ChildOfParents : Page
     {
         private Parents parent;
+        private int savedKidsCount = 0;
 
         public ChildOfParents(Parents p)
         {
@@ -27,11 +24,29 @@ namespace BabySitter.Pages
             for (int i = 0; i < parent.NumOfKids; i++)
             {
                 KidInfoControl kidControl = new KidInfoControl(parent);
-
-                // Changed margin to 15 on all sides so they space out beautifully in the WrapPanel
                 kidControl.Margin = new Thickness(15);
 
+                kidControl.KidSaved += OnKidSaved;
+
                 KidsContainer.Children.Add(kidControl);
+            }
+        }
+
+        private void OnKidSaved()
+        {
+            savedKidsCount++;
+            ErrorText.Visibility = Visibility.Collapsed;
+        }
+
+        private void FinishRegistration(object sender, RoutedEventArgs e)
+        {
+            if (savedKidsCount > 0)
+            {
+                NavigationService.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
+            }
+            else
+            {
+                ErrorText.Visibility = Visibility.Visible;
             }
         }
     }
