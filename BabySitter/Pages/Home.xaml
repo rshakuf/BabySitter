@@ -67,24 +67,15 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!-- ROW 0: Header -->
             <DockPanel Grid.Row="0" Margin="0,0,0,30">
                 <StackPanel>
                     <TextBlock Text="חיפוש בייביסיטר"
-               FontSize="34"
-               FontWeight="Bold"
-               Foreground="#1C1B1F"/>
-
+                               FontSize="34" FontWeight="Bold" Foreground="#1C1B1F"/>
                     <TextBlock Text="מצאו את השמרטף המושלם"
-               FontSize="16"
-               Foreground="#49454F"
-               Margin="2,5,0,0"/>
-
-                    <!-- טקסט ברכה למשתמש -->
+                               FontSize="16" Foreground="#49454F" Margin="2,5,0,0"/>
                     <TextBlock x:Name="WelcomeText"
-               FontSize="18"
-               Foreground="#6750A4"
-               FontWeight="SemiBold"
-               Margin="0,8,0,0"/>
+                               FontSize="18" Foreground="#6750A4" FontWeight="SemiBold" Margin="0,8,0,0"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button Content="הפניות שלי" Style="{StaticResource MaterialTonalButton}" Margin="0,0,12,0" Click="MyRequests"/>
@@ -92,6 +83,7 @@
                 </StackPanel>
             </DockPanel>
 
+            <!-- ROW 1: Filters -->
             <Grid Grid.Row="1" Margin="0,0,0,30">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
@@ -99,21 +91,57 @@
                     <ColumnDefinition Width="1.2*"/>
                 </Grid.ColumnDefinitions>
 
+                <!-- Search with placeholder overlay + clear button -->
                 <StackPanel Grid.Column="0" Margin="0,0,15,0">
                     <TextBlock Text="חיפוש חופשי" FontSize="12" Foreground="#6750A4" FontWeight="Bold" Margin="5,0,0,5"/>
-                    <TextBox x:Name="SearchBox" Style="{StaticResource MaterialTextBox}" Height="56" 
-                             TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus"/>
+                    <Grid>
+                        <!-- Placeholder overlay (replaces GotFocus/LostFocus hack) -->
+                        <TextBlock Text="🔍  חפש לפי שם..."
+                                   Foreground="#9E9E9E" FontSize="14"
+                                   VerticalAlignment="Center" Margin="20,0,0,0"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <!-- Search TextBox -->
+                        <TextBox x:Name="SearchBox"
+                                 Style="{StaticResource MaterialTextBox}"
+                                 Height="56"
+                                 Padding="16,0,44,0"
+                                 TextChanged="SearchBox_TextChanged"/>
+
+                        <!-- Clear button -->
+                        <Button x:Name="ClearSearchBtn"
+                                Content="✕" Width="32" Height="32"
+                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Margin="6,0,0,0"
+                                Visibility="Collapsed"
+                                Click="ClearSearch_Click"
+                                Background="Transparent" BorderThickness="0"
+                                Foreground="#49454F" FontSize="14" Cursor="Hand"/>
+                    </Grid>
                 </StackPanel>
 
+                <!-- City filter -->
                 <StackPanel Grid.Column="1" Margin="0,0,15,0">
                     <TextBlock Text="עיר" FontSize="12" Foreground="#6750A4" FontWeight="Bold" Margin="5,0,0,5"/>
-                    <ComboBox x:Name="CityComboBox" Style="{StaticResource MaterialComboBoxM3}" 
+                    <ComboBox x:Name="CityComboBox" Style="{StaticResource MaterialComboBoxM3}"
                               SelectionChanged="FilterChanged"/>
                 </StackPanel>
 
+                <!-- Sort -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="מיון לפי" FontSize="12" Foreground="#6750A4" FontWeight="Bold" Margin="5,0,0,5"/>
-                    <ComboBox x:Name="SortComboBox" Style="{StaticResource MaterialComboBoxM3}" 
+                    <ComboBox x:Name="SortComboBox" Style="{StaticResource MaterialComboBoxM3}"
                               SelectionChanged="FilterChanged">
                         <ComboBoxItem Content="ללא מיון" IsSelected="True"/>
                         <ComboBoxItem Content="מחיר: מהזול ליקר"/>
@@ -122,29 +150,53 @@
                 </StackPanel>
             </Grid>
 
-            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                <ItemsControl x:Name="BabysittersItems">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel HorizontalAlignment="Right"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="12" CornerRadius="16" Background="White">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05"/>
-                                </Border.Effect>
+            <!-- ROW 2: Results area with loading / empty / list states -->
+            <Grid Grid.Row="2">
 
-                                <!-- כאן הוספנו DataContext -->
-                                <local:UserControlHome DataContext="{Binding}"/>
+                <!-- Loading state -->
+                <StackPanel x:Name="LoadingPanel"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="Collapsed">
+                    <TextBlock Text="⏳" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="טוען נתונים..." FontSize="18" Foreground="#6750A4"
+                               HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                </StackPanel>
 
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
+                <!-- Empty state -->
+                <StackPanel x:Name="EmptyPanel"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Visibility="Collapsed">
+                    <TextBlock Text="🔍" FontSize="48" HorizontalAlignment="Center"/>
+                    <TextBlock Text="לא נמצאו בייביסיטרים" FontSize="18" Foreground="#49454F"
+                               HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    <TextBlock Text="נסו לשנות את הסינון" FontSize="14" Foreground="#79747E"
+                               HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                </StackPanel>
 
-                </ItemsControl>
-            </ScrollViewer>
+                <!-- Results list -->
+                <ScrollViewer x:Name="ResultsScrollViewer"
+                              VerticalScrollBarVisibility="Auto"
+                              Visibility="Collapsed">
+                    <ItemsControl x:Name="BabysittersItems">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel HorizontalAlignment="Right"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="12" CornerRadius="16" Background="White">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05"/>
+                                    </Border.Effect>
+                                    <local:UserControlHome DataContext="{Binding}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+            </Grid>
         </Grid>
     </Border>
 </Page>

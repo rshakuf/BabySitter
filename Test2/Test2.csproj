@@ -14,10 +14,10 @@
 
   <ItemGroup>
     <Reference Include="ClApi">
-      <HintPath>..\..\..\..\source\repos\RotemFinalProject1\ClApi\bin\Debug\net8.0\ClApi.dll</HintPath>
+      <HintPath>..\..\..\RotemFinalProject\ClApi\bin\Debug\net8.0\ClApi.dll</HintPath>
     </Reference>
     <Reference Include="Model">
-      <HintPath>..\..\..\..\source\repos\RotemFinalProject1\Model\bin\Debug\net8.0\Model.dll</HintPath>
+      <HintPath>..\..\..\RotemFinalProject\BabysitterApi\bin\Debug\net8.0\Model.dll</HintPath>
     </Reference>
   </ItemGroup>
 

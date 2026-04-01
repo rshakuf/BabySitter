@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace BabySitter.Pages
 {
@@ -16,16 +16,27 @@ namespace BabySitter.Pages
         private List<BabySitterTeens> AllBabysitters = new List<BabySitterTeens>();
         private List<City> AllCities = new List<City>();
 
+        // Debounce timer — prevents a filter call on every single keystroke
+        private readonly DispatcherTimer _searchDebounce;
+
         public Home()
         {
             InitializeComponent();
+
+            _searchDebounce = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(300)
+            };
+            _searchDebounce.Tick += (s, e) =>
+            {
+                _searchDebounce.Stop();
+                ApplyFilters();
+            };
+
             Loaded += Home_Loaded;
         }
 
-        //private async void Home_Loaded(object sender, RoutedEventArgs e)
-        //{
-        //    await LoadData();
-        //}
+        // ─── Lifecycle ────────────────────────────────────────────────────────────
 
         private async void Home_Loaded(object sender, RoutedEventArgs e)
         {
@@ -34,23 +45,14 @@ namespace BabySitter.Pages
             if (NavigationService != null)
                 NavigationService.Navigated += NavigationService_Navigated;
 
+            // Unsubscribe when page unloads to prevent memory leak
+            Unloaded += (s, _) =>
+            {
+                if (NavigationService != null)
+                    NavigationService.Navigated -= NavigationService_Navigated;
+            };
+
             await LoadData();
-        }
-
-        private void ShowWelcomeMessage()
-        {
-            if (LogInComputer.CurrentUser == null)
-                return;
-
-            string name = "";
-
-            if (LogInComputer.WhoAmI == "parent")
-                name = ((Parents)LogInComputer.CurrentUser).FirstName;
-
-            if (LogInComputer.WhoAmI == "babysitter")
-                name = ((BabySitterTeens)LogInComputer.CurrentUser).FirstName;
-
-            WelcomeText.Text = $"ברוכה הבאה {name} 💜";
         }
 
         private async void NavigationService_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
@@ -59,26 +61,47 @@ namespace BabySitter.Pages
                 await LoadData();
         }
 
+        // ─── Welcome message ──────────────────────────────────────────────────────
+
+        private void ShowWelcomeMessage()
+        {
+            if (LogInComputer.CurrentUser == null) return;
+
+            string name = LogInComputer.WhoAmI switch
+            {
+                "parent" => ((Parents)LogInComputer.CurrentUser).FirstName,
+                "babysitter" => ((BabySitterTeens)LogInComputer.CurrentUser).FirstName,
+                _ => ""
+            };
+
+            if (!string.IsNullOrEmpty(name))
+                WelcomeText.Text = $"שלום, {name} <3";
+        }
+
+        // ─── Data loading ─────────────────────────────────────────────────────────
+
         private async Task LoadData()
         {
+            // Show loading, hide everything else
+            LoadingPanel.Visibility = Visibility.Visible;
+            ResultsScrollViewer.Visibility = Visibility.Collapsed;
+            EmptyPanel.Visibility = Visibility.Collapsed;
+
             try
             {
                 var api = new ApiService();
+
                 var sitters = await api.GetAllBabySitterTeensAsync();
                 AllBabysitters = sitters != null ? sitters.ToList() : new List<BabySitterTeens>();
-                //MessageBox.Show("כמות בייביסיטרים: " + AllBabysitters.Count);
-
 
                 var cities = await api.GetAllCitiesAsync();
                 AllCities = cities != null ? cities.ToList() : new List<City>();
 
-                // Setup Cities
+                // Populate city combo
                 CityComboBox.Items.Clear();
                 CityComboBox.Items.Add("כל הערים");
                 foreach (var city in AllCities)
-                {
                     CityComboBox.Items.Add(city.CityName);
-                }
 
                 CityComboBox.SelectedIndex = 0;
                 SortComboBox.SelectedIndex = 0;
@@ -89,27 +112,33 @@ namespace BabySitter.Pages
             {
                 MessageBox.Show($"שגיאה בטעינת נתונים: {ex.Message}");
             }
+            finally
+            {
+                // Always hide the loading spinner when done
+                LoadingPanel.Visibility = Visibility.Collapsed;
+            }
         }
 
-       
+        // ─── Filtering & sorting ──────────────────────────────────────────────────
 
         private void ApplyFilters()
         {
-            if (BabysittersItems == null || CityComboBox == null || SortComboBox == null ||
-                SearchBox == null || AllBabysitters == null) return;
+            if (BabysittersItems == null || CityComboBox == null ||
+                SortComboBox == null || SearchBox == null || AllBabysitters == null)
+                return;
 
             var filtered = AllBabysitters.AsEnumerable();
 
-            // 1. סינון טקסט
+            // 1. Text search
             string searchText = SearchBox.Text.Trim().ToLower();
-            if (!string.IsNullOrEmpty(searchText) && searchText != "הקלד שם...")
+            if (!string.IsNullOrEmpty(searchText))
             {
                 filtered = filtered.Where(x =>
                     (x.FirstName?.ToLower().Contains(searchText) == true) ||
                     (x.LastName?.ToLower().Contains(searchText) == true));
             }
 
-            // 2. סינון עיר
+            // 2. City filter
             if (CityComboBox.SelectedItem != null)
             {
                 string selectedCity = CityComboBox.SelectedItem.ToString();
@@ -120,14 +149,23 @@ namespace BabySitter.Pages
                 }
             }
 
-            // 3. מיון
-            if (SortComboBox.SelectedIndex == 1) // זול ליקר
-                filtered = filtered.OrderBy(x => x.PriceForAnHour);
-            else if (SortComboBox.SelectedIndex == 2) // יקר לזול
-                filtered = filtered.OrderByDescending(x => x.PriceForAnHour);
+            // 3. Sort
+            filtered = SortComboBox.SelectedIndex switch
+            {
+                1 => filtered.OrderBy(x => x.PriceForAnHour),           // זול ליקר
+                2 => filtered.OrderByDescending(x => x.PriceForAnHour), // יקר לזול
+                _ => filtered
+            };
 
-            BabysittersItems.ItemsSource = filtered.ToList();
+            var result = filtered.ToList();
+            BabysittersItems.ItemsSource = result;
+
+            // Show results list or empty state
+            ResultsScrollViewer.Visibility = result.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            EmptyPanel.Visibility = result.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
+
+        // ─── Event handlers ───────────────────────────────────────────────────────
 
         private void FilterChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -136,33 +174,30 @@ namespace BabySitter.Pages
 
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ApplyFilters();
+            // Show/hide the clear (✕) button
+            ClearSearchBtn.Visibility = string.IsNullOrEmpty(SearchBox.Text)
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+
+            // Debounce: wait 300ms of inactivity before filtering
+            _searchDebounce.Stop();
+            _searchDebounce.Start();
         }
 
-        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+        private void ClearSearch_Click(object sender, RoutedEventArgs e)
         {
-            if (SearchBox.Text == "הקלד שם...") { SearchBox.Text = ""; SearchBox.Foreground = Brushes.Black; }
-        }
-
-        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(SearchBox.Text)) { SearchBox.Text = "הקלד שם..."; SearchBox.Foreground = Brushes.Gray; }
+            SearchBox.Text = "";
+            SearchBox.Focus();
         }
 
         private void MyRequests(object sender, RoutedEventArgs e)
         {
             if (LogInComputer.WhoAmI == "parent")
-            {
                 NavigationService.Navigate(new RequestsParents());
-            }
             else if (LogInComputer.WhoAmI == "babysitter")
-            {
                 NavigationService.Navigate(new RequestsBabysitter());
-            }
             else
-            {
                 MessageBox.Show("לא זוהה סוג משתמש");
-            }
         }
     }
 }

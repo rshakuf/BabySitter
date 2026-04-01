@@ -25,23 +25,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <Style x:Key="RoundedPasswordBox" TargetType="PasswordBox">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="PasswordBox">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="15">
-                            <PasswordBox x:Name="PART_PasswordBox" VerticalAlignment="Center" Margin="10,0"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Page.Resources>
 
     <Grid>
@@ -49,13 +32,19 @@
             <ImageBrush ImageSource="/Images/Password.png" Stretch="UniformToFill"/>
         </Grid.Background>
 
-        <TextBlock Text="Welcome!" FontSize="32" Foreground="#222" Margin="60,50,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-        <TextBlock Text="SIGN UP" FontSize="12" FontWeight="Bold" Foreground="Black" Margin="0,55,80,0" VerticalAlignment="Top" HorizontalAlignment="Right" Cursor="Hand" TextDecorations="Underline"/>
+        <TextBlock Text="Welcome!" FontSize="32" Foreground="#222" 
+                   Margin="60,50,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <TextBlock Text="SIGN UP" FontSize="12" FontWeight="Bold" Foreground="Black" 
+                   Margin="0,55,80,0" VerticalAlignment="Top" HorizontalAlignment="Right" 
+                   Cursor="Hand" TextDecorations="Underline"/>
 
-        <Border Width="680" Height="480" CornerRadius="45" VerticalAlignment="Center" HorizontalAlignment="Center" Background="White" Opacity="0.1"/>
+        <Border Width="680" Height="480" CornerRadius="45" VerticalAlignment="Center" 
+                HorizontalAlignment="Center" Background="White" Opacity="0.1"/>
 
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="620">
-            <TextBlock FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,30" Foreground="#222"><Run Text="Babysitter "/><Run Text="Sign up"/></TextBlock>
+            <TextBlock FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,30" Foreground="#222">
+                <Run Text="Babysitter "/><Run Text="Sign up"/>
+            </TextBlock>
 
             <!-- שורה ראשונה -->
             <UniformGrid Columns="3" Margin="0,0,0,15">
@@ -69,15 +58,21 @@
                     <TextBox x:Name="lname" Style="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
 
+                <!-- ✅ DatePicker פשוט ועובד -->
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Date of birth" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox x:Name="dateofbirth" Style="{StaticResource RoundedTextBox}"/>
+                    <Border Background="White" CornerRadius="15" Height="32" ClipToBounds="True">
+                        <DatePicker x:Name="dateofbirth"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    VerticalContentAlignment="Center"
+                                    Padding="5,0"/>
+                    </Border>
                 </StackPanel>
             </UniformGrid>
 
             <!-- שורה שנייה -->
             <UniformGrid Columns="4" Margin="0,0,0,15">
-
                 <StackPanel Margin="15,0">
                     <TextBlock Text="City name" FontSize="13" Margin="5,0,0,5"/>
                     <ComboBox x:Name="cityname" Height="35" VerticalContentAlignment="Center"/>
@@ -85,22 +80,25 @@
 
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Phone number" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox x:Name="phone" Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="phone" Style="{StaticResource RoundedTextBox}"
+                             PreviewTextInput="Phone_PreviewTextInput"
+                             MaxLength="10"/>
                 </StackPanel>
 
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Price for an hour" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox x:Name="price" Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="price" Style="{StaticResource RoundedTextBox}"
+                             PreviewTextInput="NumberOnly_PreviewTextInput"/>
                 </StackPanel>
 
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Mail of recommender" FontSize="13" Margin="5,0,0,5"/>
-                    <TextBox x:Name="recommenderMail" Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox x:Name="recommenderMail" Style="{StaticResource RoundedTextBox}"
+                             LostFocus="RecommenderMail_LostFocus"/>
                 </StackPanel>
-
             </UniformGrid>
 
-            <!-- סיסמאות -->
+            <!-- ✅ סיסמאות — Border עוטף PasswordBox ישירות, בלא template מקונן -->
             <Grid Margin="0,20,0,40">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -111,25 +109,37 @@
 
                 <StackPanel Grid.Column="1" Margin="15,0">
                     <TextBlock Text="Password" FontSize="13" Margin="5,0,0,5"/>
-                    <PasswordBox x:Name="pass" Style="{StaticResource RoundedPasswordBox}"/>
+                    <Border Background="White" CornerRadius="15" Height="32" ClipToBounds="True">
+                        <PasswordBox x:Name="pass"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Padding="10,0"
+                                     VerticalContentAlignment="Center"/>
+                    </Border>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Margin="15,0">
                     <TextBlock Text="Confirm Password" FontSize="13" Margin="5,0,0,5"/>
-                    <PasswordBox x:Name="confirmpass" Style="{StaticResource RoundedPasswordBox}"/>
+                    <Border Background="White" CornerRadius="15" Height="32" ClipToBounds="True">
+                        <PasswordBox x:Name="confirmpass"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Padding="10,0"
+                                     VerticalContentAlignment="Center"/>
+                    </Border>
                 </StackPanel>
             </Grid>
 
             <!-- כפתור הרשמה -->
             <Button Content="Create Account"
-        Click="CreateAccount"
-        Background="Black"
-        Foreground="White"
-        Width="180"
-        Height="40"
-        FontSize="13"
-        FontWeight="SemiBold"
-        Cursor="Hand">
+                    Click="CreateAccount"
+                    Background="Black"
+                    Foreground="White"
+                    Width="180"
+                    Height="40"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    Cursor="Hand">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="20">
@@ -138,7 +148,10 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <TextBlock Text="or Log in" HorizontalAlignment="Center" Margin="0,15,0,0" FontSize="13" Cursor="Hand" Foreground="#444" MouseLeftButtonDown="LogIn_Click"/>
+
+            <TextBlock Text="or Log in" HorizontalAlignment="Center" Margin="0,15,0,0"
+                       FontSize="13" Cursor="Hand" Foreground="#444"
+                       MouseLeftButtonDown="LogIn_Click"/>
         </StackPanel>
     </Grid>
 </Page>
