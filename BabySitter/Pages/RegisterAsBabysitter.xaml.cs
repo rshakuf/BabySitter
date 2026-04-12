@@ -19,7 +19,7 @@ namespace BabySitter.Pages
             InitializeComponent();
             PutCityData();
 
-            // ✅ חסום תאריכים עתידיים בקוד (הכי בטוח)
+            
             dateofbirth.DisplayDateEnd = DateTime.Today;
             dateofbirth.DisplayDateStart = new DateTime(1940, 1, 1);
         }
@@ -169,7 +169,7 @@ namespace BabySitter.Pages
             }
             else
             {
-                MessageBox.Show("שגיאה בהרשמה, נסי שנית");
+                MessageBox.Show("שגיאה בהרשמה, נסו שנית");
             }
         }
 
