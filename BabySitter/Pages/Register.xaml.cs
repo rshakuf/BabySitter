@@ -150,6 +150,7 @@ namespace BabySitter.Pages
             {
                 MessageBox.Show("שגיאה בהרשמה");
             }
+           
         }
     }
 }

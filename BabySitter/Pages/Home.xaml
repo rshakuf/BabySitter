@@ -79,7 +79,9 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button Content="הפניות שלי" Style="{StaticResource MaterialTonalButton}" Margin="0,0,12,0" Click="MyRequests"/>
-                    <Button Content="הפרופיל שלי" Style="{StaticResource MaterialFilledButton}"/>
+                    <Button Content="הפרופיל שלי"
+        Style="{StaticResource MaterialFilledButton}"
+        Click="GoToMyProfile"/>
                 </StackPanel>
             </DockPanel>
 

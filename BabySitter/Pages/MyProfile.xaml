@@ -1,0 +1,157 @@
+﻿<Page x:Class="BabySitter.Pages.MyProfile"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Title="MyProfile"
+      FlowDirection="RightToLeft">
+
+    <Page.Resources>
+        <DropShadowEffect x:Key="CardShadow" BlurRadius="40" ShadowDepth="10" Color="#30000000" Opacity="0.15"/>
+        <DropShadowEffect x:Key="InputShadow" BlurRadius="10" ShadowDepth="3" Color="#20000000" Opacity="0.1"/>
+
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#6C63FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="12" 
+                                Effect="{StaticResource InputShadow}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#574BFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
+    <Page.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#F3E7E9" Offset="0"/>
+            <GradientStop Color="#E3EEFF" Offset="1"/>
+        </LinearGradientBrush>
+    </Page.Background>
+
+    <Grid>
+        <Border Width="650" 
+                VerticalAlignment="Center" 
+                Background="#D9FFFFFF" 
+                CornerRadius="25" 
+                Margin="40" 
+                Padding="40"
+                Effect="{StaticResource CardShadow}">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="-10" Padding="10">
+                <StackPanel>
+
+                    <TextBlock Text="הפרופיל שלי"
+                               FontSize="36"
+                               FontWeight="Bold"
+                               Foreground="#2D3748"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,30"/>
+
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="שם פרטי" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
+                            <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
+                                <TextBox x:Name="fname" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="15,0" FontSize="16" Foreground="#2D3748"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="שם משפחה" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
+                            <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
+                                <TextBox x:Name="lname" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="15,0" FontSize="16" Foreground="#2D3748"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="טלפון" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
+                            <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
+                                <TextBox x:Name="phone" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="15,0" FontSize="16" Foreground="#2D3748"
+                                         PreviewTextInput="Phone_PreviewTextInput" MaxLength="10"/>
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="עיר" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
+                            <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
+                                <ComboBox x:Name="cityComboBox" 
+                  Background="Transparent" 
+                  BorderThickness="0" 
+                  VerticalContentAlignment="Center" 
+                  Padding="10,0" 
+                  FontSize="16" 
+                  Foreground="#2D3748"
+                  DisplayMemberPath="CityName" />
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Margin="0,0,0,25">
+                        <TextBlock Text="סיסמה" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
+                        <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
+                            <Grid>
+                                <PasswordBox x:Name="pass" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="15,0,45,0" FontSize="16" Foreground="#2D3748"/>
+                                <TextBox x:Name="passVisible" Background="Transparent" BorderThickness="0" VerticalContentAlignment="Center" Padding="15,0,45,0" FontSize="16" Foreground="#2D3748" Visibility="Collapsed"/>
+
+                                <TextBlock Text="👁" 
+                                           HorizontalAlignment="Left" 
+                                           VerticalAlignment="Center" 
+                                           Margin="15,0,0,0"
+                                           Cursor="Hand" 
+                                           FontSize="18" 
+                                           Foreground="#A0AEC0" 
+                                           ToolTip="הצג/הסתר סיסמה"
+                                           MouseDown="TogglePassword"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,30">
+                        <TextBlock Text="הילדים שלי" FontSize="20" FontWeight="Bold" Foreground="#2D3748" Margin="5,0,0,10"/>
+                        <Border Background="#40FFFFFF" CornerRadius="15" Padding="15" MinHeight="80">
+                            <StackPanel x:Name="KidsPanel"/>
+                        </Border>
+                    </StackPanel>
+
+                    <Button x:Name="SaveBtn"
+                            Content="שמור שינויים"
+                            Click="SaveChanges"
+                            Style="{StaticResource ModernButtonStyle}"
+                            Height="50"
+                            Width="200"
+                            HorizontalAlignment="Center"/>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Page>

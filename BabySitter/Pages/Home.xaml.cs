@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
+using System.Windows.Threading; 
 
 namespace BabySitter.Pages
 {
@@ -93,6 +93,12 @@ namespace BabySitter.Pages
 
                 var sitters = await api.GetAllBabySitterTeensAsync();
                 AllBabysitters = sitters != null ? sitters.ToList() : new List<BabySitterTeens>();
+
+                var x = await api.GetAllParentsAsync();
+                if (x!=null)
+                {
+                    CityComboBox.Items.Add(x[0]);
+                }
 
                 var cities = await api.GetAllCitiesAsync();
                 AllCities = cities != null ? cities.ToList() : new List<City>();
@@ -198,6 +204,11 @@ namespace BabySitter.Pages
                 NavigationService.Navigate(new RequestsBabysitter());
             else
                 MessageBox.Show("לא זוהה סוג משתמש");
+        }
+
+        private void GoToMyProfile(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new BabySitter.Pages.MyProfile());
         }
     }
 }

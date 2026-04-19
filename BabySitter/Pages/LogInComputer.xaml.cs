@@ -35,7 +35,7 @@ namespace BabySitter.Pages
             }
         }
 
-        // ⭐ כפתור מילוי אוטומטי הורה
+        // ⭐ כפתור מילוי אוטומטית הורה
         private void AutoFillButton_Click(object sender, RoutedEventArgs e)
         {
             userNameTextBox.Text = "1528040991";
@@ -43,7 +43,7 @@ namespace BabySitter.Pages
             LogInButton_Click(null, null);
         }
 
-        // ⭐ כפתור מילוי אוטומטי בייביסיטר
+        // ⭐ כפתור מילוי אוטומטית בייביסיטר
         private void AutoFillBabysitterButton_Click(object sender, RoutedEventArgs e)
         {
             userNameTextBox.Text = "67676767";
@@ -88,7 +88,17 @@ namespace BabySitter.Pages
                 {
                     CurrentUser = parent;
                     WhoAmI = "parent";
-                    NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+                    if (this.NavigationService != null)
+                    {
+                        this.NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+                    }
+                    else
+                    {
+                        // Fallback: open Home in a new window or handle as needed
+                        var homePage = new Home();
+                        Window window = new Window { Content = homePage };
+                        window.Show();
+                    }
                     return;
                 }
 
@@ -100,7 +110,17 @@ namespace BabySitter.Pages
                 {
                     CurrentUser = bst;
                     WhoAmI = "babysitter";
-                    NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+                    if (this.NavigationService != null)
+                    {
+                        this.NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+                    }
+                    else
+                    {
+                        // Fallback: open Home in a new window or handle as needed
+                        var homePage = new Home();
+                        Window window = new Window { Content = homePage };
+                        window.Show();
+                    }
                     return;
                 }
 
