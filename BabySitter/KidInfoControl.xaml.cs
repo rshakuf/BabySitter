@@ -13,6 +13,10 @@ namespace BabySitter
         private List<City> cities;
 
         public event Action KidSaved;
+        public TextBox FirstNameTextBoxPublic => FirstNameTextBox;
+        public TextBox LastNameTextBoxPublic => LastNameTextBox;
+        public DatePicker BirthDatePickerPublic => BirthDatePicker;
+        public ComboBox CityComboBoxPublic => CityComboBox;
 
         public KidInfoControl(Parents p)
         {

@@ -37,11 +37,12 @@
   <ItemGroup>
     <Reference Include="ClApi">
       <HintPath>..\..\..\..\source\repos\RotemFinalProject1\ClApi\bin\Debug\net8.0\ClApi.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Model">
       <HintPath>..\..\..\..\source\repos\RotemFinalProject1\ClApi\bin\Debug\net8.0\Model.dll</HintPath>
-      <Private>True</Private>
+    </Reference>
+    <Reference Include="ViewModel">
+      <HintPath>..\..\..\..\source\repos\RotemFinalProject1\ClApi\bin\Debug\net8.0\ViewModel.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -135,13 +135,20 @@
                         </Border>
                     </StackPanel>
 
-                    <StackPanel Margin="0,0,0,30">
-                        <TextBlock Text="הילדים שלי" FontSize="20" FontWeight="Bold" Foreground="#2D3748" Margin="5,0,0,10"/>
-                        <Border Background="#40FFFFFF" CornerRadius="15" Padding="15" MinHeight="80">
-                            <StackPanel x:Name="KidsPanel"/>
+                    <StackPanel x:Name="KidsSection" Margin="0,0,0,30">
+                        <TextBlock Text="הילדים שלי"
+               FontSize="20"
+               FontWeight="Bold"
+               Foreground="#2D3748"
+               Margin="5,0,0,10"/>
+
+                        <Border Background="#40FFFFFF"
+            CornerRadius="15"
+            Padding="15">
+
+                            <WrapPanel x:Name="KidsPanel"/>
                         </Border>
                     </StackPanel>
-
                     <Button x:Name="SaveBtn"
                             Content="שמור שינויים"
                             Click="SaveChanges"
