@@ -46,7 +46,7 @@ namespace BabySitter.Pages
         }
 
         // ─── בדיקת אימייל כשיוצאים מהשדה ────────────────────────────────────────
-        private void RecommenderMail_LostFocus(object sender, RoutedEventArgs e)
+        private void Mail_LostFocus(object sender, RoutedEventArgs e)
         {
             string mail = recommenderMail.Text.Trim();
             if (!string.IsNullOrEmpty(mail) && !IsValidEmail(mail))
@@ -152,7 +152,7 @@ namespace BabySitter.Pages
                 LastName = lname.Text.Trim(),
                 DateOfBirth = dob,
                 PriceForAnHour = pricePerHour,
-                MailOfRecommender = mail,
+                 Mail = mail,
                 Password = pass.Password,
                 Telephone = telephone,
                 CityNameId = selectedCity,
@@ -176,6 +176,11 @@ namespace BabySitter.Pages
         private void LogIn_Click(object sender, MouseButtonEventArgs e)
         {
             NavigationService?.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
+        }
+
+        private void RecommenderMail_LostFocus(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

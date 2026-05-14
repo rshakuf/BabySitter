@@ -6,7 +6,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using ViewModel;
 
 namespace BabySitter.UserControls
 {
@@ -15,6 +14,8 @@ namespace BabySitter.UserControls
         private BabySitterTeens currentTeen;
         private Schedule selectedSchedule;
         private List<Schedule> schedules = new List<Schedule>();
+
+        private ApiService api = new ApiService();
 
         public BabySitterDetailsControl(BabySitterTeens teen)
         {
@@ -26,11 +27,11 @@ namespace BabySitter.UserControls
             LoadSchedules();
         }
 
-        private void LoadSchedules()
+        private async void LoadSchedules()
         {
-            ScheduleDB db = new ScheduleDB();
+            var allSchedules = await api.GetAllSchedulesAsync();
 
-            schedules = db.SelectAll()
+            schedules = allSchedules
                 .Where(x =>
                     x.BabysitterId != null &&
                     x.BabysitterId.Id == currentTeen.Id)
@@ -46,20 +47,31 @@ namespace BabySitter.UserControls
                     Height = 45,
                     Margin = new Thickness(5),
                     Tag = schedule,
-                    Content = $"{schedule.DayOfWeek}\n{schedule.StartTime:HH:mm}-{schedule.EndTime:HH:mm}",
-                    Background = Brushes.White,
-                    Foreground = Brushes.Black,
+                    // שיניתי כאן לשמות המדויקים מתוך ה-Model שלך
+                    Content = $"{schedule.DateAvailable:dd/MM/yyyy}\n{schedule.Starttime:HH:mm}-{schedule.Endtime:HH:mm}",
                     BorderBrush = Brushes.LightGray,
                     BorderThickness = new Thickness(1)
                 };
 
-                if (schedule.IsRequested)
+                // בדיקת סטטוס המשמרת וצביעה בהתאם
+                if (schedule.IsApproved)
                 {
-                    btn.Background = Brushes.LightGray;
+                    btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A5D6A7"));
+                    btn.Foreground = Brushes.Black;
                     btn.IsEnabled = false;
                 }
-
-                btn.Click += ScheduleButton_Click;
+                else if (schedule.IsRequested)
+                {
+                    btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE082"));
+                    btn.Foreground = Brushes.Black;
+                    btn.IsEnabled = false;
+                }
+                else
+                {
+                    btn.Background = Brushes.White;
+                    btn.Foreground = Brushes.Black;
+                    btn.Click += ScheduleButton_Click;
+                }
 
                 SchedulePanel.Children.Add(btn);
             }
@@ -71,7 +83,7 @@ namespace BabySitter.UserControls
             {
                 Schedule s = btn.Tag as Schedule;
 
-                if (s != null && !s.IsRequested)
+                if (s != null && !s.IsRequested && !s.IsApproved)
                 {
                     btn.Background = Brushes.White;
                     btn.Foreground = Brushes.Black;
@@ -81,13 +93,13 @@ namespace BabySitter.UserControls
             Button clickedButton = sender as Button;
             selectedSchedule = clickedButton.Tag as Schedule;
 
-            clickedButton.Background = Brushes.Red;
+            clickedButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6750A4"));
             clickedButton.Foreground = Brushes.White;
 
             SuccessMessage.Text = "";
         }
 
-        private void SendRequestButton_Click(object sender, RoutedEventArgs e)
+        private async void SendRequestButton_Click(object sender, RoutedEventArgs e)
         {
             if (selectedSchedule == null)
             {
@@ -95,20 +107,16 @@ namespace BabySitter.UserControls
                 return;
             }
 
-            selectedSchedule.ParentId =
-                LogInComputer.CurrentUser as Parents;
-
+            selectedSchedule.ParentId = LogInComputer.CurrentUser as Parents;
             selectedSchedule.IsRequested = true;
             selectedSchedule.IsApproved = false;
 
-            ScheduleDB db = new ScheduleDB();
-            db.Update(selectedSchedule);
-            db.Save();
+            await api.UpdateScheduleAsync(selectedSchedule);
 
             SuccessMessage.Text = "הבקשה נשלחה בהצלחה ✔";
+            selectedSchedule = null;
 
             LoadSchedules();
-            selectedSchedule = null;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

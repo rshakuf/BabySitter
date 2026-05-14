@@ -1,6 +1,7 @@
 ﻿<Page x:Class="BabySitter.Pages.Home"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:uc="clr-namespace:BabySitter.UserControls"
       xmlns:local="clr-namespace:BabySitter"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -191,7 +192,9 @@
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05"/>
                                     </Border.Effect>
-                                    <local:UserControlHome DataContext="{Binding}"/>
+
+
+                                    <uc:UserControlHome DataContext="{Binding }"/>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

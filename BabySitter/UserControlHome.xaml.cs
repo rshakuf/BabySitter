@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using BabySitter.UserControls;
 
-namespace BabySitter
+namespace BabySitter.UserControls
 {
     public partial class UserControlHome : UserControl
     {

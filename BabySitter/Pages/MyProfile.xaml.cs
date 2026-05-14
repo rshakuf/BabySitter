@@ -28,9 +28,6 @@ namespace BabySitter.Pages
             var allCities = await api.GetAllCitiesAsync();
             cityComboBox.ItemsSource = allCities;
 
-            // =========================
-            // בייביסיטר
-            // =========================
             if (LogInComputer.WhoAmI == "babysitter")
             {
                 var user = (BabySitterTeens)LogInComputer.CurrentUser;
@@ -39,11 +36,8 @@ namespace BabySitter.Pages
                 lname.Text = user.LastName;
                 phone.Text = user.Telephone.ToString();
 
-                if (user.CityNameId != null)
-                {
-                    cityComboBox.SelectedItem =
-                        allCities.FirstOrDefault(c => c.Id == user.CityNameId.Id);
-                }
+                cityComboBox.SelectedItem =
+                    allCities.FirstOrDefault(c => c.Id == user.CityNameId?.Id);
 
                 pass.Password = user.Password;
                 passVisible.Text = user.Password;
@@ -51,9 +45,6 @@ namespace BabySitter.Pages
                 KidsSection.Visibility = Visibility.Collapsed;
             }
 
-            // =========================
-            // הורה
-            // =========================
             else if (LogInComputer.WhoAmI == "parent")
             {
                 var user = (Parents)LogInComputer.CurrentUser;
@@ -62,19 +53,16 @@ namespace BabySitter.Pages
                 lname.Text = user.LastName;
                 phone.Text = user.Telephone.ToString();
 
-                if (user.CityNameId != null)
-                {
-                    cityComboBox.SelectedItem =
-                        allCities.FirstOrDefault(c => c.Id == user.CityNameId.Id);
-                }
+                cityComboBox.SelectedItem =
+                    allCities.FirstOrDefault(c => c.Id == user.CityNameId?.Id);
 
                 pass.Password = user.Password;
                 passVisible.Text = user.Password;
 
                 KidsSection.Visibility = Visibility.Visible;
 
-                // שליפת ילדים
-                ChildOfParentList = await api.GetAllChildOfParentsAsync();
+                // ילדים מה־API
+                ChildOfParentList = await api.GetAllChildrenOfParentsAsync();
 
                 ChildOfParentList = ChildOfParentList
                     .Where(x => x.IdParent.Id == user.Id)
@@ -84,7 +72,6 @@ namespace BabySitter.Pages
 
                 int missingKids = user.NumOfKids - ChildOfParentList.Count;
 
-                // ילדים קיימים
                 foreach (var child in ChildOfParentList)
                 {
                     KidInfoControl control = new KidInfoControl(user);
@@ -93,21 +80,17 @@ namespace BabySitter.Pages
                     control.LastNameTextBoxPublic.Text = child.LastName;
                     control.BirthDatePickerPublic.SelectedDate = child.DateOfBirth;
 
-                    if (child.CityNameId != null)
-                    {
-                        control.CityComboBoxPublic.ItemsSource = allCities;
-                        control.CityComboBoxPublic.DisplayMemberPath = "CityName";
+                    control.CityComboBoxPublic.ItemsSource = allCities;
+                    control.CityComboBoxPublic.DisplayMemberPath = "CityName";
 
-                        control.CityComboBoxPublic.SelectedItem =
-                            allCities.FirstOrDefault(c => c.Id == child.CityNameId.Id);
-                    }
+                    control.CityComboBoxPublic.SelectedItem =
+                        allCities.FirstOrDefault(c => c.Id == child.CityNameId?.Id);
 
                     control.Tag = child;
 
                     KidsPanel.Children.Add(control);
                 }
 
-                // ילדים חסרים
                 for (int i = 0; i < missingKids; i++)
                 {
                     KidInfoControl emptyControl = new KidInfoControl(user);
@@ -120,24 +103,14 @@ namespace BabySitter.Pages
             }
         }
 
-        // הצגת סיסמה
         private void TogglePassword(object sender, MouseButtonEventArgs e)
         {
-            if (isPasswordVisible)
-            {
-                pass.Visibility = Visibility.Visible;
-                passVisible.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                pass.Visibility = Visibility.Collapsed;
-                passVisible.Visibility = Visibility.Visible;
-            }
+            pass.Visibility = isPasswordVisible ? Visibility.Visible : Visibility.Collapsed;
+            passVisible.Visibility = isPasswordVisible ? Visibility.Collapsed : Visibility.Visible;
 
             isPasswordVisible = !isPasswordVisible;
         }
 
-        // רק ספרות
         private void Phone_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
@@ -148,7 +121,6 @@ namespace BabySitter.Pages
             return Regex.IsMatch(phone, @"^05\d{8}$");
         }
 
-        // שמירה
         private async void SaveChanges(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(fname.Text) ||
@@ -171,10 +143,8 @@ namespace BabySitter.Pages
             }
 
             int phoneNumber = int.Parse(phone.Text);
-
             SaveBtn.IsEnabled = false;
 
-            // בייביסיטר
             if (LogInComputer.WhoAmI == "babysitter")
             {
                 var user = (BabySitterTeens)LogInComputer.CurrentUser;
@@ -185,11 +155,9 @@ namespace BabySitter.Pages
                 user.CityNameId = (City)cityComboBox.SelectedItem;
 
                 int result = await api.UpdateBabySitterTeenAsync(user);
-
                 MessageBox.Show(result > 0 ? "נשמר!" : "שגיאה");
             }
 
-            // הורה
             else if (LogInComputer.WhoAmI == "parent")
             {
                 var user = (Parents)LogInComputer.CurrentUser;
