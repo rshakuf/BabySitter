@@ -41,9 +41,6 @@
     <Reference Include="Model">
       <HintPath>..\..\..\..\source\repos\RotemFinalProject1\ClApi\bin\Debug\net8.0\Model.dll</HintPath>
     </Reference>
-    <Reference Include="ViewModel">
-      <HintPath>..\..\..\..\source\repos\RotemFinalProject1\ClApi\bin\Debug\net8.0\ViewModel.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
