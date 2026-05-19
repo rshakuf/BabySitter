@@ -65,17 +65,8 @@ namespace BabySitter.Pages
 
         private void ShowWelcomeMessage()
         {
-            if (LogInComputer.CurrentUser == null) return;
-
-            string name = LogInComputer.WhoAmI switch
-            {
-                "parent" => ((Parents)LogInComputer.CurrentUser).FirstName,
-                "babysitter" => ((BabySitterTeens)LogInComputer.CurrentUser).FirstName,
-                _ => ""
-            };
-
-            if (!string.IsNullOrEmpty(name))
-                WelcomeText.Text = $"שלום, {name} <3";
+            if (LogInComputer.CurrentUser is Parents parent)
+                WelcomeText.Text = $"שלום, {parent.FirstName} <3";
         }
 
         // ─── Data loading ─────────────────────────────────────────────────────────
@@ -198,12 +189,7 @@ namespace BabySitter.Pages
 
         private void MyRequests(object sender, RoutedEventArgs e)
         {
-            if (LogInComputer.WhoAmI == "parent")
-                NavigationService.Navigate(new RequestsParents());
-            else if (LogInComputer.WhoAmI == "babysitter")
-                NavigationService.Navigate(new RequestsBabysitter());
-            else
-                MessageBox.Show("לא זוהה סוג משתמש");
+            NavigationService.Navigate(new RequestsParents());
         }
 
         private void GoToMyProfile(object sender, RoutedEventArgs e)

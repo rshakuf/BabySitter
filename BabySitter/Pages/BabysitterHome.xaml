@@ -1,0 +1,138 @@
+<Page x:Class="BabySitter.Pages.BabysitterHome"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      Title="BabysitterHome"
+      Background="#F7F2FA"
+      FlowDirection="RightToLeft"
+      d:DesignHeight="720" d:DesignWidth="1280">
+
+    <Page.Resources>
+        <Style x:Key="SlotButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#6C63FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#574BFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
+    <Border Margin="20" Background="#FFFBFE" CornerRadius="28">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="30" ShadowDepth="4" Opacity="0.1"/>
+        </Border.Effect>
+
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ROW 0: Header -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,30">
+                <StackPanel>
+                    <TextBlock Text="האזור האישי שלי"
+                               FontSize="34" FontWeight="Bold" Foreground="#1C1B1F"/>
+                    <TextBlock x:Name="WelcomeText"
+                               FontSize="18" Foreground="#6750A4" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="הפניות שלי" Style="{StaticResource MaterialTonalButton}"
+                            Margin="0,0,12,0" Click="MyRequests_Click"/>
+                    <Button Content="הפרופיל שלי" Style="{StaticResource MaterialFilledButton}"
+                            Click="MyProfile_Click"/>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- ROW 1: Schedule section -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,0,20,0">
+
+                    <TextBlock Text="שעות פניות שלי"
+                               FontSize="22" FontWeight="Bold"
+                               Foreground="#2D3748" Margin="5,0,0,14"/>
+
+                    <!-- Existing slots list -->
+                    <StackPanel x:Name="ScheduleSlotsPanel" Margin="0,0,0,14"/>
+
+                    <!-- Add new slot form -->
+                    <Border Background="#F0EDFF" CornerRadius="14" Padding="16">
+                        <StackPanel>
+                            <TextBlock Text="הוסף שעה פנויה חדשה"
+                                       FontSize="15" FontWeight="SemiBold"
+                                       Foreground="#4A5568" Margin="0,0,0,12"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="תאריך" FontSize="12"
+                                               Foreground="#4A5568" Margin="0,0,0,4"/>
+                                    <DatePicker x:Name="NewSlotDate" FontSize="14" Height="38"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="שעת התחלה" FontSize="12"
+                                               Foreground="#4A5568" Margin="0,0,0,4"/>
+                                    <Border Background="White" CornerRadius="8" Height="38">
+                                        <TextBox x:Name="NewSlotStart" Text="09:00"
+                                                 FontSize="14" BorderThickness="0"
+                                                 VerticalContentAlignment="Center"
+                                                 Padding="10,0" Background="Transparent"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="שעת סיום" FontSize="12"
+                                               Foreground="#4A5568" Margin="0,0,0,4"/>
+                                    <Border Background="White" CornerRadius="8" Height="38">
+                                        <TextBox x:Name="NewSlotEnd" Text="17:00"
+                                                 FontSize="14" BorderThickness="0"
+                                                 VerticalContentAlignment="Center"
+                                                 Padding="10,0" Background="Transparent"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock x:Name="SlotErrorMsg" Text=""
+                                       Foreground="#C53030" FontSize="13"
+                                       Margin="0,8,0,0"/>
+
+                            <Button x:Name="AddSlotBtn"
+                                    Content="+ הוסף משמרת"
+                                    Click="AddSlot_Click"
+                                    Style="{StaticResource SlotButtonStyle}"
+                                    Height="42" Width="180"
+                                    HorizontalAlignment="Right"
+                                    Margin="0,12,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Page>

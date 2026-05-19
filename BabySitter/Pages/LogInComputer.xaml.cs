@@ -106,13 +106,12 @@ namespace BabySitter.Pages
                     WhoAmI = "babysitter";
                     if (this.NavigationService != null)
                     {
-                        this.NavigationService.Navigate(new Uri("Pages/Home.xaml", UriKind.Relative));
+                        this.NavigationService.Navigate(new Uri("Pages/BabysitterHome.xaml", UriKind.Relative));
                     }
                     else
                     {
-                        // Fallback: open Home in a new window or handle as needed
-                        var homePage = new Home();
-                        Window window = new Window { Content = homePage };
+                        var babysitterHomePage = new BabysitterHome();
+                        Window window = new Window { Content = babysitterHomePage };
                         window.Show();
                     }
                     return;
