@@ -38,7 +38,7 @@ namespace BabySitter.Pages
 
                     fname.Text = user.FirstName;
                     lname.Text = user.LastName;
-                    phone.Text = user.Telephone.ToString();
+                    phone.Text = user.Telephone;
 
                     cityComboBox.SelectedItem =
                         cities.FirstOrDefault(c => c.Id == user.CityNameId?.Id);
@@ -57,7 +57,7 @@ namespace BabySitter.Pages
 
                     fname.Text = user.FirstName;
                     lname.Text = user.LastName;
-                    phone.Text = user.Telephone.ToString();
+                    phone.Text = user.Telephone;
 
                     cityComboBox.SelectedItem =
                         cities.FirstOrDefault(c => c.Id == user.CityNameId?.Id);
@@ -434,7 +434,7 @@ namespace BabySitter.Pages
 
             try
             {
-                int phoneNum = int.Parse(phone.Text);
+                string phoneText = phone.Text.Trim();
 
                 if (LogInComputer.WhoAmI == "babysitter")
                 {
@@ -442,7 +442,7 @@ namespace BabySitter.Pages
 
                     user.FirstName = fname.Text.Trim();
                     user.LastName = lname.Text.Trim();
-                    user.Telephone = phoneNum;
+                    user.Telephone = phoneText;
                     user.CityNameId = (City)cityComboBox.SelectedItem;
                     user.Password = showPass ? passVisible.Text : pass.Password;
 
@@ -456,7 +456,7 @@ namespace BabySitter.Pages
 
                     user.FirstName = fname.Text.Trim();
                     user.LastName = lname.Text.Trim();
-                    user.Telephone = phoneNum;
+                    user.Telephone = phoneText;
                     user.CityNameId = (City)cityComboBox.SelectedItem;
                     user.Password = showPass ? passVisible.Text : pass.Password;
 

@@ -17,7 +17,7 @@ namespace BabySitter.Pages
         public static string WhoAmI = null;
 
         // ⭐ נשמר כאן הטלפון אחרי הרשמה
-        public static int? LastRegisteredPhone { get; set; }
+        public static string LastRegisteredPhone { get; set; }
 
         public LogInComputer()
         {
@@ -28,9 +28,9 @@ namespace BabySitter.Pages
         // ⭐ ממלא טלפון אוטומטית אחרי הרשמה
         private void LogInComputer_Loaded(object sender, RoutedEventArgs e)
         {
-            if (LastRegisteredPhone.HasValue)
+            if (!string.IsNullOrEmpty(LastRegisteredPhone))
             {
-                userNameTextBox.Text = LastRegisteredPhone.Value.ToString();
+                userNameTextBox.Text = LastRegisteredPhone;
                 PasswordBox.Focus();
             }
         }
@@ -70,19 +70,14 @@ namespace BabySitter.Pages
                 return;
             }
 
-            if (!int.TryParse(userNameTextBox.Text, out int tel))
-            {
-                MessageBox.Show("מספר טלפון לא תקין");
-                return;
-            }
-
+            string phoneText = userNameTextBox.Text.Trim();
             string password = PasswordBox.Password;
 
             try
             {
                 ParentsList pList = await apiService.GetAllParentsAsync();
                 Parents parent =
-                    pList?.Find(x => x.Telephone == tel && x.Password.Trim() == password);
+                    pList?.Find(x => x.Telephone == phoneText && x.Password.Trim() == password);
 
                 if (parent != null)
                 {
@@ -94,7 +89,6 @@ namespace BabySitter.Pages
                     }
                     else
                     {
-                        // Fallback: open Home in a new window or handle as needed
                         var homePage = new Home();
                         Window window = new Window { Content = homePage };
                         window.Show();
@@ -104,7 +98,7 @@ namespace BabySitter.Pages
 
                 BabySitterTeensList bstList = await apiService.GetAllBabySitterTeensAsync();
                 BabySitterTeens bst =
-                    bstList?.Find(x => x.Telephone == tel && x.Password.Trim() == password);
+                    bstList?.Find(x => x.Telephone == phoneText && x.Password.Trim() == password);
 
                 if (bst != null)
                 {

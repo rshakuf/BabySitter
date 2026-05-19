@@ -94,7 +94,6 @@ namespace BabySitter.Pages
                 MessageBox.Show("מספר טלפון לא תקין\nדוגמה: 0501234567");
                 return;
             }
-            int phoneNumber = int.Parse(phoneText);
 
             // 5. מספר ילדים
             if (!int.TryParse(numofkids.Text, out int kids) || kids <= 0)
@@ -131,7 +130,7 @@ namespace BabySitter.Pages
                 NumOfKids = kids,
                 Password = pass.Password,
                 DateOfBirth = dob,
-                Telephone = phoneNumber,
+                Telephone = phoneText,
                  
                 
             };

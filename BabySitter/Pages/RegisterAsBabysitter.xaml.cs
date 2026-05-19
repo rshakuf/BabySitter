@@ -112,8 +112,6 @@ namespace BabySitter.Pages
                 MessageBox.Show("מספר טלפון לא תקין.\nדוגמה: 0501234567");
                 return;
             }
-            int telephone = int.Parse(phoneText);
-
             // 5. מחיר
             if (!int.TryParse(price.Text, out int pricePerHour) || pricePerHour <= 0)
             {
@@ -154,7 +152,7 @@ namespace BabySitter.Pages
                 PriceForAnHour = pricePerHour,
                  Mail = mail,
                 Password = pass.Password,
-                Telephone = telephone,
+                Telephone = phoneText,
                 CityNameId = selectedCity,
                 ProfilePicture = " "
             };
@@ -163,7 +161,7 @@ namespace BabySitter.Pages
 
             if (result > 0)
             {
-                LogInComputer.LastRegisteredPhone = telephone;
+                LogInComputer.LastRegisteredPhone = phoneText;
                 MessageBox.Show("הבייביסיטר נרשם בהצלחה! 🎉");
                 NavigationService.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
             }
