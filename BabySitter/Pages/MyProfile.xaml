@@ -149,6 +149,77 @@
                             <WrapPanel x:Name="KidsPanel"/>
                         </Border>
                     </StackPanel>
+                    <!-- ── SCHEDULE SECTION (babysitter only) ── -->
+                    <StackPanel x:Name="ScheduleSection" Visibility="Collapsed" Margin="0,0,0,25">
+
+                        <TextBlock Text="שעות פנויות שלי"
+                                   FontSize="20" FontWeight="Bold"
+                                   Foreground="#2D3748" Margin="5,0,0,10"/>
+
+                        <!-- Existing slots list -->
+                        <StackPanel x:Name="ScheduleSlotsPanel" Margin="0,0,0,14"/>
+
+                        <!-- Add new slot form -->
+                        <Border Background="#F0EDFF" CornerRadius="14" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="הוסף שעה פנויה חדשה"
+                                           FontSize="15" FontWeight="SemiBold"
+                                           Foreground="#4A5568" Margin="0,0,0,12"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="תאריך" FontSize="12"
+                                                   Foreground="#4A5568" Margin="0,0,0,4"/>
+                                        <DatePicker x:Name="NewSlotDate"
+                                                    FontSize="14" Height="38"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="שעת התחלה" FontSize="12"
+                                                   Foreground="#4A5568" Margin="0,0,0,4"/>
+                                        <Border Background="White" CornerRadius="8" Height="38">
+                                            <TextBox x:Name="NewSlotStart" Text="09:00"
+                                                     FontSize="14" BorderThickness="0"
+                                                     VerticalContentAlignment="Center"
+                                                     Padding="10,0" Background="Transparent"/>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="4">
+                                        <TextBlock Text="שעת סיום" FontSize="12"
+                                                   Foreground="#4A5568" Margin="0,0,0,4"/>
+                                        <Border Background="White" CornerRadius="8" Height="38">
+                                            <TextBox x:Name="NewSlotEnd" Text="17:00"
+                                                     FontSize="14" BorderThickness="0"
+                                                     VerticalContentAlignment="Center"
+                                                     Padding="10,0" Background="Transparent"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock x:Name="SlotErrorMsg" Text=""
+                                           Foreground="#C53030" FontSize="13"
+                                           Margin="0,8,0,0"/>
+
+                                <Button x:Name="AddSlotBtn"
+                                        Content="+ הוסף משמרת"
+                                        Click="AddSlot_Click"
+                                        Style="{StaticResource ModernButtonStyle}"
+                                        Height="42" Width="180"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,12,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
                     <Button x:Name="SaveBtn"
                             Content="שמור שינויים"
                             Click="SaveChanges"

@@ -1,7 +1,9 @@
-﻿using Model;
+using Model;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using BabySitter.UserControls;
+using BabySitter.Pages;
 
 namespace BabySitter.UserControls
 {
@@ -14,22 +16,27 @@ namespace BabySitter.UserControls
 
         private void Details_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            var teen = button?.DataContext as BabySitterTeens;
+            var teen = (sender as Button)?.DataContext as BabySitterTeens;
+            if (teen == null) return;
 
-            if (teen != null)
+            var control = new BabySitterDetailsControl(teen);
+            var window = new Window
             {
-                Window window = new Window
-                {
-                    Title = "פרטים נוספים",
-                    Content = new BabySitterDetailsControl(teen),
-                    Width = 650,
-                    Height = 550,
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                    ResizeMode = ResizeMode.NoResize
-                };
+                Title = "פרטים נוספים",
+                Content = control,
+                Width = 880,
+                Height = 820,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ResizeMode = ResizeMode.CanResize
+            };
 
-                window.ShowDialog();
+            window.ShowDialog();
+
+            // After the dialog closes, navigate to RequestsParents if a request was sent
+            if (control.RequestWasSent)
+            {
+                var nav = NavigationService.GetNavigationService(this);
+                nav?.Navigate(new RequestsParents());
             }
         }
     }

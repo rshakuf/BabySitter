@@ -1,6 +1,7 @@
-﻿using BabySitter.Pages;
+using BabySitter.Pages;
 using ClApi;
 using Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -11,112 +12,183 @@ namespace BabySitter.UserControls
 {
     public partial class BabySitterDetailsControl : UserControl
     {
-        private BabySitterTeens currentTeen;
-        private Schedule selectedSchedule;
-        private List<Schedule> schedules = new List<Schedule>();
+        private readonly BabySitterTeens currentTeen;
+        private readonly ApiService api = new ApiService();
 
-        private ApiService api = new ApiService();
+        public bool RequestWasSent { get; private set; } = false;
 
         public BabySitterDetailsControl(BabySitterTeens teen)
         {
             InitializeComponent();
-
             currentTeen = teen;
-            this.DataContext = teen;
+            DataContext = teen;
+
+            if (LogInComputer.WhoAmI != "parent")
+                SendRequestButton.Visibility = Visibility.Collapsed;
 
             LoadSchedules();
         }
 
+        // ── Schedule slots ────────────────────────────────────────────────
+
         private async void LoadSchedules()
         {
-            var allSchedules = await api.GetAllSchedulesAsync();
-
-            schedules = allSchedules
-                .Where(x =>
-                    x.BabysitterId != null &&
-                    x.BabysitterId.Id == currentTeen.Id)
-                .ToList();
-
             SchedulePanel.Children.Clear();
 
-            foreach (var schedule in schedules)
+            var slots = await api.GetSchedulesByBabysitterIdAsync(currentTeen.Id);
+
+            if (slots == null || !slots.Any())
             {
-                Button btn = new Button
+                NoSlotsMessage.Visibility = Visibility.Visible;
+                return;
+            }
+
+            NoSlotsMessage.Visibility = Visibility.Collapsed;
+
+            var futureSlots = slots
+                .Where(s => s.DateAvailable.Date >= DateTime.Today)
+                .OrderBy(s => s.DateAvailable)
+                .ThenBy(s => s.Starttime)
+                .ToList();
+
+            if (!futureSlots.Any())
+            {
+                NoSlotsMessage.Text = "אין משמרות עתידיות רשומות";
+                NoSlotsMessage.Visibility = Visibility.Visible;
+                return;
+            }
+
+            foreach (var slot in futureSlots)
+            {
+                var btn = new Button
                 {
-                    Width = 130,
-                    Height = 45,
+                    Width = 145,
+                    Height = 58,
                     Margin = new Thickness(5),
-                    Tag = schedule,
-                    // שיניתי כאן לשמות המדויקים מתוך ה-Model שלך
-                    Content = $"{schedule.DateAvailable:dd/MM/yyyy}\n{schedule.Starttime:HH:mm}-{schedule.Endtime:HH:mm}",
+                    Tag = slot,
+                    Content = $"{slot.DateAvailable:dd/MM/yyyy}\n{slot.Starttime:HH\\:mm} - {slot.Endtime:HH\\:mm}",
+                    BorderThickness = new Thickness(1),
                     BorderBrush = Brushes.LightGray,
-                    BorderThickness = new Thickness(1)
+                    FontSize = 12
                 };
 
-                // בדיקת סטטוס המשמרת וצביעה בהתאם
-                if (schedule.IsApproved)
+                if (slot.IsApproved)
                 {
                     btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A5D6A7"));
-                    btn.Foreground = Brushes.Black;
-                    btn.IsEnabled = false;
+                    btn.ToolTip = "מאושר — לחץ לבחירה";
                 }
-                else if (schedule.IsRequested)
+                else if (slot.IsRequested)
                 {
                     btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE082"));
-                    btn.Foreground = Brushes.Black;
-                    btn.IsEnabled = false;
+                    btn.ToolTip = "יש בקשה ממתינה — לחץ לבחירה";
                 }
                 else
                 {
                     btn.Background = Brushes.White;
-                    btn.Foreground = Brushes.Black;
-                    btn.Click += ScheduleButton_Click;
+                    btn.ToolTip = "לחץ לבחירה";
                 }
+
+                // All slots are clickable — color is just informational
+                btn.Click += SlotButton_Click;
+
+                var borderStyle = new Style(typeof(Border));
+                borderStyle.Setters.Add(new Setter(Border.CornerRadiusProperty, new CornerRadius(10)));
+                btn.Resources[typeof(Border)] = borderStyle;
 
                 SchedulePanel.Children.Add(btn);
             }
         }
 
-        private void ScheduleButton_Click(object sender, RoutedEventArgs e)
+        private void SlotButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (Button btn in SchedulePanel.Children)
+            // Reset every slot back to its status color
+            foreach (Button b in SchedulePanel.Children)
             {
-                Schedule s = btn.Tag as Schedule;
+                var s = b.Tag as Schedule;
+                if (s == null) continue;
 
-                if (s != null && !s.IsRequested && !s.IsApproved)
-                {
-                    btn.Background = Brushes.White;
-                    btn.Foreground = Brushes.Black;
-                }
+                if (s.IsApproved)
+                    b.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A5D6A7"));
+                else if (s.IsRequested)
+                    b.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE082"));
+                else
+                    b.Background = Brushes.White;
+
+                b.Foreground = Brushes.Black;
             }
 
-            Button clickedButton = sender as Button;
-            selectedSchedule = clickedButton.Tag as Schedule;
+            var clicked = (Button)sender;
+            clicked.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6750A4"));
+            clicked.Foreground = Brushes.White;
 
-            clickedButton.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6750A4"));
-            clickedButton.Foreground = Brushes.White;
+            var slot = clicked.Tag as Schedule;
+            if (slot == null) return;
 
-            SuccessMessage.Text = "";
+            // Auto-fill the form
+            RequestDatePicker.SelectedDate = slot.DateAvailable.Date;
+            StartTimeBox.Text = slot.Starttime.ToString("HH\\:mm");
+            EndTimeBox.Text   = slot.Endtime.ToString("HH\\:mm");
+            FormErrorMessage.Text = "";
         }
+
+        // ── Send request ─────────────────────────────────────────────────
 
         private async void SendRequestButton_Click(object sender, RoutedEventArgs e)
         {
-            if (selectedSchedule == null)
+            FormErrorMessage.Text = "";
+
+            if (RequestDatePicker.SelectedDate == null)
             {
-                MessageBox.Show("יש לבחור תאריך קודם");
+                FormErrorMessage.Text = "יש לבחור תאריך";
                 return;
             }
 
-            selectedSchedule.ParentId = LogInComputer.CurrentUser as Parents;
-            selectedSchedule.IsRequested = true;
-            selectedSchedule.IsApproved = false;
+            DateTime date = RequestDatePicker.SelectedDate.Value.Date;
 
-            await api.UpdateScheduleAsync(selectedSchedule);
+            if (date < DateTime.Today)
+            {
+                FormErrorMessage.Text = "התאריך חייב להיות היום או בעתיד";
+                return;
+            }
 
-            SuccessMessage.Text = "הבקשה נשלחה בהצלחה ✔";
-            selectedSchedule = null;
+            if (!TimeSpan.TryParseExact(StartTimeBox.Text.Trim(), @"hh\:mm", null, out TimeSpan start))
+            {
+                FormErrorMessage.Text = "שעת התחלה לא תקינה — פורמט: HH:mm";
+                return;
+            }
 
-            LoadSchedules();
+            if (!TimeSpan.TryParseExact(EndTimeBox.Text.Trim(), @"hh\:mm", null, out TimeSpan end))
+            {
+                FormErrorMessage.Text = "שעת סיום לא תקינה — פורמט: HH:mm";
+                return;
+            }
+
+            if (end <= start)
+            {
+                FormErrorMessage.Text = "שעת הסיום חייבת להיות אחרי שעת ההתחלה";
+                return;
+            }
+
+            var request = new Requests
+            {
+                ParentsId     = LogInComputer.CurrentUser as Parents,
+                BabysitterId  = currentTeen,
+                Status        = "pending",
+                TimeOfRequest = date + start
+            };
+
+            try
+            {
+                SendRequestButton.IsEnabled = false;
+                await api.InsertRequestAsync(request);
+                RequestWasSent = true;
+                Window.GetWindow(this)?.Close();
+            }
+            catch (Exception ex)
+            {
+                FormErrorMessage.Text = "שגיאה בשליחת הבקשה: " + ex.Message;
+                SendRequestButton.IsEnabled = true;
+            }
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

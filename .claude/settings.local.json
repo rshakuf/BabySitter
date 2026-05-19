@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\RotemFinalProject\" -Recurse | Where-Object { $_.Extension -eq \".cs\" } | Select-Object -First 30 FullName)",
+      "Bash(dotnet build *)",
+      "Bash(Get-Content \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\RotemFinalProject\\\\BabysitterApi\\\\BabysitterApi.csproj\")",
+      "PowerShell(Get-Process -Name \"BabysitterApi\" -ErrorAction SilentlyContinue)"
+    ]
+  }
+}
