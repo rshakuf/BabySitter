@@ -54,82 +54,176 @@
                                FontSize="18" Foreground="#6750A4" FontWeight="SemiBold" Margin="0,8,0,0"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Content="הפניות שלי" Style="{StaticResource MaterialTonalButton}"
-                            Margin="0,0,12,0" Click="MyRequests_Click"/>
                     <Button Content="הפרופיל שלי" Style="{StaticResource MaterialFilledButton}"
                             Click="MyProfile_Click"/>
                 </StackPanel>
             </DockPanel>
 
-            <!-- ROW 1: Schedule section -->
+            <!-- ROW 1: Stacked sections -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="0,0,20,0">
+                <StackPanel>
 
+                    <!-- Section 1: Available slots + add form -->
                     <TextBlock Text="שעות פניות שלי"
-                               FontSize="22" FontWeight="Bold"
+                               FontSize="20" FontWeight="Bold"
                                Foreground="#2D3748" Margin="5,0,0,14"/>
 
-                    <!-- Existing slots list -->
+                    <StackPanel x:Name="FreeLoadingPanel" Orientation="Horizontal"
+                                HorizontalAlignment="Center" Margin="0,6,0,14" Visibility="Collapsed">
+                        <StackPanel.Triggers>
+                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="FDot1" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
+                                        <DoubleAnimation Storyboard.TargetName="FDot2" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="FDot3" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </StackPanel.Triggers>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="FDot1"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="FDot2"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="FDot3"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                    </StackPanel>
+
                     <StackPanel x:Name="ScheduleSlotsPanel" Margin="0,0,0,14"/>
 
-                    <!-- Add new slot form -->
-                    <Border Background="#F0EDFF" CornerRadius="14" Padding="16">
+                    <Border Background="#F0EDFF" CornerRadius="14" Padding="16" Margin="0,0,0,30">
                         <StackPanel>
                             <TextBlock Text="הוסף שעה פנויה חדשה"
-                                       FontSize="15" FontWeight="SemiBold"
+                                       FontSize="14" FontWeight="SemiBold"
                                        Foreground="#4A5568" Margin="0,0,0,12"/>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="תאריך" FontSize="12"
+                                    <TextBlock Text="תאריך" FontSize="11"
                                                Foreground="#4A5568" Margin="0,0,0,4"/>
-                                    <DatePicker x:Name="NewSlotDate" FontSize="14" Height="38"/>
+                                    <DatePicker x:Name="NewSlotDate" FontSize="13" Height="36"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="שעת התחלה" FontSize="12"
+                                    <TextBlock Text="שעת התחלה" FontSize="11"
                                                Foreground="#4A5568" Margin="0,0,0,4"/>
-                                    <Border Background="White" CornerRadius="8" Height="38">
+                                    <Border Background="White" CornerRadius="8" Height="36">
                                         <TextBox x:Name="NewSlotStart" Text="09:00"
-                                                 FontSize="14" BorderThickness="0"
+                                                 FontSize="13" BorderThickness="0"
                                                  VerticalContentAlignment="Center"
                                                  Padding="10,0" Background="Transparent"/>
                                     </Border>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="4">
-                                    <TextBlock Text="שעת סיום" FontSize="12"
+                                    <TextBlock Text="שעת סיום" FontSize="11"
                                                Foreground="#4A5568" Margin="0,0,0,4"/>
-                                    <Border Background="White" CornerRadius="8" Height="38">
+                                    <Border Background="White" CornerRadius="8" Height="36">
                                         <TextBox x:Name="NewSlotEnd" Text="17:00"
-                                                 FontSize="14" BorderThickness="0"
+                                                 FontSize="13" BorderThickness="0"
                                                  VerticalContentAlignment="Center"
                                                  Padding="10,0" Background="Transparent"/>
                                     </Border>
                                 </StackPanel>
+
+                                <Button x:Name="AddSlotBtn"
+                                        Grid.Column="6"
+                                        Content="+ הוסף משמרת"
+                                        Click="AddSlot_Click"
+                                        Style="{StaticResource SlotButtonStyle}"
+                                        Height="36" Width="150"
+                                        VerticalAlignment="Bottom"/>
                             </Grid>
 
                             <TextBlock x:Name="SlotErrorMsg" Text=""
-                                       Foreground="#C53030" FontSize="13"
-                                       Margin="0,8,0,0"/>
-
-                            <Button x:Name="AddSlotBtn"
-                                    Content="+ הוסף משמרת"
-                                    Click="AddSlot_Click"
-                                    Style="{StaticResource SlotButtonStyle}"
-                                    Height="42" Width="180"
-                                    HorizontalAlignment="Right"
-                                    Margin="0,12,0,0"/>
+                                       Foreground="#C53030" FontSize="12"
+                                       Margin="0,6,0,0"/>
                         </StackPanel>
                     </Border>
+
+                    <!-- Section 2: Approved slots -->
+                    <TextBlock Text="שעות מאושרות"
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="#2D3748" Margin="5,0,0,14"/>
+
+                    <StackPanel x:Name="ApprovedLoadingPanel" Orientation="Horizontal"
+                                HorizontalAlignment="Center" Margin="0,6,0,20" Visibility="Collapsed">
+                        <StackPanel.Triggers>
+                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="ADot1" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
+                                        <DoubleAnimation Storyboard.TargetName="ADot2" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="ADot3" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </StackPanel.Triggers>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot1"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot2"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot3"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                    </StackPanel>
+
+                    <StackPanel x:Name="ApprovedSlotsPanel" Margin="0,0,0,30"/>
+
+                    <!-- Section 3: Pending requests -->
+                    <TextBlock Text="בקשות ממתינות לאישור"
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="#2D3748" Margin="5,0,0,14"/>
+
+                    <StackPanel x:Name="PendingLoadingPanel" Orientation="Horizontal"
+                                HorizontalAlignment="Center" Margin="0,6,0,20" Visibility="Collapsed">
+                        <StackPanel.Triggers>
+                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="PDot1" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
+                                        <DoubleAnimation Storyboard.TargetName="PDot2" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="PDot3" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </StackPanel.Triggers>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot1"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot2"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot3"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                    </StackPanel>
+
+                    <StackPanel x:Name="PendingRequestsPanel" Margin="0,0,0,20"/>
 
                 </StackPanel>
             </ScrollViewer>
