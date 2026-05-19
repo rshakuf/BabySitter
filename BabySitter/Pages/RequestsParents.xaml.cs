@@ -37,9 +37,10 @@ namespace BabySitter.Pages
                 var currentParent = LogInComputer.CurrentUser as Parents;
                 if (currentParent == null) return;
 
-                var all = await api.GetAllRequestsAsync();
+                var allRequests = await api.GetAllRequestsAsync();
+                var allSchedules = await api.GetAllSchedulesAsync();
 
-                var mine = all
+                var mine = allRequests
                     .Where(r => r.ParentsId?.Id == currentParent.Id)
                     .OrderByDescending(r => r.TimeOfRequest)
                     .ToList();
@@ -53,7 +54,15 @@ namespace BabySitter.Pages
                 }
 
                 foreach (var req in mine)
-                    RequestsPanel.Children.Add(BuildCard(req));
+                {
+                    // Find matching schedule to get end time
+                    var matchingSlot = allSchedules?.FirstOrDefault(s =>
+                        s.BabysitterId?.Id == req.BabysitterId?.Id &&
+                        s.DateAvailable.Date == req.TimeOfRequest.Date &&
+                        s.Starttime == TimeOnly.FromTimeSpan(req.TimeOfRequest.TimeOfDay));
+
+                    RequestsPanel.Children.Add(BuildCard(req, matchingSlot));
+                }
 
                 RequestsScrollViewer.Visibility = Visibility.Visible;
             }
@@ -67,7 +76,7 @@ namespace BabySitter.Pages
             }
         }
 
-        private Border BuildCard(Requests req)
+        private Border BuildCard(Requests req, Schedule matchingSlot = null)
         {
             string statusText;
             Color borderColor;
@@ -83,6 +92,11 @@ namespace BabySitter.Pages
                 case "rejected":
                     statusText = "נדחה ✗";
                     borderColor = (Color)ColorConverter.ConvertFromString("#EF9A9A");
+                    canCancel = false;
+                    break;
+                case "cancelled_by_babysitter":
+                    statusText = "בוטל ע\"י הבייביסיטר ⚠";
+                    borderColor = (Color)ColorConverter.ConvertFromString("#FFCC80");
                     canCancel = false;
                     break;
                 default: // pending
@@ -133,8 +147,20 @@ namespace BabySitter.Pages
             {
                 Text = $"שעת התחלה: {req.TimeOfRequest:HH:mm}",
                 FontSize = 14,
-                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#49454F"))
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#49454F")),
+                Margin = new Thickness(0, 0, 0, 3)
             });
+
+            if (matchingSlot != null)
+            {
+                int hours = (int)Math.Round((matchingSlot.Endtime - matchingSlot.Starttime).TotalHours);
+                info.Children.Add(new TextBlock
+                {
+                    Text = $"שעת סיום: {matchingSlot.Endtime:HH:mm}  ({hours} שעות)",
+                    FontSize = 14,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#49454F"))
+                });
+            }
 
             // Right: badge + cancel
             var right = new StackPanel

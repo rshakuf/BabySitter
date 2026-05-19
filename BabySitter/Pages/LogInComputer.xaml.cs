@@ -46,7 +46,7 @@ namespace BabySitter.Pages
         // ⭐ כפתור מילוי אוטומטית בייביסיטר
         private void AutoFillBabysitterButton_Click(object sender, RoutedEventArgs e)
         {
-            userNameTextBox.Text = "67676767";
+            userNameTextBox.Text = "0528934411";
             PasswordBox.Password = "12345";
             LogInButton_Click(null, null);
         }

@@ -127,7 +127,10 @@ namespace BabySitter.UserControls
             // Auto-fill the form
             RequestDatePicker.SelectedDate = slot.DateAvailable.Date;
             StartTimeBox.Text = slot.Starttime.ToString("HH\\:mm");
-            EndTimeBox.Text   = slot.Endtime.ToString("HH\\:mm");
+            // Pre-select hours based on slot duration (clamp to 1–12)
+            int slotHours = (int)Math.Round((slot.Endtime - slot.Starttime).TotalHours);
+            slotHours = Math.Max(1, Math.Min(12, slotHours));
+            HoursComboBox.SelectedIndex = slotHours - 1;
             FormErrorMessage.Text = "";
         }
 
@@ -157,17 +160,8 @@ namespace BabySitter.UserControls
                 return;
             }
 
-            if (!TimeSpan.TryParseExact(EndTimeBox.Text.Trim(), @"hh\:mm", null, out TimeSpan end))
-            {
-                FormErrorMessage.Text = "שעת סיום לא תקינה — פורמט: HH:mm";
-                return;
-            }
-
-            if (end <= start)
-            {
-                FormErrorMessage.Text = "שעת הסיום חייבת להיות אחרי שעת ההתחלה";
-                return;
-            }
+            int selectedHours = HoursComboBox.SelectedIndex + 1;
+            TimeSpan end = start + TimeSpan.FromHours(selectedHours);
 
             var request = new Requests
             {

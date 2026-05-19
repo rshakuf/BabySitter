@@ -56,35 +56,32 @@ namespace BabySitter.Pages
             PendingLoadingPanel.Visibility = Visibility.Visible;
             PendingRequestsPanel.Visibility = Visibility.Collapsed;
 
-            List<Schedule> slots = new List<Schedule>();
-            try
-            {
-                var all = await api.GetAllSchedulesAsync();
-                if (all != null)
-                    slots = all.Where(s => s.BabysitterId?.Id == user.Id).ToList();
-            }
-            catch
-            {
-                try { slots = await api.GetSchedulesByBabysitterIdAsync(user.Id) ?? new List<Schedule>(); }
-                catch { slots = new List<Schedule>(); }
-            }
+            // Fetch schedules and requests in parallel
+            var schedulesTask = api.GetAllSchedulesAsync();
+            var requestsTask  = api.GetAllRequestsAsync();
+            await System.Threading.Tasks.Task.WhenAll(schedulesTask, requestsTask);
 
-            // Load approved requests as fallback parent source for slots that have no ParentId
-            List<Requests> approvedReqs = new List<Requests>();
-            try
-            {
-                var allReqs = await api.GetAllRequestsAsync();
-                approvedReqs = allReqs?
-                    .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "approved")
-                    .ToList() ?? new List<Requests>();
-            }
-            catch { }
+            var slots = (schedulesTask.Result ?? Enumerable.Empty<Schedule>())
+                .Where(s => s.BabysitterId?.Id == user.Id)
+                .OrderBy(s => s.DateAvailable).ThenBy(s => s.Starttime)
+                .ToList();
 
-            var ordered = slots.OrderBy(s => s.DateAvailable).ThenBy(s => s.Starttime).ToList();
+            var allReqs = requestsTask.Result ?? new List<Requests>();
 
-            BuildFreeSlots(ordered.Where(s => !s.IsApproved && !s.IsRequested).ToList());
-            BuildApprovedSlots(ordered.Where(s => s.IsApproved).ToList(), approvedReqs);
-            await LoadPendingRequests(user);
+            var approvedReqs = allReqs
+                .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "approved")
+                .OrderBy(r => r.TimeOfRequest)
+                .ToList();
+
+            var pendingReqs = allReqs
+                .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "pending")
+                .OrderByDescending(r => r.TimeOfRequest)
+                .ToList();
+
+            var approvedDates = approvedReqs.Select(r => r.TimeOfRequest.Date).ToHashSet();
+            BuildFreeSlots(slots.Where(s => !s.IsApproved && !s.IsRequested && !approvedDates.Contains(s.DateAvailable.Date)).ToList());
+            BuildApprovedSlots(approvedReqs, slots);
+            BuildPendingRequests(pendingReqs);
         }
 
         // ── Free slots ────────────────────────────────────────────────────────────
@@ -105,51 +102,60 @@ namespace BabySitter.Pages
 
         // ── Approved slots ────────────────────────────────────────────────────────
 
-        private void BuildApprovedSlots(List<Schedule> slots, List<Requests> approvedReqs)
+        private void BuildApprovedSlots(List<Requests> approvedReqs, List<Schedule> allSlots)
         {
             ApprovedSlotsPanel.Children.Clear();
 
-            if (!slots.Any())
+            if (!approvedReqs.Any())
                 ApprovedSlotsPanel.Children.Add(EmptyLabel("אין שעות מאושרות עדיין"));
 
-            foreach (var slot in slots)
+            foreach (var req in approvedReqs)
             {
-                // Prefer ParentId on the slot; fall back to matching approved request by date
-                Parents parent = (slot.ParentId?.Id > 0) ? slot.ParentId : null;
-                if (parent == null)
-                {
-                    var matched = approvedReqs.FirstOrDefault(r => r.TimeOfRequest.Date == slot.DateAvailable.Date);
-                    parent = matched?.ParentsId ?? approvedReqs.FirstOrDefault()?.ParentsId;
-                }
-                ApprovedSlotsPanel.Children.Add(BuildApprovedSlotRow(slot, parent));
+                // Find matching schedule to get end time
+                var matchingSlot = allSlots.FirstOrDefault(s =>
+                    s.DateAvailable.Date == req.TimeOfRequest.Date &&
+                    s.Starttime == TimeOnly.FromTimeSpan(req.TimeOfRequest.TimeOfDay));
+
+                ApprovedSlotsPanel.Children.Add(BuildApprovedSlotRow(req, matchingSlot));
             }
 
             ApprovedLoadingPanel.Visibility = Visibility.Collapsed;
             ApprovedSlotsPanel.Visibility   = Visibility.Visible;
         }
 
-        private Border BuildApprovedSlotRow(Schedule slot, Parents parent)
+        private Border BuildApprovedSlotRow(Requests req, Schedule matchingSlot)
         {
             var row = new Border
             {
                 Background = new SolidColorBrush(Colors.White),
-                CornerRadius = new CornerRadius(10),
-                Margin = new Thickness(0, 0, 0, 8),
-                Padding = new Thickness(14, 10, 14, 10),
+                CornerRadius = new CornerRadius(12),
+                Margin = new Thickness(0, 0, 0, 10),
+                Padding = new Thickness(16, 12, 16, 12),
                 BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C8E6C9")),
                 BorderThickness = new Thickness(0, 0, 0, 3)
             };
+            row.Effect = new DropShadowEffect { BlurRadius = 8, ShadowDepth = 1, Opacity = 0.05, Color = Colors.Black };
 
-            var stack = new StackPanel();
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            // Info stack (right side in RTL)
+            var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+
+            string timeText = matchingSlot != null
+                ? $"{req.TimeOfRequest:dd/MM/yyyy}   {req.TimeOfRequest:HH:mm} - {matchingSlot.Endtime:HH\\:mm}"
+                : $"{req.TimeOfRequest:dd/MM/yyyy}   {req.TimeOfRequest:HH:mm}";
 
             stack.Children.Add(new TextBlock
             {
-                Text = $"{slot.DateAvailable:dd/MM/yyyy}   {slot.Starttime:HH\\:mm} - {slot.Endtime:HH\\:mm}",
+                Text = timeText,
                 FontSize = 14,
                 FontWeight = FontWeights.SemiBold,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2D3748"))
             });
 
+            var parent = req.ParentsId;
             if (parent != null)
             {
                 string name = $"{parent.FirstName} {parent.LastName}".Trim();
@@ -171,8 +177,205 @@ namespace BabySitter.Pages
                     });
             }
 
-            row.Child = stack;
+            // Cancel button (left side in RTL)
+            var cancelBtn = new Button
+            {
+                Content = "ביטול שמרת",
+                Height = 36,
+                Padding = new Thickness(14, 0, 14, 0),
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5")),
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#616161")),
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                BorderThickness = new Thickness(1),
+                BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#BDBDBD")),
+                VerticalAlignment = VerticalAlignment.Center,
+                Cursor = Cursors.Hand,
+                Tag = new Tuple<Requests, Schedule>(req, matchingSlot)
+            };
+            var bs = new Style(typeof(Border));
+            bs.Setters.Add(new Setter(Border.CornerRadiusProperty, new CornerRadius(18)));
+            cancelBtn.Resources[typeof(Border)] = bs;
+            cancelBtn.Click += CancelApprovedSlot_Click;
+
+            Grid.SetColumn(stack, 0);
+            Grid.SetColumn(cancelBtn, 1);
+            grid.Children.Add(stack);
+            grid.Children.Add(cancelBtn);
+
+            row.Child = grid;
             return row;
+        }
+
+        private async void CancelApprovedSlot_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as Button;
+            if (btn?.Tag is not Tuple<Requests, Schedule> tag) return;
+
+            var req = tag.Item1;
+            var slot = tag.Item2;
+
+            string dateText = req.TimeOfRequest.ToString("dd/MM/yyyy");
+            string timeText = slot != null
+                ? $"{req.TimeOfRequest:HH:mm} - {slot.Endtime:HH\\:mm}"
+                : req.TimeOfRequest.ToString("HH:mm");
+
+            bool confirmed = ShowCancelConfirmationDialog(dateText, timeText, req.ParentsId);
+            if (!confirmed) return;
+
+            req.Status = "cancelled_by_babysitter";
+            await api.UpdateRequestAsync(req);
+
+            if (LogInComputer.CurrentUser is BabySitterTeens user)
+                await LoadAll(user);
+        }
+
+        private bool ShowCancelConfirmationDialog(string dateText, string timeText, Parents parent)
+        {
+            bool confirmed = false;
+
+            var dlg = new Window
+            {
+                Width = 440,
+                Height = 320,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = Window.GetWindow(this),
+                ResizeMode = ResizeMode.NoResize,
+                WindowStyle = WindowStyle.None,
+                AllowsTransparency = true,
+                Background = Brushes.Transparent,
+                FlowDirection = FlowDirection.RightToLeft
+            };
+
+            var outer = new Border
+            {
+                Background = Brushes.White,
+                CornerRadius = new CornerRadius(20),
+                Margin = new Thickness(10),
+                Padding = new Thickness(0)
+            };
+            outer.Effect = new DropShadowEffect { BlurRadius = 30, ShadowDepth = 6, Opacity = 0.18, Color = Colors.Black };
+
+            var mainStack = new StackPanel();
+
+            // Header strip
+            var header = new Border
+            {
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")),
+                CornerRadius = new CornerRadius(20, 20, 0, 0),
+                Padding = new Thickness(24, 16, 24, 16)
+            };
+            var headerStack = new StackPanel { Orientation = Orientation.Horizontal };
+            headerStack.Children.Add(new TextBlock
+            {
+                Text = "⚠",
+                FontSize = 22,
+                Foreground = Brushes.White,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 10, 0)
+            });
+            headerStack.Children.Add(new TextBlock
+            {
+                Text = "ביטול שמרת",
+                FontSize = 20,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White,
+                VerticalAlignment = VerticalAlignment.Center
+            });
+            header.Child = headerStack;
+            mainStack.Children.Add(header);
+
+            // Body
+            var body = new StackPanel { Margin = new Thickness(28, 20, 28, 20) };
+
+            body.Children.Add(new TextBlock
+            {
+                Text = "האם אתה בטוח שברצונך לבטל את השמרת?",
+                FontSize = 15,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#212121")),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 16)
+            });
+
+            // Details card
+            var detailCard = new Border
+            {
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF8F8")),
+                CornerRadius = new CornerRadius(12),
+                BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFCDD2")),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(16, 12, 16, 12),
+                Margin = new Thickness(0, 0, 0, 20)
+            };
+            var detailStack = new StackPanel();
+            detailStack.Children.Add(new TextBlock
+            {
+                Text = $"📅  תאריך: {dateText}",
+                FontSize = 14,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B71C1C")),
+                Margin = new Thickness(0, 0, 0, 6)
+            });
+            detailStack.Children.Add(new TextBlock
+            {
+                Text = $"🕐  שעות: {timeText}",
+                FontSize = 14,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B71C1C")),
+                Margin = new Thickness(0, 0, 0, 6)
+            });
+            if (parent != null)
+                detailStack.Children.Add(new TextBlock
+                {
+                    Text = $"👤  הורה: {parent.FirstName} {parent.LastName}",
+                    FontSize = 13,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#C62828"))
+                });
+            detailCard.Child = detailStack;
+            body.Children.Add(detailCard);
+
+            // Buttons
+            var btnRow = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
+
+            var yesBtn = new Button
+            {
+                Content = "כן, בטל שמרת",
+                Width = 150, Height = 42,
+                Margin = new Thickness(8, 0, 8, 0),
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")),
+                Foreground = Brushes.White,
+                FontSize = 14, FontWeight = FontWeights.Bold,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand
+            };
+            var ys = new Style(typeof(Border)); ys.Setters.Add(new Setter(Border.CornerRadiusProperty, new CornerRadius(21)));
+            yesBtn.Resources[typeof(Border)] = ys;
+            yesBtn.Click += (s, e) => { confirmed = true; dlg.Close(); };
+
+            var noBtn = new Button
+            {
+                Content = "לא, חזור",
+                Width = 120, Height = 42,
+                Margin = new Thickness(8, 0, 8, 0),
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EEEEEE")),
+                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#424242")),
+                FontSize = 14, FontWeight = FontWeights.SemiBold,
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand
+            };
+            var ns = new Style(typeof(Border)); ns.Setters.Add(new Setter(Border.CornerRadiusProperty, new CornerRadius(21)));
+            noBtn.Resources[typeof(Border)] = ns;
+            noBtn.Click += (s, e) => dlg.Close();
+
+            btnRow.Children.Add(yesBtn);
+            btnRow.Children.Add(noBtn);
+            body.Children.Add(btnRow);
+
+            mainStack.Children.Add(body);
+            outer.Child = mainStack;
+            dlg.Content = outer;
+            dlg.ShowDialog();
+            return confirmed;
         }
 
         private Border BuildSlotRow(Schedule slot, bool showDelete)
@@ -230,37 +433,18 @@ namespace BabySitter.Pages
 
         // ── Pending requests ──────────────────────────────────────────────────────
 
-        private async System.Threading.Tasks.Task LoadPendingRequests(BabySitterTeens user)
+        private void BuildPendingRequests(List<Requests> pending)
         {
             PendingRequestsPanel.Children.Clear();
 
-            try
-            {
-                var all = await api.GetAllRequestsAsync();
-                var pending = all?
-                    .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "pending")
-                    .OrderByDescending(r => r.TimeOfRequest)
-                    .ToList() ?? new List<Requests>();
+            if (!pending.Any())
+                PendingRequestsPanel.Children.Add(EmptyLabel("אין בקשות ממתינות"));
+            else
+                foreach (var req in pending)
+                    PendingRequestsPanel.Children.Add(BuildRequestCard(req));
 
-                if (!pending.Any())
-                {
-                    PendingRequestsPanel.Children.Add(EmptyLabel("אין בקשות ממתינות"));
-                }
-                else
-                {
-                    foreach (var req in pending)
-                        PendingRequestsPanel.Children.Add(BuildRequestCard(req));
-                }
-            }
-            catch (Exception ex)
-            {
-                PendingRequestsPanel.Children.Add(EmptyLabel("שגיאה בטעינת בקשות: " + ex.Message));
-            }
-            finally
-            {
-                PendingLoadingPanel.Visibility = Visibility.Collapsed;
-                PendingRequestsPanel.Visibility = Visibility.Visible;
-            }
+            PendingLoadingPanel.Visibility = Visibility.Collapsed;
+            PendingRequestsPanel.Visibility = Visibility.Visible;
         }
 
         private Border BuildRequestCard(Requests req)
