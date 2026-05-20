@@ -99,6 +99,17 @@
 
             </WrapPanel>
 
+            <!-- דירוג כוכבים -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock x:Name="Star1" Text="★" FontSize="16" Margin="0,0,1,0" Foreground="#CCCCCC"/>
+                <TextBlock x:Name="Star2" Text="★" FontSize="16" Margin="0,0,1,0" Foreground="#CCCCCC"/>
+                <TextBlock x:Name="Star3" Text="★" FontSize="16" Margin="0,0,1,0" Foreground="#CCCCCC"/>
+                <TextBlock x:Name="Star4" Text="★" FontSize="16" Margin="0,0,1,0" Foreground="#CCCCCC"/>
+                <TextBlock x:Name="Star5" Text="★" FontSize="16" Margin="0,0,6,0" Foreground="#CCCCCC"/>
+                <TextBlock x:Name="RatingText" Text="אין דירוג" FontSize="11"
+                           Foreground="#79747E" VerticalAlignment="Center"/>
+            </StackPanel>
+
             <!-- כפתור -->
             <Button Content="לפרטים נוספים"
                     Click="Details_Click"

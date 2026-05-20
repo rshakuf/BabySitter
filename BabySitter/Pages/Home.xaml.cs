@@ -15,6 +15,7 @@ namespace BabySitter.Pages
     {
         private List<BabySitterTeens> AllBabysitters = new List<BabySitterTeens>();
         private List<City> AllCities = new List<City>();
+        private Dictionary<int, (double avg, int count)> _ratings = new();
 
         // Debounce timer — prevents a filter call on every single keystroke
         private readonly DispatcherTimer _searchDebounce;
@@ -82,17 +83,20 @@ namespace BabySitter.Pages
             {
                 var api = new ApiService();
 
-                var sitters = await api.GetAllBabySitterTeensAsync();
-                AllBabysitters = sitters != null ? sitters.ToList() : new List<BabySitterTeens>();
+                // Load babysitters, cities and ratings in parallel
+                var sittersTask = api.GetAllBabySitterTeensAsync();
+                var citiesTask  = api.GetAllCitiesAsync();
+                var ratesTask   = api.GetAllBabySitterRatesAsync();
+                await Task.WhenAll(sittersTask, citiesTask, ratesTask);
 
-                var x = await api.GetAllParentsAsync();
-                if (x!=null)
-                {
-                    CityComboBox.Items.Add(x[0]);
-                }
+                AllBabysitters = sittersTask.Result?.ToList() ?? new List<BabySitterTeens>();
+                AllCities      = citiesTask.Result?.ToList()  ?? new List<City>();
 
-                var cities = await api.GetAllCitiesAsync();
-                AllCities = cities != null ? cities.ToList() : new List<City>();
+                // Build per-babysitter rating lookup
+                _ratings = (ratesTask.Result ?? new BabySitterRateList())
+                    .Where(r => r.IdBabySitter != null)
+                    .GroupBy(r => r.IdBabySitter.Id)
+                    .ToDictionary(g => g.Key, g => (avg: g.Average(r => r.Stars), count: g.Count()));
 
                 // Populate city combo
                 CityComboBox.Items.Clear();
@@ -155,11 +159,19 @@ namespace BabySitter.Pages
             };
 
             var result = filtered.ToList();
-            BabysittersItems.ItemsSource = result;
+
+            // Wrap each babysitter with their rating data
+            var cardVMs = result.Select(b =>
+            {
+                _ratings.TryGetValue(b.Id, out var r);
+                return new BabySitterCardVM { Teen = b, AverageRating = r.avg, RatingCount = r.count };
+            }).ToList();
+
+            BabysittersItems.ItemsSource = cardVMs;
 
             // Show results list or empty state
-            ResultsScrollViewer.Visibility = result.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-            EmptyPanel.Visibility = result.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            ResultsScrollViewer.Visibility = cardVMs.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+            EmptyPanel.Visibility = cardVMs.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         // ─── Event handlers ───────────────────────────────────────────────────────
@@ -195,6 +207,11 @@ namespace BabySitter.Pages
         private void GoToMyProfile(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new BabySitter.Pages.MyProfile());
+        }
+
+        private void GoToHistory(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new JobHistoryPage());
         }
     }
 }

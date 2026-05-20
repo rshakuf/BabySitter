@@ -52,8 +52,25 @@
                                FontSize="34" FontWeight="Bold" Foreground="#1C1B1F"/>
                     <TextBlock x:Name="WelcomeText"
                                FontSize="18" Foreground="#6750A4" FontWeight="SemiBold" Margin="0,8,0,0"/>
+
+                    <!-- Stars row — shown after ratings load -->
+                    <StackPanel x:Name="StarsRow" Orientation="Horizontal" Margin="0,6,0,0"
+                                Visibility="Collapsed">
+                        <TextBlock x:Name="BStar1" Text="★" FontSize="22" Margin="0,0,2,0" Foreground="#CCCCCC"/>
+                        <TextBlock x:Name="BStar2" Text="★" FontSize="22" Margin="0,0,2,0" Foreground="#CCCCCC"/>
+                        <TextBlock x:Name="BStar3" Text="★" FontSize="22" Margin="0,0,2,0" Foreground="#CCCCCC"/>
+                        <TextBlock x:Name="BStar4" Text="★" FontSize="22" Margin="0,0,2,0" Foreground="#CCCCCC"/>
+                        <TextBlock x:Name="BStar5" Text="★" FontSize="22" Margin="0,0,8,0" Foreground="#CCCCCC"/>
+                        <TextBlock x:Name="BRatingText" FontSize="13" Foreground="#49454F" VerticalAlignment="Center"/>
+                        <TextBlock Text="  |  לחץ לפרטים" FontSize="12" Foreground="#6750A4"
+                                   VerticalAlignment="Center" Cursor="Hand"
+                                   TextDecorations="Underline" Margin="4,0,0,0"
+                                   MouseLeftButtonUp="RatingDetails_Click"/>
+                    </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="היסטוריית עבודה" Style="{StaticResource MaterialTonalButton}"
+                            Margin="0,0,12,0" Click="GoToHistory_Click"/>
                     <Button Content="הפרופיל שלי" Style="{StaticResource MaterialFilledButton}"
                             Click="MyProfile_Click"/>
                 </StackPanel>

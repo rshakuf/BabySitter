@@ -79,6 +79,7 @@
                                FontSize="18" Foreground="#6750A4" FontWeight="SemiBold" Margin="0,8,0,0"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="היסטוריית עבודה" Style="{StaticResource MaterialTonalButton}" Margin="0,0,12,0" Click="GoToHistory"/>
                     <Button Content="הפניות שלי" Style="{StaticResource MaterialTonalButton}" Margin="0,0,12,0" Click="MyRequests"/>
                     <Button Content="הפרופיל שלי"
         Style="{StaticResource MaterialFilledButton}"
@@ -194,7 +195,9 @@
                                     </Border.Effect>
 
 
-                                    <uc:UserControlHome DataContext="{Binding }"/>
+                                    <uc:UserControlHome DataContext="{Binding Teen}"
+                                                        AverageRating="{Binding AverageRating}"
+                                                        RatingCount="{Binding RatingCount}"/>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

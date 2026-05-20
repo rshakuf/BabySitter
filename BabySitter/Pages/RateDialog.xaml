@@ -1,0 +1,52 @@
+<Window x:Class="BabySitter.Pages.RateDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="דירוג בייביסיטר"
+        Width="380" Height="270"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="#FFFBFE"
+        FlowDirection="RightToLeft">
+
+    <StackPanel Margin="30,24">
+
+        <!-- Title -->
+        <TextBlock x:Name="TitleText"
+                   FontSize="18" FontWeight="Bold" Foreground="#1C1B1F"
+                   HorizontalAlignment="Center" Margin="0,0,0,6"/>
+        <TextBlock Text="כמה כוכבים מגיע לבייביסיטר?"
+                   FontSize="13" Foreground="#49454F"
+                   HorizontalAlignment="Center" Margin="0,0,0,24"/>
+
+        <!-- Stars row -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,28">
+            <TextBlock x:Name="S1" Text="★" FontSize="42" Cursor="Hand" Margin="4,0"
+                       Foreground="#CCCCCC" MouseLeftButtonDown="Star_Click" Tag="1"/>
+            <TextBlock x:Name="S2" Text="★" FontSize="42" Cursor="Hand" Margin="4,0"
+                       Foreground="#CCCCCC" MouseLeftButtonDown="Star_Click" Tag="2"/>
+            <TextBlock x:Name="S3" Text="★" FontSize="42" Cursor="Hand" Margin="4,0"
+                       Foreground="#CCCCCC" MouseLeftButtonDown="Star_Click" Tag="3"/>
+            <TextBlock x:Name="S4" Text="★" FontSize="42" Cursor="Hand" Margin="4,0"
+                       Foreground="#CCCCCC" MouseLeftButtonDown="Star_Click" Tag="4"/>
+            <TextBlock x:Name="S5" Text="★" FontSize="42" Cursor="Hand" Margin="4,0"
+                       Foreground="#CCCCCC" MouseLeftButtonDown="Star_Click" Tag="5"/>
+        </StackPanel>
+
+        <!-- Submit button -->
+        <Button x:Name="SubmitBtn"
+                Content="שלח דירוג"
+                Height="44" Width="160"
+                HorizontalAlignment="Center"
+                IsEnabled="False"
+                Click="Submit_Click"
+                Background="#6750A4" Foreground="White"
+                FontSize="14" FontWeight="SemiBold" BorderThickness="0">
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="22"/>
+                </Style>
+            </Button.Resources>
+        </Button>
+
+    </StackPanel>
+</Window>

@@ -26,6 +26,8 @@ namespace BabySitter.Pages
         // hour → state for the currently displayed day
         private Dictionary<int, SlotState> _hourStates = new();
 
+        private List<BabySitterRate> _allRates = new();
+
         public AvailabilityPage(BabySitterTeens teen)
         {
             InitializeComponent();
@@ -56,7 +58,11 @@ namespace BabySitter.Pages
             {
                 var schedulesTask = _api.GetAllSchedulesAsync();
                 var requestsTask  = _api.GetAllRequestsAsync();
-                await System.Threading.Tasks.Task.WhenAll(schedulesTask, requestsTask);
+                var ratesTask     = _api.GetAllBabySitterRatesAsync();
+                await System.Threading.Tasks.Task.WhenAll(schedulesTask, requestsTask, ratesTask);
+
+                _allRates = ratesTask.Result?.ToList() ?? new List<BabySitterRate>();
+                UpdateRateButton(requestsTask.Result);
 
                 var mySlots = (schedulesTask.Result ?? Enumerable.Empty<Schedule>())
                     .Where(s => s.BabysitterId?.Id == _teen.Id)
@@ -339,6 +345,69 @@ namespace BabySitter.Pages
                 MessageBox.Show("שגיאה בשליחת הבקשה: " + ex.Message);
                 SendRequestBtn.IsEnabled = true;
             }
+        }
+
+        // ── Rating ────────────────────────────────────────────────────────────────
+
+        private void UpdateRateButton(IEnumerable<Requests> allRequests)
+        {
+            if (LogInComputer.WhoAmI != "parent") return;
+
+            var currentParent = LogInComputer.CurrentUser as Parents;
+            if (currentParent == null) return;
+
+            bool hadPastJob = (allRequests ?? Enumerable.Empty<Requests>()).Any(r =>
+                r.BabysitterId?.Id == _teen.Id &&
+                r.ParentsId?.Id == currentParent.Id &&
+                r.Status == "approved" &&
+                r.TimeOfRequest.Date < DateTime.Today);
+
+            if (!hadPastJob) return;
+
+            var existing = _allRates.FirstOrDefault(r =>
+                r.IdBabySitter?.Id == _teen.Id && r.IdParent?.Id == currentParent.Id);
+
+            if (existing != null)
+            {
+                // Show read-only stars
+                var gold = new SolidColorBrush(Color.FromRgb(255, 193, 7));
+                var gray = new SolidColorBrush(Color.FromRgb(204, 204, 204));
+                var stars = new[] { RS1, RS2, RS3, RS4, RS5 };
+                for (int i = 0; i < 5; i++)
+                    stars[i].Foreground = i < existing.Stars ? gold : gray;
+                RatingStarsPanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                RateBtn.Visibility = Visibility.Visible;
+            }
+        }
+
+        private async void RateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string name = $"{_teen.FirstName} {_teen.LastName}";
+            var dialog = new RateDialog(name) { Owner = Window.GetWindow(this) };
+            if (dialog.ShowDialog() != true) return;
+
+            var currentParent = LogInComputer.CurrentUser as Parents;
+            var rate = new BabySitterRate
+            {
+                Stars        = dialog.SelectedRating,
+                IdBabySitter = _teen,
+                IdParent     = currentParent,
+                DateOfRate   = DateTime.Today
+            };
+
+            await _api.InsertBabySitterRateAsync(rate);
+
+            // Swap button → stars immediately
+            RateBtn.Visibility = Visibility.Collapsed;
+            var gold = new SolidColorBrush(Color.FromRgb(255, 193, 7));
+            var gray = new SolidColorBrush(Color.FromRgb(204, 204, 204));
+            var stars = new[] { RS1, RS2, RS3, RS4, RS5 };
+            for (int i = 0; i < 5; i++)
+                stars[i].Foreground = i < dialog.SelectedRating ? gold : gray;
+            RatingStarsPanel.Visibility = Visibility.Visible;
         }
 
         // ── Empty state ───────────────────────────────────────────────────────────
