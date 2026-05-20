@@ -1,12 +1,15 @@
-﻿using System;
+﻿using BabySitter.Helpers;
+using ClApi;
+using Microsoft.Win32;
+using Model;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using ClApi;
-using Model;
 
 namespace BabySitter.Pages
 {
@@ -14,6 +17,7 @@ namespace BabySitter.Pages
     {
         private readonly ApiService api = new ApiService();
         private bool showPass = false;
+        private string _pendingPhotoBase64 = null;
 
         private List<ChildOfParent> kids = new List<ChildOfParent>();
 
@@ -45,6 +49,11 @@ namespace BabySitter.Pages
                     passVisible.Text = user.Password;
 
                     KidsSection.Visibility = Visibility.Collapsed;
+                    PhotoSection.Visibility = Visibility.Visible;
+
+                    // Show existing profile photo or initial letter
+                    ImageHelper.ApplyAvatar(user.ProfilePicture, user.FirstName,
+                        AvatarLetter, AvatarImageEllipse, AvatarImageBrush);
                 }
                 else if (LogInComputer.WhoAmI == "parent")
                 {
@@ -107,6 +116,30 @@ namespace BabySitter.Pages
             }
         }
 
+        private void UploadPhoto_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title  = "בחר תמונת פרופיל",
+                Filter = "קבצי תמונה|*.jpg;*.jpeg;*.png;*.bmp;*.gif"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                var bytes = File.ReadAllBytes(dialog.FileName);
+                _pendingPhotoBase64 = Convert.ToBase64String(bytes);
+
+                // Preview immediately
+                ImageHelper.ApplyAvatar(_pendingPhotoBase64, fname.Text,
+                    AvatarLetter, AvatarImageEllipse, AvatarImageBrush);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("שגיאה בטעינת התמונה: " + ex.Message);
+            }
+        }
+
         private void TogglePassword(object sender, MouseButtonEventArgs e)
         {
             showPass = !showPass;
@@ -161,6 +194,9 @@ namespace BabySitter.Pages
                     user.Telephone = phoneText;
                     user.CityNameId = (City)cityComboBox.SelectedItem;
                     user.Password = showPass ? passVisible.Text : pass.Password;
+
+                    if (_pendingPhotoBase64 != null)
+                        user.ProfilePicture = _pendingPhotoBase64;
 
                     int result = await api.UpdateBabySitterTeenAsync(user);
 

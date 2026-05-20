@@ -1,9 +1,10 @@
+using BabySitter.Helpers;
+using BabySitter.Pages;
+using BabySitter.UserControls;
 using Model;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
-using BabySitter.UserControls;
-using BabySitter.Pages;
 
 namespace BabySitter.UserControls
 {
@@ -12,6 +13,15 @@ namespace BabySitter.UserControls
         public UserControlHome()
         {
             InitializeComponent();
+            DataContextChanged += (s, e) => ApplyAvatar();
+            Loaded += (s, e) => ApplyAvatar();
+        }
+
+        private void ApplyAvatar()
+        {
+            if (DataContext is not BabySitterTeens teen) return;
+            ImageHelper.ApplyAvatar(teen.ProfilePicture, teen.FirstName,
+                CardAvatarLetter, CardAvatarImage, CardAvatarBrush);
         }
 
         private void Details_Click(object sender, RoutedEventArgs e)

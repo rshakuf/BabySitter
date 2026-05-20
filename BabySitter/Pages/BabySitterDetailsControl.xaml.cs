@@ -1,3 +1,4 @@
+using BabySitter.Helpers;
 using BabySitter.Pages;
 using ClApi;
 using Model;
@@ -22,6 +23,9 @@ namespace BabySitter.UserControls
             InitializeComponent();
             currentTeen = teen;
             DataContext = teen;
+
+            ImageHelper.ApplyAvatar(teen.ProfilePicture, teen.FirstName,
+                DetailAvatarLetter, DetailAvatarImage, DetailAvatarBrush);
 
             if (LogInComputer.WhoAmI != "parent")
                 SendRequestButton.Visibility = Visibility.Collapsed;

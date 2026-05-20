@@ -1,3 +1,4 @@
+using BabySitter.Helpers;
 using ClApi;
 using Model;
 using System;
@@ -37,11 +38,12 @@ namespace BabySitter.Pages
 
         private void BindHeader()
         {
-            AvatarLetter.Text     = _teen.FirstName?.Length > 0 ? _teen.FirstName[0].ToString() : "?";
             BabysitterNameLabel.Text  = $"{_teen.FirstName} {_teen.LastName}";
             BabysitterCityLabel.Text  = _teen.CityNameId?.CityName ?? "";
             BabysitterPriceLabel.Text = $"₪{_teen.PriceForAnHour} לשעה";
             BabysitterPhoneLabel.Text = _teen.Telephone ?? "";
+            ImageHelper.ApplyAvatar(_teen.ProfilePicture, _teen.FirstName,
+                AvatarLetter, AvatarImageEllipse, AvatarImageBrush);
         }
 
         // ── Data loading ──────────────────────────────────────────────────────────

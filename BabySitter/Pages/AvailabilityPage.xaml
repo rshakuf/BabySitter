@@ -35,10 +35,16 @@
             </Border.Effect>
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="54" Height="54" Background="#6750A4" CornerRadius="27" Margin="0,0,14,0">
+                    <Grid Width="54" Height="54" Margin="0,0,14,0">
+                        <Ellipse Width="54" Height="54" Fill="#6750A4"/>
                         <TextBlock x:Name="AvatarLetter" Foreground="White" FontSize="24"
                                    FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
+                        <Ellipse x:Name="AvatarImageEllipse" Width="54" Height="54" Visibility="Collapsed">
+                            <Ellipse.Fill>
+                                <ImageBrush x:Name="AvatarImageBrush" Stretch="UniformToFill"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                    </Grid>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock x:Name="BabysitterNameLabel" FontSize="20" FontWeight="Bold" Foreground="#1C1B1F"/>
                         <TextBlock x:Name="BabysitterCityLabel" FontSize="13" Foreground="#49454F"/>
