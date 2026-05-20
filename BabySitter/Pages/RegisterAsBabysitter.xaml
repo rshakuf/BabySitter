@@ -94,7 +94,7 @@
                 <StackPanel Margin="15,0">
                     <TextBlock Text="Mail" FontSize="13" Margin="5,0,0,5"/>
                     <TextBox x:Name="recommenderMail" Style="{StaticResource RoundedTextBox}"
-                         LostFocus="RecommenderMail_LostFocus"/>
+                         LostFocus="Mail_LostFocus"/>
                 </StackPanel>
             </UniformGrid>
 

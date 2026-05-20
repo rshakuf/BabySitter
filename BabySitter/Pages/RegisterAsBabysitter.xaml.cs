@@ -48,11 +48,11 @@ namespace BabySitter.Pages
         // ─── בדיקת אימייל כשיוצאים מהשדה ────────────────────────────────────────
         private void Mail_LostFocus(object sender, RoutedEventArgs e)
         {
-            string mail = recommenderMail.Text.Trim();
-            if (!string.IsNullOrEmpty(mail) && !IsValidEmail(mail))
+            string value = recommenderMail.Text.Trim();
+            if (!string.IsNullOrEmpty(value) && !IsValidEmail(value))
             {
                 recommenderMail.Background = System.Windows.Media.Brushes.LightCoral;
-                recommenderMail.ToolTip = "כתובת אימייל לא תקינה";
+                recommenderMail.ToolTip    = "כתובת אימייל לא תקינה";
             }
             else
             {
@@ -61,10 +61,8 @@ namespace BabySitter.Pages
             }
         }
 
-        private bool IsValidEmail(string email)
-        {
-            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        }
+        private static bool IsValidEmail(string email) =>
+            Regex.IsMatch(email, @"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$");
 
         private bool IsValidPhone(string phone)
         {
@@ -119,11 +117,17 @@ namespace BabySitter.Pages
                 return;
             }
 
-            // 6. אימייל ממליץ (אופציונלי)
+            // 6. מייל — חובה + תקינות
             string mail = recommenderMail.Text.Trim();
-            if (!string.IsNullOrEmpty(mail) && !IsValidEmail(mail))
+            if (string.IsNullOrEmpty(mail))
             {
-                MessageBox.Show("כתובת האימייל של הממליץ אינה תקינה");
+                MessageBox.Show("נא להזין כתובת מייל");
+                recommenderMail.Focus();
+                return;
+            }
+            if (!IsValidEmail(mail))
+            {
+                MessageBox.Show("כתובת המייל אינה תקינה\nדוגמה: name@example.com");
                 recommenderMail.Focus();
                 return;
             }
@@ -176,9 +180,5 @@ namespace BabySitter.Pages
             NavigationService?.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
         }
 
-        private void RecommenderMail_LostFocus(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

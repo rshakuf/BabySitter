@@ -107,6 +107,18 @@
                         </StackPanel>
                     </Grid>
 
+                    <!-- Email row (babysitter only) -->
+                    <StackPanel x:Name="EmailSection" Margin="0,0,0,15" Visibility="Collapsed">
+                        <TextBlock Text="מייל" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
+                        <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
+                            <TextBox x:Name="mail" Background="Transparent" BorderThickness="0"
+                                     VerticalContentAlignment="Center" Padding="15,0" FontSize="16"
+                                     Foreground="#2D3748" LostFocus="Mail_LostFocus"/>
+                        </Border>
+                        <TextBlock x:Name="MailErrorMsg" Text="" Foreground="#C53030"
+                                   FontSize="12" Margin="5,3,0,0" Visibility="Collapsed"/>
+                    </StackPanel>
+
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

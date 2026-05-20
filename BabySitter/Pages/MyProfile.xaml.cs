@@ -50,6 +50,8 @@ namespace BabySitter.Pages
 
                     KidsSection.Visibility = Visibility.Collapsed;
                     PhotoSection.Visibility = Visibility.Visible;
+                    EmailSection.Visibility = Visibility.Visible;
+                    mail.Text = user.Mail ?? "";
 
                     // Show existing profile photo or initial letter
                     ImageHelper.ApplyAvatar(user.ProfilePicture, user.FirstName,
@@ -113,6 +115,23 @@ namespace BabySitter.Pages
             catch (Exception ex)
             {
                 MessageBox.Show("שגיאה בטעינת הנתונים: " + ex.Message);
+            }
+        }
+
+        private static bool IsValidEmail(string email) =>
+            Regex.IsMatch(email, @"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$");
+
+        private void Mail_LostFocus(object sender, RoutedEventArgs e)
+        {
+            string value = mail.Text.Trim();
+            if (!string.IsNullOrEmpty(value) && !IsValidEmail(value))
+            {
+                MailErrorMsg.Text       = "כתובת מייל לא תקינה";
+                MailErrorMsg.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                MailErrorMsg.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -189,11 +208,22 @@ namespace BabySitter.Pages
                 {
                     var user = (BabySitterTeens)LogInComputer.CurrentUser;
 
-                    user.FirstName = fname.Text.Trim();
-                    user.LastName = lname.Text.Trim();
-                    user.Telephone = phoneText;
+                    // Validate email
+                    string mailText = mail.Text.Trim();
+                    if (!string.IsNullOrEmpty(mailText) && !IsValidEmail(mailText))
+                    {
+                        MailErrorMsg.Text = "כתובת מייל לא תקינה";
+                        MailErrorMsg.Visibility = Visibility.Visible;
+                        mail.Focus();
+                        return;
+                    }
+
+                    user.FirstName  = fname.Text.Trim();
+                    user.LastName   = lname.Text.Trim();
+                    user.Telephone  = phoneText;
                     user.CityNameId = (City)cityComboBox.SelectedItem;
-                    user.Password = showPass ? passVisible.Text : pass.Password;
+                    user.Password   = showPass ? passVisible.Text : pass.Password;
+                    user.Mail       = mailText;
 
                     if (_pendingPhotoBase64 != null)
                         user.ProfilePicture = _pendingPhotoBase64;
