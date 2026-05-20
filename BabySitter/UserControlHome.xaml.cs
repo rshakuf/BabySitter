@@ -19,24 +19,14 @@ namespace BabySitter.UserControls
             var teen = (sender as Button)?.DataContext as BabySitterTeens;
             if (teen == null) return;
 
-            var control = new BabySitterDetailsControl(teen);
-            var window = new Window
+            var nav = NavigationService.GetNavigationService(this);
+            if (nav != null)
             {
-                Title = "פרטים נוספים",
-                Content = control,
-                Width = 880,
-                Height = 820,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                ResizeMode = ResizeMode.CanResize
-            };
-
-            window.ShowDialog();
-
-            // After the dialog closes, navigate to RequestsParents if a request was sent
-            if (control.RequestWasSent)
-            {
-                var nav = NavigationService.GetNavigationService(this);
-                nav?.Navigate(new RequestsParents());
+                // Parents get the interactive availability page; others get the read-only detail view
+                if (LogInComputer.WhoAmI == "parent")
+                    nav.Navigate(new AvailabilityPage(teen));
+                else
+                    nav.Navigate(new BabySitterDetailsControl(teen));
             }
         }
     }
