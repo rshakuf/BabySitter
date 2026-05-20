@@ -143,8 +143,14 @@ namespace BabySitter.Pages
             // Info stack (right side in RTL)
             var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 
-            string timeText = matchingSlot != null
-                ? $"{req.TimeOfRequest:dd/MM/yyyy}   {req.TimeOfRequest:HH:mm} - {matchingSlot.Endtime:HH\\:mm}"
+            string endTime = matchingSlot != null
+                ? matchingSlot.Endtime.ToString("HH\\:mm")
+                : req.LenghtTime > 0
+                    ? (req.TimeOfRequest + TimeSpan.FromHours(req.LenghtTime)).ToString("HH:mm")
+                    : null;
+
+            string timeText = endTime != null
+                ? $"{req.TimeOfRequest:dd/MM/yyyy}   {req.TimeOfRequest:HH:mm} - {endTime}"
                 : $"{req.TimeOfRequest:dd/MM/yyyy}   {req.TimeOfRequest:HH:mm}";
 
             stack.Children.Add(new TextBlock
@@ -216,8 +222,13 @@ namespace BabySitter.Pages
             var slot = tag.Item2;
 
             string dateText = req.TimeOfRequest.ToString("dd/MM/yyyy");
-            string timeText = slot != null
-                ? $"{req.TimeOfRequest:HH:mm} - {slot.Endtime:HH\\:mm}"
+            string endForDialog = slot != null
+                ? slot.Endtime.ToString("HH\\:mm")
+                : req.LenghtTime > 0
+                    ? (req.TimeOfRequest + TimeSpan.FromHours(req.LenghtTime)).ToString("HH:mm")
+                    : null;
+            string timeText = endForDialog != null
+                ? $"{req.TimeOfRequest:HH:mm} - {endForDialog}  ({req.LenghtTime} שעות)"
                 : req.TimeOfRequest.ToString("HH:mm");
 
             bool confirmed = ShowCancelConfirmationDialog(dateText, timeText, req.ParentsId);
@@ -478,9 +489,16 @@ namespace BabySitter.Pages
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1C1B1F")),
                 Margin = new Thickness(0, 0, 0, 4)
             });
+            string pendingEndTime = req.LenghtTime > 0
+                ? (req.TimeOfRequest + TimeSpan.FromHours(req.LenghtTime)).ToString("HH:mm")
+                : null;
+            string pendingTimeText = pendingEndTime != null
+                ? $"{req.TimeOfRequest:dd/MM/yyyy}   {req.TimeOfRequest:HH:mm} - {pendingEndTime}  ({req.LenghtTime} שעות)"
+                : $"{req.TimeOfRequest:dd/MM/yyyy}   {req.TimeOfRequest:HH:mm}";
+
             info.Children.Add(new TextBlock
             {
-                Text = $"תאריך: {req.TimeOfRequest:dd/MM/yyyy}  {req.TimeOfRequest:HH:mm}",
+                Text = $"תאריך: {pendingTimeText}",
                 FontSize = 13,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#49454F")),
                 Margin = new Thickness(0, 0, 0, 2)

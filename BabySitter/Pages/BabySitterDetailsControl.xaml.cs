@@ -168,7 +168,8 @@ namespace BabySitter.UserControls
                 ParentsId     = LogInComputer.CurrentUser as Parents,
                 BabysitterId  = currentTeen,
                 Status        = "pending",
-                TimeOfRequest = date + start
+                TimeOfRequest = date + start,
+                LenghtTime    = selectedHours
             };
 
             try

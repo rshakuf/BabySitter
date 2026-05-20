@@ -151,7 +151,18 @@ namespace BabySitter.Pages
                 Margin = new Thickness(0, 0, 0, 3)
             });
 
-            if (matchingSlot != null)
+            // Prefer LenghtTime from the request; fall back to matching schedule slot
+            if (req.LenghtTime > 0)
+            {
+                string endTime = (req.TimeOfRequest + TimeSpan.FromHours(req.LenghtTime)).ToString("HH:mm");
+                info.Children.Add(new TextBlock
+                {
+                    Text = $"שעת סיום: {endTime}  ({req.LenghtTime} שעות)",
+                    FontSize = 14,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#49454F"))
+                });
+            }
+            else if (matchingSlot != null)
             {
                 int hours = (int)Math.Round((matchingSlot.Endtime - matchingSlot.Starttime).TotalHours);
                 info.Children.Add(new TextBlock
