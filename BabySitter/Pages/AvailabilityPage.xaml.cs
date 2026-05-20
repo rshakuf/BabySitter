@@ -14,7 +14,7 @@ namespace BabySitter.Pages
 {
     public partial class AvailabilityPage : Page
     {
-        private enum SlotState { Available, Taken, Selected }
+        private enum SlotState { Available, Taken, Selected, Past }
 
         private readonly BabySitterTeens _teen;
         private readonly ApiService _api = new ApiService();
@@ -118,12 +118,14 @@ namespace BabySitter.Pages
             return dates.ToList();
         }
 
-        // Returns hours that are in schedule but NOT blocked
+        // Returns hours that are in schedule but NOT blocked and NOT in the past
         private HashSet<int> GetFreeHours(DateTime date, IEnumerable<Schedule> slots, IEnumerable<Requests> blocked)
         {
             var scheduled = ExpandSlotHours(date, slots);
             var taken     = ExpandRequestHours(date, blocked);
             scheduled.ExceptWith(taken);
+            if (date.Date == DateTime.Today)
+                scheduled.RemoveWhere(h => h <= DateTime.Now.Hour);
             return scheduled;
         }
 
@@ -163,10 +165,19 @@ namespace BabySitter.Pages
 
             var scheduledHours = ExpandSlotHours(date, slots);
             var takenHours     = ExpandRequestHours(date, blocked);
+            bool isToday       = date.Date == DateTime.Today;
+            int  nowHour       = DateTime.Now.Hour;
 
             foreach (int h in scheduledHours.OrderBy(x => x))
             {
-                var state = takenHours.Contains(h) ? SlotState.Taken : SlotState.Available;
+                SlotState state;
+                if (isToday && h <= nowHour)
+                    state = SlotState.Past;
+                else if (takenHours.Contains(h))
+                    state = SlotState.Taken;
+                else
+                    state = SlotState.Available;
+
                 _hourStates[h] = state;
                 HourSlotsPanel.Children.Add(BuildHourCell(h, state));
             }
@@ -190,6 +201,7 @@ namespace BabySitter.Pages
                 SlotState.Available => ("#A5D6A7", "#1B5E20", true),
                 SlotState.Taken     => ("#EF9A9A", "#B71C1C", false),
                 SlotState.Selected  => ("#FFF176", "#F57F17", true),
+                SlotState.Past      => ("#EEEEEE", "#BDBDBD", false),
                 _                   => ("#F5F5F5", "#616161", false)
             };
 

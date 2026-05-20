@@ -59,22 +59,52 @@ namespace BabySitter.Pages
                 if (history.Count == 0)
                 {
                     EmptyPanel.Visibility = Visibility.Visible;
-                    TotalJobsText.Text = "0";
-                    TotalHoursText.Text = "0";
-                    LastJobText.Text = "—";
+                    TotalJobsText.Text      = "0";
+                    TotalHoursText.Text     = "0";
+                    LastJobText.Text        = "—";
+                    TotalEarningsText.Text  = "₪0";
+                    TotalEarningsLabel.Text = isBabysitter ? "סך הכל הכנסה" : "סך הכל הוצאה";
+                    PricePerHourPanel.Visibility = Visibility.Collapsed;
                     return;
                 }
+
+                // Hourly rate for babysitter view
+                int babysitterHourlyRate = 0;
+                if (isBabysitter && LogInComputer.CurrentUser is BabySitterTeens bst)
+                    babysitterHourlyRate = bst.PriceForAnHour;
 
                 // Summary stats
                 int completedOnly = history.Count(r => r.Status == "approved");
                 int totalHours    = history.Where(r => r.Status == "approved").Sum(r => r.LenghtTime);
+
+                int totalEarnings = history
+                    .Where(r => r.Status == "approved")
+                    .Sum(r => r.LenghtTime * (isBabysitter
+                        ? babysitterHourlyRate
+                        : (r.BabysitterId?.PriceForAnHour ?? 0)));
+
                 TotalJobsText.Text  = completedOnly.ToString();
                 TotalHoursText.Text = totalHours.ToString();
                 LastJobText.Text    = history.First().TimeOfRequest.ToString("dd/MM/yyyy");
 
+                if (isBabysitter && babysitterHourlyRate > 0)
+                {
+                    PricePerHourText.Text    = $"₪{babysitterHourlyRate}";
+                    PricePerHourPanel.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    PricePerHourPanel.Visibility = Visibility.Collapsed;
+                }
+
+                TotalEarningsText.Text  = $"₪{totalEarnings}";
+                TotalEarningsLabel.Text = isBabysitter ? "סך הכל הכנסה" : "סך הכל הוצאה";
+
                 // Build cards
                 foreach (var req in history)
-                    HistoryPanel.Children.Add(BuildCard(req, isBabysitter));
+                    HistoryPanel.Children.Add(BuildCard(req, isBabysitter, isBabysitter
+                        ? babysitterHourlyRate
+                        : (req.BabysitterId?.PriceForAnHour ?? 0)));
 
                 ListScroll.Visibility = Visibility.Visible;
             }
@@ -85,7 +115,7 @@ namespace BabySitter.Pages
             }
         }
 
-        private UIElement BuildCard(Requests req, bool isBabysitter)
+        private UIElement BuildCard(Requests req, bool isBabysitter, int pricePerHour)
         {
             bool cancelled = req.Status == "cancelled_by_babysitter";
 
@@ -148,7 +178,7 @@ namespace BabySitter.Pages
             nameRow.Children.Add(new TextBlock { Text = otherName,        FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(29, 27, 32)) });
             left.Children.Add(nameRow);
 
-            // Hours
+            // Hours + earnings
             if (req.LenghtTime > 0)
             {
                 left.Children.Add(new TextBlock
@@ -156,6 +186,19 @@ namespace BabySitter.Pages
                     Text = $"⏱ {req.LenghtTime} שעות",
                     FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(73, 69, 79))
                 });
+
+                if (!cancelled && pricePerHour > 0)
+                {
+                    int shiftEarnings = req.LenghtTime * pricePerHour;
+                    left.Children.Add(new TextBlock
+                    {
+                        Text = $"💰 ₪{shiftEarnings}",
+                        FontSize = 13,
+                        FontWeight = FontWeights.SemiBold,
+                        Foreground = new SolidColorBrush(Color.FromRgb(0, 137, 123)),
+                        Margin = new Thickness(0, 2, 0, 0)
+                    });
+                }
             }
 
             Grid.SetColumn(left, 0);

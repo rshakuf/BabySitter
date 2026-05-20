@@ -46,6 +46,14 @@
                         <TextBlock x:Name="TotalHoursText" FontSize="26" FontWeight="Bold" Foreground="#6750A4"/>
                         <TextBlock Text="שעות עבודה" FontSize="13" Foreground="#49454F"/>
                     </StackPanel>
+                    <StackPanel Margin="0,0,40,0" x:Name="PricePerHourPanel">
+                        <TextBlock x:Name="PricePerHourText" FontSize="26" FontWeight="Bold" Foreground="#6750A4"/>
+                        <TextBlock Text="מחיר לשעה" FontSize="13" Foreground="#49454F"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,0,40,0">
+                        <TextBlock x:Name="TotalEarningsText" FontSize="26" FontWeight="Bold" Foreground="#00897B"/>
+                        <TextBlock x:Name="TotalEarningsLabel" FontSize="13" Foreground="#49454F"/>
+                    </StackPanel>
                     <StackPanel>
                         <TextBlock x:Name="LastJobText" FontSize="20" FontWeight="Bold" Foreground="#6750A4"/>
                         <TextBlock Text="תאריך משמרת אחרונה" FontSize="13" Foreground="#49454F"/>

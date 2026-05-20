@@ -147,8 +147,11 @@
                     <Border Background="#EF9A9A" CornerRadius="8" Padding="10,4" Margin="0,0,8,0">
                         <TextBlock Text="תפוס" FontSize="12"/>
                     </Border>
-                    <Border Background="#FFF176" CornerRadius="8" Padding="10,4" BorderBrush="#F9A825" BorderThickness="1">
+                    <Border Background="#FFF176" CornerRadius="8" Padding="10,4" Margin="0,0,8,0" BorderBrush="#F9A825" BorderThickness="1">
                         <TextBlock Text="נבחר" FontSize="12"/>
+                    </Border>
+                    <Border Background="#EEEEEE" CornerRadius="8" Padding="10,4">
+                        <TextBlock Text="עבר" FontSize="12" Foreground="#BDBDBD"/>
                     </Border>
                 </StackPanel>
 
