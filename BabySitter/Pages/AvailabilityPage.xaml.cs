@@ -46,6 +46,39 @@ namespace BabySitter.Pages
             BabysitterPhoneLabel.Text = _teen.Telephone ?? "";
             ImageHelper.ApplyAvatar(_teen.ProfilePicture, _teen.FirstName,
                 AvatarLetter, AvatarImageEllipse, AvatarImageBrush);
+
+            // Age chip
+            if (_teen.DateOfBirth != default)
+            {
+                int age = DateTime.Today.Year - _teen.DateOfBirth.Year;
+                if (_teen.DateOfBirth > DateTime.Today.AddYears(-age)) age--;
+                BabysitterAgeLabel.Text = $"גיל {age}";
+            }
+
+            // Email chip (only when non-empty)
+            if (!string.IsNullOrWhiteSpace(_teen.Mail))
+            {
+                BabysitterMailLabel.Text  = _teen.Mail;
+                MailChip.Visibility       = Visibility.Visible;
+            }
+        }
+
+        private void UpdateAvgRating()
+        {
+            var myRates = _allRates.Where(r => r.IdBabySitter?.Id == _teen.Id).ToList();
+            if (!myRates.Any()) return;
+
+            double avg   = myRates.Average(r => r.Stars);
+            int    round = (int)Math.Round(avg);
+
+            var gold = new SolidColorBrush(Color.FromRgb(255, 193, 7));
+            var gray = new SolidColorBrush(Color.FromRgb(204, 204, 204));
+            var stars = new[] { AvgS1, AvgS2, AvgS3, AvgS4, AvgS5 };
+            for (int i = 0; i < 5; i++)
+                stars[i].Foreground = i < round ? gold : gray;
+
+            AvgRatingText.Text        = $"{avg:F1}  ({myRates.Count} דירוגים)";
+            AvgRatingChip.Visibility  = Visibility.Visible;
         }
 
         // ── Data loading ──────────────────────────────────────────────────────────
@@ -63,6 +96,7 @@ namespace BabySitter.Pages
 
                 _allRates = ratesTask.Result?.ToList() ?? new List<BabySitterRate>();
                 UpdateRateButton(requestsTask.Result);
+                UpdateAvgRating();
 
                 var mySlots = (schedulesTask.Result ?? Enumerable.Empty<Schedule>())
                     .Where(s => s.BabysitterId?.Id == _teen.Id)

@@ -69,24 +69,26 @@ namespace BabySitter.Pages
             UpdateMyStars();
 
             var slots = (schedulesTask.Result ?? Enumerable.Empty<Schedule>())
-                .Where(s => s.BabysitterId?.Id == user.Id)
+                .Where(s => s.BabysitterId?.Id == user.Id && s.DateAvailable.Date >= DateTime.Today)
                 .OrderBy(s => s.DateAvailable).ThenBy(s => s.Starttime)
                 .ToList();
 
             var allReqs = requestsTask.Result ?? new List<Requests>();
 
             var approvedReqs = allReqs
-                .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "approved")
+                .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "approved"
+                         && r.TimeOfRequest.Date >= DateTime.Today)
                 .OrderBy(r => r.TimeOfRequest)
                 .ToList();
 
             var pendingReqs = allReqs
-                .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "pending")
+                .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "pending"
+                         && r.TimeOfRequest.Date >= DateTime.Today)
                 .OrderByDescending(r => r.TimeOfRequest)
                 .ToList();
 
             var approvedDates = approvedReqs.Select(r => r.TimeOfRequest.Date).ToHashSet();
-            BuildFreeSlots(slots.Where(s => !s.IsApproved && !s.IsRequested && !approvedDates.Contains(s.DateAvailable.Date)).ToList());
+            BuildFreeSlots(slots.Where(s => !approvedDates.Contains(s.DateAvailable.Date)).ToList());
             BuildApprovedSlots(approvedReqs, slots);
             BuildPendingRequests(pendingReqs);
         }
@@ -567,22 +569,6 @@ namespace BabySitter.Pages
             req.Status = "approved";
             await api.UpdateRequestAsync(req);
 
-            // Update the matching schedule slot so ParentId and IsApproved are persisted
-            try
-            {
-                var allSlots = await api.GetAllSchedulesAsync();
-                var slot = allSlots?.FirstOrDefault(s =>
-                    s.BabysitterId?.Id == req.BabysitterId?.Id &&
-                    s.IsRequested && !s.IsApproved);
-                if (slot != null)
-                {
-                    slot.IsApproved = true;
-                    slot.ParentId = req.ParentsId;
-                    await api.UpdateScheduleAsync(slot);
-                }
-            }
-            catch { }
-
             if (LogInComputer.CurrentUser is BabySitterTeens user)
                 await LoadAll(user);
         }
@@ -641,9 +627,7 @@ namespace BabySitter.Pages
                 BabysitterId = new BabySitterTeens { Id = user.Id },
                 DateAvailable = date,
                 Starttime = TimeOnly.FromTimeSpan(start),
-                Endtime = TimeOnly.FromTimeSpan(end),
-                IsRequested = false,
-                IsApproved = false
+                Endtime = TimeOnly.FromTimeSpan(end)
             };
 
             try

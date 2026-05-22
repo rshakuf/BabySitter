@@ -76,21 +76,8 @@ namespace BabySitter.UserControls
                     FontSize = 12
                 };
 
-                if (slot.IsApproved)
-                {
-                    btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A5D6A7"));
-                    btn.ToolTip = "מאושר — לחץ לבחירה";
-                }
-                else if (slot.IsRequested)
-                {
-                    btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE082"));
-                    btn.ToolTip = "יש בקשה ממתינה — לחץ לבחירה";
-                }
-                else
-                {
-                    btn.Background = Brushes.White;
-                    btn.ToolTip = "לחץ לבחירה";
-                }
+                btn.Background = Brushes.White;
+                btn.ToolTip = "לחץ לבחירה";
 
                 // All slots are clickable — color is just informational
                 btn.Click += SlotButton_Click;
@@ -105,19 +92,10 @@ namespace BabySitter.UserControls
 
         private void SlotButton_Click(object sender, RoutedEventArgs e)
         {
-            // Reset every slot back to its status color
+            // Reset every slot back to white
             foreach (Button b in SchedulePanel.Children)
             {
-                var s = b.Tag as Schedule;
-                if (s == null) continue;
-
-                if (s.IsApproved)
-                    b.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A5D6A7"));
-                else if (s.IsRequested)
-                    b.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE082"));
-                else
-                    b.Background = Brushes.White;
-
+                b.Background = Brushes.White;
                 b.Foreground = Brushes.Black;
             }
 
