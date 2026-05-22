@@ -1,4 +1,5 @@
-﻿using ClApi;
+﻿using BabySitter.Helpers;
+using ClApi;
 using Model;
 using System;
 using System.Collections.Generic;
@@ -116,6 +117,10 @@ namespace BabySitter.Pages
                 MessageBox.Show("נא להזין מחיר תקין לשעה");
                 return;
             }
+
+            if (pricePerHour >= 80 &&
+                !PriceWarningHelper.ConfirmHighPrice(pricePerHour, Window.GetWindow(this)))
+                return;
 
             // 6. מייל — חובה + תקינות
             string mail = recommenderMail.Text.Trim();

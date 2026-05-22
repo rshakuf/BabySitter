@@ -48,10 +48,11 @@ namespace BabySitter.Pages
                     pass.Password = user.Password;
                     passVisible.Text = user.Password;
 
-                    KidsSection.Visibility = Visibility.Collapsed;
-                    PhotoSection.Visibility = Visibility.Visible;
-                    EmailSection.Visibility = Visibility.Visible;
-                    mail.Text = user.Mail ?? "";
+                    KidsSection.Visibility     = Visibility.Collapsed;
+                    PhotoSection.Visibility    = Visibility.Visible;
+                    EmailPriceSection.Visibility = Visibility.Visible;
+                    mail.Text          = user.Mail ?? "";
+                    pricePerHour.Text  = user.PriceForAnHour > 0 ? user.PriceForAnHour.ToString() : "";
 
                     // Show existing profile photo or initial letter
                     ImageHelper.ApplyAvatar(user.ProfilePicture, user.FirstName,
@@ -73,43 +74,21 @@ namespace BabySitter.Pages
 
                     KidsSection.Visibility = Visibility.Visible;
 
-                    kids = await api.GetAllChildrenOfParentsAsync();
-
-                    kids = kids
-                        .Where(x => x.IdParent.Id == user.Id)
+                    var allKids = await api.GetAllChildrenOfParentsAsync();
+                    kids = allKids
+                        .Where(x => x.IdParent?.Id == user.Id)
                         .ToList();
 
                     KidsPanel.Children.Clear();
 
-                    int missing = user.NumOfKids - kids.Count;
-
+                    // One card per existing child — pre-filled and in edit mode
                     foreach (var child in kids)
-                    {
-                        KidInfoControl control = new KidInfoControl(user);
+                        KidsPanel.Children.Add(new KidInfoControl(user, cities, child));
 
-                        control.FirstNameTextBoxPublic.Text = child.FirstName;
-                        control.LastNameTextBoxPublic.Text = child.LastName;
-                        control.BirthDatePickerPublic.SelectedDate = child.DateOfBirth;
-
-                        control.CityComboBoxPublic.ItemsSource = cities;
-                        control.CityComboBoxPublic.DisplayMemberPath = "CityName";
-
-                        control.CityComboBoxPublic.SelectedItem =
-                            cities.FirstOrDefault(c => c.Id == child.CityNameId?.Id);
-
-                        control.Tag = child;
-                        KidsPanel.Children.Add(control);
-                    }
-
+                    // Empty cards for any children not yet registered
+                    int missing = user.NumOfKids - kids.Count;
                     for (int i = 0; i < missing; i++)
-                    {
-                        KidInfoControl empty = new KidInfoControl(user);
-
-                        empty.CityComboBoxPublic.ItemsSource = cities;
-                        empty.CityComboBoxPublic.DisplayMemberPath = "CityName";
-
-                        KidsPanel.Children.Add(empty);
-                    }
+                        KidsPanel.Children.Add(new KidInfoControl(user, cities));
                 }
             }
             catch (Exception ex)
@@ -172,6 +151,11 @@ namespace BabySitter.Pages
             e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
         }
 
+        private void Price_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
+        }
+
         private bool IsValidPhone(string text)
         {
             return Regex.IsMatch(text, @"^05\d{8}$");
@@ -218,12 +202,27 @@ namespace BabySitter.Pages
                         return;
                     }
 
-                    user.FirstName  = fname.Text.Trim();
-                    user.LastName   = lname.Text.Trim();
-                    user.Telephone  = phoneText;
-                    user.CityNameId = (City)cityComboBox.SelectedItem;
-                    user.Password   = showPass ? passVisible.Text : pass.Password;
-                    user.Mail       = mailText;
+                    // Validate price
+                    if (!int.TryParse(pricePerHour.Text.Trim(), out int price) || price <= 0)
+                    {
+                        PriceErrorMsg.Text       = "נא להזין מחיר תקין (מספר חיובי)";
+                        PriceErrorMsg.Visibility = Visibility.Visible;
+                        pricePerHour.Focus();
+                        return;
+                    }
+                    PriceErrorMsg.Visibility = Visibility.Collapsed;
+
+                    if (price >= 80 &&
+                        !PriceWarningHelper.ConfirmHighPrice(price, Window.GetWindow(this)))
+                        return;
+
+                    user.FirstName      = fname.Text.Trim();
+                    user.LastName       = lname.Text.Trim();
+                    user.Telephone      = phoneText;
+                    user.CityNameId     = (City)cityComboBox.SelectedItem;
+                    user.Password       = showPass ? passVisible.Text : pass.Password;
+                    user.Mail           = mailText;
+                    user.PriceForAnHour = price;
 
                     if (_pendingPhotoBase64 != null)
                         user.ProfilePicture = _pendingPhotoBase64;

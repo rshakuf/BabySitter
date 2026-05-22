@@ -121,11 +121,18 @@ namespace BabySitter.Pages
         // Returns hours that are in schedule but NOT blocked and NOT in the past
         private HashSet<int> GetFreeHours(DateTime date, IEnumerable<Schedule> slots, IEnumerable<Requests> blocked)
         {
+            // Entire day already passed — nothing available
+            if (date.Date < DateTime.Today)
+                return new HashSet<int>();
+
             var scheduled = ExpandSlotHours(date, slots);
             var taken     = ExpandRequestHours(date, blocked);
             scheduled.ExceptWith(taken);
+
+            // Today: remove hours that have already passed
             if (date.Date == DateTime.Today)
                 scheduled.RemoveWhere(h => h <= DateTime.Now.Hour);
+
             return scheduled;
         }
 
@@ -165,13 +172,14 @@ namespace BabySitter.Pages
 
             var scheduledHours = ExpandSlotHours(date, slots);
             var takenHours     = ExpandRequestHours(date, blocked);
+            bool isPastDay     = date.Date < DateTime.Today;
             bool isToday       = date.Date == DateTime.Today;
             int  nowHour       = DateTime.Now.Hour;
 
             foreach (int h in scheduledHours.OrderBy(x => x))
             {
                 SlotState state;
-                if (isToday && h <= nowHour)
+                if (isPastDay || (isToday && h <= nowHour))
                     state = SlotState.Past;
                 else if (takenHours.Contains(h))
                     state = SlotState.Taken;

@@ -107,17 +107,46 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- Email row (babysitter only) -->
-                    <StackPanel x:Name="EmailSection" Margin="0,0,0,15" Visibility="Collapsed">
-                        <TextBlock Text="מייל" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
-                        <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
-                            <TextBox x:Name="mail" Background="Transparent" BorderThickness="0"
-                                     VerticalContentAlignment="Center" Padding="15,0" FontSize="16"
-                                     Foreground="#2D3748" LostFocus="Mail_LostFocus"/>
-                        </Border>
-                        <TextBlock x:Name="MailErrorMsg" Text="" Foreground="#C53030"
-                                   FontSize="12" Margin="5,3,0,0" Visibility="Collapsed"/>
-                    </StackPanel>
+                    <!-- Email + Price row (babysitter only) -->
+                    <Grid x:Name="EmailPriceSection" Margin="0,0,0,15" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="160"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Email -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="מייל" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
+                            <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
+                                <TextBox x:Name="mail" Background="Transparent" BorderThickness="0"
+                                         VerticalContentAlignment="Center" Padding="15,0" FontSize="16"
+                                         Foreground="#2D3748" LostFocus="Mail_LostFocus"/>
+                            </Border>
+                            <TextBlock x:Name="MailErrorMsg" Text="" Foreground="#C53030"
+                                       FontSize="12" Margin="5,3,0,0" Visibility="Collapsed"/>
+                        </StackPanel>
+
+                        <!-- Price per hour -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="מחיר לשעה (₪)" Foreground="#4A5568" FontWeight="SemiBold" Margin="5,0,0,5"/>
+                            <Border Background="White" CornerRadius="12" Height="45" Effect="{StaticResource InputShadow}">
+                                <Grid>
+                                    <TextBlock Text="₪" FontSize="16" Foreground="#9E9E9E"
+                                               HorizontalAlignment="Right" VerticalAlignment="Center"
+                                               Margin="0,0,12,0" IsHitTestVisible="False"/>
+                                    <TextBox x:Name="pricePerHour"
+                                             Background="Transparent" BorderThickness="0"
+                                             VerticalContentAlignment="Center" Padding="15,0,30,0"
+                                             FontSize="16" Foreground="#2D3748"
+                                             PreviewTextInput="Price_PreviewTextInput"
+                                             MaxLength="5"/>
+                                </Grid>
+                            </Border>
+                            <TextBlock x:Name="PriceErrorMsg" Text="" Foreground="#C53030"
+                                       FontSize="12" Margin="5,3,0,0" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </Grid>
 
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
