@@ -42,24 +42,7 @@ namespace BabySitter.Pages
         private async void Home_Loaded(object sender, RoutedEventArgs e)
         {
             ShowWelcomeMessage();
-
-            if (NavigationService != null)
-                NavigationService.Navigated += NavigationService_Navigated;
-
-            // Unsubscribe when page unloads to prevent memory leak
-            Unloaded += (s, _) =>
-            {
-                if (NavigationService != null)
-                    NavigationService.Navigated -= NavigationService_Navigated;
-            };
-
             await LoadData();
-        }
-
-        private async void NavigationService_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
-        {
-            if (e.Content == this)
-                await LoadData();
         }
 
         // ─── Welcome message ──────────────────────────────────────────────────────
@@ -207,6 +190,11 @@ namespace BabySitter.Pages
         private void GoToMyProfile(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new BabySitter.Pages.MyProfile());
+        }
+
+        private void GoToAboutUs(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new AboutUs());
         }
 
         private void GoToHistory(object sender, RoutedEventArgs e)

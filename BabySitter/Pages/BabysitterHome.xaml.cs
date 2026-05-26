@@ -855,6 +855,11 @@ namespace BabySitter.Pages
             NavigationService.Navigate(new MyProfile());
         }
 
+        private void GoToAboutUs_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new AboutUs());
+        }
+
         private void GoToHistory_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new JobHistoryPage());

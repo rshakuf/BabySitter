@@ -4,7 +4,9 @@
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\RotemFinalProject\" -Recurse | Where-Object { $_.Extension -eq \".cs\" } | Select-Object -First 30 FullName)",
       "Bash(dotnet build *)",
       "Bash(Get-Content \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\RotemFinalProject\\\\BabysitterApi\\\\BabysitterApi.csproj\")",
-      "PowerShell(Get-Process -Name \"BabysitterApi\" -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-Process -Name \"BabysitterApi\" -ErrorAction SilentlyContinue)",
+      "Bash(del \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\BabySitter\\\\BabySitter\\\\Helpers\\\\ImageHelper.cs\")",
+      "PowerShell(Remove-Item \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\BabySitter\\\\BabySitter\\\\Helpers\\\\ImageHelper.cs\" -Confirm:$false)"
     ]
   }
 }

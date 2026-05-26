@@ -69,6 +69,8 @@
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="אודות" Style="{StaticResource MaterialTonalButton}"
+                            Margin="0,0,12,0" Click="GoToAboutUs_Click"/>
                     <Button Content="היסטוריית עבודה" Style="{StaticResource MaterialTonalButton}"
                             Margin="0,0,12,0" Click="GoToHistory_Click"/>
                     <Button Content="הפרופיל שלי" Style="{StaticResource MaterialFilledButton}"

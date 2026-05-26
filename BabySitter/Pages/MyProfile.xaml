@@ -63,28 +63,6 @@
                                HorizontalAlignment="Center"
                                Margin="0,0,0,20"/>
 
-                    <!-- Photo upload (babysitter only) -->
-                    <StackPanel x:Name="PhotoSection" HorizontalAlignment="Center"
-                                Margin="0,0,0,24" Visibility="Collapsed">
-                        <Grid Width="110" Height="110" HorizontalAlignment="Center" Margin="0,0,0,10">
-                            <Ellipse Width="110" Height="110" Fill="#6750A4"/>
-                            <TextBlock x:Name="AvatarLetter"
-                                       Foreground="White" FontSize="44" FontWeight="Bold"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <Ellipse x:Name="AvatarImageEllipse" Width="110" Height="110"
-                                     Visibility="Collapsed">
-                                <Ellipse.Fill>
-                                    <ImageBrush x:Name="AvatarImageBrush" Stretch="UniformToFill"/>
-                                </Ellipse.Fill>
-                            </Ellipse>
-                        </Grid>
-                        <Button Content="📷  העלה תמונה"
-                                x:Name="UploadPhotoBtn"
-                                Click="UploadPhoto_Click"
-                                Style="{StaticResource ModernButtonStyle}"
-                                Height="38" Width="160" FontSize="14"/>
-                    </StackPanel>
-
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

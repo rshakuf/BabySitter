@@ -421,20 +421,8 @@ namespace BabySitter.Pages
             var existing = _allRates.FirstOrDefault(r =>
                 r.IdBabySitter?.Id == _teen.Id && r.IdParent?.Id == currentParent.Id);
 
-            if (existing != null)
-            {
-                // Show read-only stars
-                var gold = new SolidColorBrush(Color.FromRgb(255, 193, 7));
-                var gray = new SolidColorBrush(Color.FromRgb(204, 204, 204));
-                var stars = new[] { RS1, RS2, RS3, RS4, RS5 };
-                for (int i = 0; i < 5; i++)
-                    stars[i].Foreground = i < existing.Stars ? gold : gray;
-                RatingStarsPanel.Visibility = Visibility.Visible;
-            }
-            else
-            {
+            if (existing == null)
                 RateBtn.Visibility = Visibility.Visible;
-            }
         }
 
         private async void RateBtn_Click(object sender, RoutedEventArgs e)
@@ -454,14 +442,10 @@ namespace BabySitter.Pages
 
             await _api.InsertBabySitterRateAsync(rate);
 
-            // Swap button → stars immediately
+            // Hide the rate button and refresh the average chip with the new rating included
             RateBtn.Visibility = Visibility.Collapsed;
-            var gold = new SolidColorBrush(Color.FromRgb(255, 193, 7));
-            var gray = new SolidColorBrush(Color.FromRgb(204, 204, 204));
-            var stars = new[] { RS1, RS2, RS3, RS4, RS5 };
-            for (int i = 0; i < 5; i++)
-                stars[i].Foreground = i < dialog.SelectedRating ? gold : gray;
-            RatingStarsPanel.Visibility = Visibility.Visible;
+            _allRates = (await _api.GetAllBabySitterRatesAsync())?.ToList() ?? _allRates;
+            UpdateAvgRating();
         }
 
         // ── Empty state ───────────────────────────────────────────────────────────

@@ -67,6 +67,13 @@
                         Width="140" Height="40"
                         Click="BabysitterRegisterButton_Click"/>
             </StackPanel>
+
+            <Button Content="אודות האפליקציה"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Width="160" Height="36"
+                    Margin="0,14,0,0"
+                    HorizontalAlignment="Left"
+                    Click="AboutUs_Click"/>
         </StackPanel>
 
         <!-- RIGHT SIDE -->

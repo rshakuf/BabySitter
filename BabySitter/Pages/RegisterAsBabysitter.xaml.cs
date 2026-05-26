@@ -163,7 +163,6 @@ namespace BabySitter.Pages
                 Password = pass.Password,
                 Telephone = phoneText,
                 CityNameId = selectedCity,
-                ProfilePicture = " "
             };
 
             int result = await api.InsertBabySitterTeenAsync(teen);

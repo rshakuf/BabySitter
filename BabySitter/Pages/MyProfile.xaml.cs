@@ -1,10 +1,8 @@
-﻿using BabySitter.Helpers;
+using BabySitter.Helpers;
 using ClApi;
-using Microsoft.Win32;
 using Model;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -17,7 +15,6 @@ namespace BabySitter.Pages
     {
         private readonly ApiService api = new ApiService();
         private bool showPass = false;
-        private string _pendingPhotoBase64 = null;
 
         private List<ChildOfParent> kids = new List<ChildOfParent>();
 
@@ -48,15 +45,10 @@ namespace BabySitter.Pages
                     pass.Password = user.Password;
                     passVisible.Text = user.Password;
 
-                    KidsSection.Visibility     = Visibility.Collapsed;
-                    PhotoSection.Visibility    = Visibility.Visible;
+                    KidsSection.Visibility       = Visibility.Collapsed;
                     EmailPriceSection.Visibility = Visibility.Visible;
-                    mail.Text          = user.Mail ?? "";
-                    pricePerHour.Text  = user.PriceForAnHour > 0 ? user.PriceForAnHour.ToString() : "";
-
-                    // Show existing profile photo or initial letter
-                    ImageHelper.ApplyAvatar(user.ProfilePicture, user.FirstName,
-                        AvatarLetter, AvatarImageEllipse, AvatarImageBrush);
+                    mail.Text         = user.Mail ?? "";
+                    pricePerHour.Text = user.PriceForAnHour > 0 ? user.PriceForAnHour.ToString() : "";
                 }
                 else if (LogInComputer.WhoAmI == "parent")
                 {
@@ -81,11 +73,9 @@ namespace BabySitter.Pages
 
                     KidsPanel.Children.Clear();
 
-                    // One card per existing child — pre-filled and in edit mode
                     foreach (var child in kids)
                         KidsPanel.Children.Add(new KidInfoControl(user, cities, child));
 
-                    // Empty cards for any children not yet registered
                     int missing = user.NumOfKids - kids.Count;
                     for (int i = 0; i < missing; i++)
                         KidsPanel.Children.Add(new KidInfoControl(user, cities));
@@ -114,36 +104,12 @@ namespace BabySitter.Pages
             }
         }
 
-        private void UploadPhoto_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new OpenFileDialog
-            {
-                Title  = "בחר תמונת פרופיל",
-                Filter = "קבצי תמונה|*.jpg;*.jpeg;*.png;*.bmp;*.gif"
-            };
-            if (dialog.ShowDialog() != true) return;
-
-            try
-            {
-                var bytes = File.ReadAllBytes(dialog.FileName);
-                _pendingPhotoBase64 = Convert.ToBase64String(bytes);
-
-                // Preview immediately
-                ImageHelper.ApplyAvatar(_pendingPhotoBase64, fname.Text,
-                    AvatarLetter, AvatarImageEllipse, AvatarImageBrush);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("שגיאה בטעינת התמונה: " + ex.Message);
-            }
-        }
-
         private void TogglePassword(object sender, MouseButtonEventArgs e)
         {
             showPass = !showPass;
 
-            pass.Visibility = showPass ? Visibility.Collapsed : Visibility.Visible;
-            passVisible.Visibility = showPass ? Visibility.Visible : Visibility.Collapsed;
+            pass.Visibility        = showPass ? Visibility.Collapsed : Visibility.Visible;
+            passVisible.Visibility = showPass ? Visibility.Visible   : Visibility.Collapsed;
         }
 
         private void Phone_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -156,10 +122,8 @@ namespace BabySitter.Pages
             e.Handled = !Regex.IsMatch(e.Text, @"^\d+$");
         }
 
-        private bool IsValidPhone(string text)
-        {
-            return Regex.IsMatch(text, @"^05\d{8}$");
-        }
+        private bool IsValidPhone(string text) =>
+            Regex.IsMatch(text, @"^05\d{8}$");
 
         private async void SaveChanges(object sender, RoutedEventArgs e)
         {
@@ -192,17 +156,15 @@ namespace BabySitter.Pages
                 {
                     var user = (BabySitterTeens)LogInComputer.CurrentUser;
 
-                    // Validate email
                     string mailText = mail.Text.Trim();
                     if (!string.IsNullOrEmpty(mailText) && !IsValidEmail(mailText))
                     {
-                        MailErrorMsg.Text = "כתובת מייל לא תקינה";
+                        MailErrorMsg.Text       = "כתובת מייל לא תקינה";
                         MailErrorMsg.Visibility = Visibility.Visible;
                         mail.Focus();
                         return;
                     }
 
-                    // Validate price
                     if (!int.TryParse(pricePerHour.Text.Trim(), out int price) || price <= 0)
                     {
                         PriceErrorMsg.Text       = "נא להזין מחיר תקין (מספר חיובי)";
@@ -224,25 +186,20 @@ namespace BabySitter.Pages
                     user.Mail           = mailText;
                     user.PriceForAnHour = price;
 
-                    if (_pendingPhotoBase64 != null)
-                        user.ProfilePicture = _pendingPhotoBase64;
-
                     int result = await api.UpdateBabySitterTeenAsync(user);
-
                     MessageBox.Show(result > 0 ? "נשמר!" : "שגיאה בשמירה");
                 }
                 else if (LogInComputer.WhoAmI == "parent")
                 {
                     var user = (Parents)LogInComputer.CurrentUser;
 
-                    user.FirstName = fname.Text.Trim();
-                    user.LastName = lname.Text.Trim();
-                    user.Telephone = phoneText;
+                    user.FirstName  = fname.Text.Trim();
+                    user.LastName   = lname.Text.Trim();
+                    user.Telephone  = phoneText;
                     user.CityNameId = (City)cityComboBox.SelectedItem;
-                    user.Password = showPass ? passVisible.Text : pass.Password;
+                    user.Password   = showPass ? passVisible.Text : pass.Password;
 
                     int result = await api.UpdateParentAsync(user);
-
                     MessageBox.Show(result > 0 ? "נשמר!" : "שגיאה בשמירה");
                 }
             }

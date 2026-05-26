@@ -1,0 +1,228 @@
+<Page x:Class="BabySitter.Pages.AboutUs"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="#F7F2FA"
+      FlowDirection="RightToLeft"
+      Title="אודות רותם בייביסיטר">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="60,40,60,60">
+
+            <!-- Back button -->
+            <Button Content="→  חזרה"
+                    HorizontalAlignment="Right"
+                    Width="110" Height="36"
+                    Margin="0,0,0,30"
+                    Background="Transparent"
+                    Foreground="#6750A4"
+                    FontSize="14" FontWeight="SemiBold"
+                    BorderThickness="1" Cursor="Hand"
+                    Click="BackButton_Click">
+                <Button.BorderBrush><SolidColorBrush Color="#6750A4"/></Button.BorderBrush>
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="18"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <!-- ── HERO ── -->
+            <Border Background="#6750A4" CornerRadius="24" Padding="50,40" Margin="0,0,0,32">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="30" ShadowDepth="6" Opacity="0.18" Color="#6750A4"/>
+                </Border.Effect>
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="רותם בייביסיטר"
+                               FontSize="48" FontWeight="Black"
+                               Foreground="White"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="מחברים בין הורים לבייביסיטרים — בקלות, במהירות, באמון"
+                               FontSize="18" Foreground="#E8DEF8"
+                               HorizontalAlignment="Center"
+                               Margin="0,12,0,0" TextWrapping="Wrap"
+                               TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ── OUR STORY ── -->
+            <Border Background="White" CornerRadius="20" Padding="36,30" Margin="0,0,0,20">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.07"/>
+                </Border.Effect>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <Border Background="#EDE7F6" CornerRadius="10" Padding="10,5" Margin="0,0,12,0">
+                            <TextBlock Text="💡" FontSize="22"/>
+                        </Border>
+                        <TextBlock Text="הסיפור שלנו"
+                                   FontSize="24" FontWeight="Bold" Foreground="#1C1B1F"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock TextWrapping="Wrap" FontSize="15" Foreground="#49454F" LineHeight="26">
+                        <Run Text="רותם בייביסיטר נולדה מתוך חוויה אישית. אני בעצמי עובדת כבייביסיטרית עבור משפחה אחת, ותמיד רציתי להרחיב את מעגל המשפחות שאני עובדת עבורן — אך לא תמיד קל למצוא. "/>
+                        <Run Text="ראיתי מקרוב כמה האפליקציה הזו יכולה לעזור: גם לנערים שמחפשים עבודה קלילה, וגם להורים שזקוקים לפתרון מהיר ואמין לשמירה על ילדיהם."/>
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" FontSize="15" Foreground="#49454F" LineHeight="26" Margin="0,12,0,0">
+                        <Run Text="יש ימים שההורים שאני עובדת עבורם צריכים אותי אך אני לא יכולה — הייתי רוצה שתמיד יהיה להם מענה מהיר. "/>
+                        <Run Text="מתוך הצורך הזה, ומתוך האמונה שעזרה הדדית יכולה לשנות שגרה שלמה — נבנה הפרויקט."/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- ── WHO WE SERVE ── -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Parents card -->
+                <Border Grid.Column="0" Background="White" CornerRadius="20" Padding="30,26">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.07"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="👨‍👩‍👧" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                        <TextBlock Text="להורים"
+                                   FontSize="20" FontWeight="Bold" Foreground="#1C1B1F"
+                                   HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="#49454F"
+                                   LineHeight="24" TextAlignment="Center">
+                            <Run Text="רוצים לצאת לעבוד, ליהנות או לטוס לחו&#x22;ל? מצאו בייביסיטר זמין תוך דקות. "/>
+                            <Run Text="הורים רבים מתקשים למצוא שמרטף אמין — האפליקציה פותרת את זה בדיוק."/>
+                        </TextBlock>
+                        <Border Background="#EDE7F6" CornerRadius="12" Padding="14,8" Margin="0,16,0,0"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="מהיר · אמין · נוח" FontSize="13"
+                                       Foreground="#6750A4" FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Teens card -->
+                <Border Grid.Column="2" Background="White" CornerRadius="20" Padding="30,26">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.07"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="🧑‍💼" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                        <TextBlock Text="לנערים"
+                                   FontSize="20" FontWeight="Bold" Foreground="#1C1B1F"
+                                   HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="#49454F"
+                                   LineHeight="24" TextAlignment="Center">
+                            <Run Text="מחפשים עבודה גמישה, נוחה ומספקת? "/>
+                            <Run Text="הזינו את שעות הזמינות שלכם, קבעו מחיר, וההורים יפנו אליכם. "/>
+                            <Run Text="פשוט, ברור, ומתגמל."/>
+                        </TextBlock>
+                        <Border Background="#E8F5E9" CornerRadius="12" Padding="14,8" Margin="0,16,0,0"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="גמיש · עצמאי · משתלם" FontSize="13"
+                                       Foreground="#2E7D32" FontWeight="SemiBold"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ── HOW IT WORKS ── -->
+            <Border Background="White" CornerRadius="20" Padding="36,30" Margin="0,0,0,20">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.07"/>
+                </Border.Effect>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                        <Border Background="#E8F5E9" CornerRadius="10" Padding="10,5" Margin="0,0,12,0">
+                            <TextBlock Text="⚙️" FontSize="22"/>
+                        </Border>
+                        <TextBlock Text="איך זה עובד?"
+                                   FontSize="24" FontWeight="Bold" Foreground="#1C1B1F"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <Border Background="#EDE7F6" Width="56" Height="56" CornerRadius="28"
+                                    HorizontalAlignment="Center" Margin="0,0,0,10">
+                                <TextBlock Text="1" FontSize="24" FontWeight="Black"
+                                           Foreground="#6750A4"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="נרשמים לאפליקציה" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="#1C1B1F" HorizontalAlignment="Center" TextAlignment="Center"/>
+                            <TextBlock Text="כהורה או כבייביסיטר" FontSize="12" Foreground="#79747E"
+                                       HorizontalAlignment="Center" TextAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <Border Background="#EDE7F6" Width="56" Height="56" CornerRadius="28"
+                                    HorizontalAlignment="Center" Margin="0,0,0,10">
+                                <TextBlock Text="2" FontSize="24" FontWeight="Black"
+                                           Foreground="#6750A4"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="מחפשים ומוצאים" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="#1C1B1F" HorizontalAlignment="Center" TextAlignment="Center"/>
+                            <TextBlock Text="הורים מוצאים בייביסיטר,&#x0a;בייביסיטרים מגדירים זמינות"
+                                       FontSize="12" Foreground="#79747E"
+                                       HorizontalAlignment="Center" TextAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                            <Border Background="#EDE7F6" Width="56" Height="56" CornerRadius="28"
+                                    HorizontalAlignment="Center" Margin="0,0,0,10">
+                                <TextBlock Text="3" FontSize="24" FontWeight="Black"
+                                           Foreground="#6750A4"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="קובעים ונהנים" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="#1C1B1F" HorizontalAlignment="Center" TextAlignment="Center"/>
+                            <TextBlock Text="שולחים בקשה, מאשרים,&#x0a;ויוצאים לדרך" FontSize="12"
+                                       Foreground="#79747E"
+                                       HorizontalAlignment="Center" TextAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ── GOALS ── -->
+            <Border Background="#1C1B1F" CornerRadius="20" Padding="36,30" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="המטרות שלנו"
+                               FontSize="22" FontWeight="Bold" Foreground="White"
+                               Margin="0,0,0,18"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Border Background="#6750A4" CornerRadius="6" Width="8" Height="8"
+                                VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <TextBlock Text="לעזור להורים למצוא בייביסיטר זמין ואמין"
+                                   FontSize="15" Foreground="#CAC4D0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Border Background="#6750A4" CornerRadius="6" Width="8" Height="8"
+                                VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <TextBlock Text="לספק לנערים הזדמנות עבודה גמישה ומכבדת"
+                                   FontSize="15" Foreground="#CAC4D0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Background="#6750A4" CornerRadius="6" Width="8" Height="8"
+                                VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <TextBlock Text="לחבר בין שני הצדדים בצורה פשוטה, ברורה ונוחה"
+                                   FontSize="15" Foreground="#CAC4D0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ── FOOTER ── -->
+            <TextBlock Text="פותח באהבה על ידי רותם שקוף  ♥"
+                       FontSize="14" Foreground="#79747E"
+                       HorizontalAlignment="Center" Margin="0,10,0,0"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

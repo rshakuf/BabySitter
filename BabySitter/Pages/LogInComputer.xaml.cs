@@ -51,6 +51,11 @@ namespace BabySitter.Pages
             LogInButton_Click(null, null);
         }
 
+        private void AboutUs_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new AboutUs());
+        }
+
         private void ParentRegisterButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new Uri("Pages/Register.xaml", UriKind.Relative));

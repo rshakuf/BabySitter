@@ -88,15 +88,6 @@
                                 </Style>
                             </Button.Resources>
                         </Button>
-                        <!-- Stars display — shown when parent already rated -->
-                        <StackPanel x:Name="RatingStarsPanel" Orientation="Horizontal"
-                                    VerticalAlignment="Center" Visibility="Collapsed">
-                            <TextBlock x:Name="RS1" Text="★" FontSize="20" Margin="1,0" Foreground="#CCCCCC"/>
-                            <TextBlock x:Name="RS2" Text="★" FontSize="20" Margin="1,0" Foreground="#CCCCCC"/>
-                            <TextBlock x:Name="RS3" Text="★" FontSize="20" Margin="1,0" Foreground="#CCCCCC"/>
-                            <TextBlock x:Name="RS4" Text="★" FontSize="20" Margin="1,0" Foreground="#CCCCCC"/>
-                            <TextBlock x:Name="RS5" Text="★" FontSize="20" Margin="1,0" Foreground="#CCCCCC"/>
-                        </StackPanel>
                     </StackPanel>
                 </DockPanel>
 
