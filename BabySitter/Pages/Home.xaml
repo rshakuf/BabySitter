@@ -196,9 +196,9 @@
                                     </Border.Effect>
 
                                     <!--
-                                        DataContext is set to Teen (BabySitterTeens) so inner bindings work.
-                                        AverageRating/RatingCount must be read from the outer BabySitterCardVM —
-                                        use ElementName=CardBorder whose DataContext is still the CardVM.
+                                        DataContext is BabySitterCardVM (ViewModel for display).
+                                        Teen holds the babysitter data; AverageRating/RatingCount
+                                        are computed from BabySitterRate records (not stored in DB).
                                     -->
                                     <uc:UserControlHome DataContext="{Binding Teen}"
                                                         AverageRating="{Binding DataContext.AverageRating, ElementName=CardBorder}"

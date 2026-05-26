@@ -1,5 +1,4 @@
-﻿using ApiInterface;
-using ClApi;
+﻿using ClApi;
 using Model;
 using System;
 using System.Collections.Generic;
@@ -152,7 +151,7 @@ namespace BabySitter.Pages
 
             var result = filtered.ToList();
 
-            // Wrap each babysitter with their rating data
+            // Wrap each babysitter with their computed rating data
             var cardVMs = result.Select(b =>
             {
                 _ratings.TryGetValue(b.Id, out var r);

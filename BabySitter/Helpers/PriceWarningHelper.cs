@@ -7,15 +7,10 @@ namespace BabySitter.Helpers
 {
     public static class PriceWarningHelper
     {
-        // ── Thresholds ────────────────────────────────────────────────────────────
+       
         public const int LowPriceThreshold  = 15;   // ₪/hour — below this = too low
         public const int HighPriceThreshold = 80;   // ₪/hour — above this = too high
 
-        /// <summary>
-        /// Shows a warning dialog when the price is ≥ 80 ₪/hour.
-        /// Returns true if the babysitter clicked "הבנתי, המשך" (wants to proceed).
-        /// Returns false if they clicked "שנה מחיר" (wants to change).
-        /// </summary>
         public static bool ConfirmHighPrice(int price, Window owner)
         {
             bool proceed = false;
@@ -46,7 +41,6 @@ namespace BabySitter.Helpers
 
             var main = new StackPanel();
 
-            // Header strip
             var header = new Border
             {
                 Background   = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F57F17")),
@@ -141,11 +135,7 @@ namespace BabySitter.Helpers
             return proceed;
         }
 
-        /// <summary>
-        /// Shows a warning dialog when the price is ≤ 30 ₪/hour.
-        /// Returns true if the babysitter clicked "הבנתי, המשך" (wants to proceed).
-        /// Returns false if they clicked "שנה מחיר" (wants to change).
-        /// </summary>
+       
         public static bool ConfirmLowPrice(int price, Window owner)
         {
             bool proceed = false;
@@ -176,7 +166,7 @@ namespace BabySitter.Helpers
 
             var main = new StackPanel();
 
-            // Header strip — blue for low-price warning
+          
             var header = new Border
             {
                 Background   = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1565C0")),
