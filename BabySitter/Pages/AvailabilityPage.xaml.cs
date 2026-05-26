@@ -26,7 +26,8 @@ namespace BabySitter.Pages
         // hour → state for the currently displayed day
         private Dictionary<int, SlotState> _hourStates = new();
 
-        private List<BabySitterRate> _allRates = new();
+        private List<BabySitterRate> _allRates   = new();
+        private List<Reviews>       _allReviews = new();
 
         public AvailabilityPage(BabySitterTeens teen)
         {
@@ -66,19 +67,28 @@ namespace BabySitter.Pages
         private void UpdateAvgRating()
         {
             var myRates = _allRates.Where(r => r.IdBabySitter?.Id == _teen.Id).ToList();
-            if (!myRates.Any()) return;
 
-            double avg   = myRates.Average(r => r.Stars);
-            int    round = (int)Math.Round(avg);
-
-            var gold = new SolidColorBrush(Color.FromRgb(255, 193, 7));
-            var gray = new SolidColorBrush(Color.FromRgb(204, 204, 204));
+            var gold  = new SolidColorBrush(Color.FromRgb(255, 193, 7));
+            var gray  = new SolidColorBrush(Color.FromRgb(204, 204, 204));
             var stars = new[] { AvgS1, AvgS2, AvgS3, AvgS4, AvgS5 };
-            for (int i = 0; i < 5; i++)
-                stars[i].Foreground = i < round ? gold : gray;
 
-            AvgRatingText.Text        = $"{avg:F1}  ({myRates.Count} דירוגים)";
-            AvgRatingChip.Visibility  = Visibility.Visible;
+            if (myRates.Any())
+            {
+                double avg   = myRates.Average(r => r.Stars);
+                int    round = (int)Math.Round(avg);
+                for (int i = 0; i < 5; i++)
+                    stars[i].Foreground = i < round ? gold : gray;
+                AvgRatingText.Text = $"{avg:F1}  ({myRates.Count} דירוגים)";
+            }
+            else
+            {
+                for (int i = 0; i < 5; i++) stars[i].Foreground = gray;
+                AvgRatingText.Text = _parentCanRate ? "לחץ לדרג" : "אין דירוג";
+            }
+
+            // Always show the chip when there are ratings OR when the current parent can rate
+            if (myRates.Any() || _parentCanRate)
+                AvgRatingChip.Visibility = Visibility.Visible;
         }
 
         // ── Data loading ──────────────────────────────────────────────────────────
@@ -92,9 +102,12 @@ namespace BabySitter.Pages
                 var schedulesTask = _api.GetAllSchedulesAsync();
                 var requestsTask  = _api.GetAllRequestsAsync();
                 var ratesTask     = _api.GetAllBabySitterRatesAsync();
-                await System.Threading.Tasks.Task.WhenAll(schedulesTask, requestsTask, ratesTask);
+                var reviewsTask   = _api.GetAllReviewsAsync();
+                await System.Threading.Tasks.Task.WhenAll(schedulesTask, requestsTask, ratesTask, reviewsTask);
 
-                _allRates = ratesTask.Result?.ToList() ?? new List<BabySitterRate>();
+                _allRates   = ratesTask.Result?.ToList()   ?? new List<BabySitterRate>();
+                _allReviews = reviewsTask.Result?.ToList() ?? new List<Reviews>();
+                // UpdateRateButton first — sets _parentCanRate so UpdateAvgRating shows the chip correctly
                 UpdateRateButton(requestsTask.Result);
                 UpdateAvgRating();
 
@@ -403,6 +416,10 @@ namespace BabySitter.Pages
 
         // ── Rating ────────────────────────────────────────────────────────────────
 
+        private BabySitterRate _myExistingRate   = null;
+        private Reviews        _myExistingReview = null;
+        private bool           _parentCanRate    = false;
+
         private void UpdateRateButton(IEnumerable<Requests> allRequests)
         {
             if (LogInComputer.WhoAmI != "parent") return;
@@ -410,41 +427,95 @@ namespace BabySitter.Pages
             var currentParent = LogInComputer.CurrentUser as Parents;
             if (currentParent == null) return;
 
+            // Consider a job "past" when its end time (start + duration) has already passed
             bool hadPastJob = (allRequests ?? Enumerable.Empty<Requests>()).Any(r =>
                 r.BabysitterId?.Id == _teen.Id &&
-                r.ParentsId?.Id == currentParent.Id &&
+                r.ParentsId?.Id   == currentParent.Id &&
                 r.Status == "approved" &&
-                r.TimeOfRequest.Date < DateTime.Today);
+                r.TimeOfRequest.AddHours(r.LenghtTime > 0 ? r.LenghtTime : 1) <= DateTime.Now);
 
             if (!hadPastJob) return;
 
-            var existing = _allRates.FirstOrDefault(r =>
+            _myExistingRate = _allRates.FirstOrDefault(r =>
                 r.IdBabySitter?.Id == _teen.Id && r.IdParent?.Id == currentParent.Id);
 
-            if (existing == null)
-                RateBtn.Visibility = Visibility.Visible;
+            _myExistingReview = _allReviews.FirstOrDefault(r =>
+                r.BabySitterId?.Id == _teen.Id && r.ParentId?.Id == currentParent.Id);
+
+            _parentCanRate = true;
+
+            // Make the avg chip clickable — one-time subscription guard
+            AvgRatingChip.Cursor             = Cursors.Hand;
+            AvgRatingChip.MouseLeftButtonUp -= AvgRatingChip_Click; // avoid double-subscribe
+            AvgRatingChip.MouseLeftButtonUp += AvgRatingChip_Click;
         }
 
-        private async void RateBtn_Click(object sender, RoutedEventArgs e)
-        {
-            string name = $"{_teen.FirstName} {_teen.LastName}";
-            var dialog = new RateDialog(name) { Owner = Window.GetWindow(this) };
-            if (dialog.ShowDialog() != true) return;
+        // ── Opens RateDialog when parent clicks the rating chip ───────────────────
 
-            var currentParent = LogInComputer.CurrentUser as Parents;
-            var rate = new BabySitterRate
+        private async void AvgRatingChip_Click(object sender, MouseButtonEventArgs e)
+        {
+            int prefill = _myExistingRate?.Stars ?? _myExistingReview?.Rating ?? 0;
+            var dialog  = new RateDialog($"{_teen.FirstName} {_teen.LastName}", prefill)
             {
-                Stars        = dialog.SelectedRating,
-                IdBabySitter = _teen,
-                IdParent     = currentParent,
-                DateOfRate   = DateTime.Today
+                Owner = Window.GetWindow(this)
             };
 
-            await _api.InsertBabySitterRateAsync(rate);
+            if (dialog.ShowDialog() != true) return;
 
-            // Hide the rate button and refresh the average chip with the new rating included
-            RateBtn.Visibility = Visibility.Collapsed;
-            _allRates = (await _api.GetAllBabySitterRatesAsync())?.ToList() ?? _allRates;
+            int newStars      = dialog.SelectedRating;
+            if (newStars == 0) return;
+
+            var currentParent = LogInComputer.CurrentUser as Parents;
+
+            // ── BabySitterRate ─────────────────────────────────────────────────────
+            if (_myExistingRate != null)
+            {
+                _myExistingRate.Stars      = newStars;
+                _myExistingRate.DateOfRate = DateTime.Today;
+                await _api.UpdateBabySitterRateAsync(_myExistingRate);
+            }
+            else
+            {
+                await _api.InsertBabySitterRateAsync(new BabySitterRate
+                {
+                    Stars        = newStars,
+                    IdBabySitter = _teen,
+                    IdParent     = currentParent,
+                    DateOfRate   = DateTime.Today
+                });
+            }
+
+            // ── Reviews ───────────────────────────────────────────────────────────
+            if (_myExistingReview != null)
+            {
+                _myExistingReview.Rating     = newStars;
+                _myExistingReview.ReviewDate = DateTime.Today;
+                await _api.UpdateReviewAsync(_myExistingReview);
+            }
+            else
+            {
+                await _api.InsertReviewAsync(new Reviews
+                {
+                    Rating       = newStars,
+                    BabySitterId = _teen,
+                    ParentId     = currentParent,
+                    ReviewDate   = DateTime.Today
+                });
+            }
+
+            // Reload both tables so future re-rating updates the correct records
+            var ratesTask   = _api.GetAllBabySitterRatesAsync();
+            var reviewsTask = _api.GetAllReviewsAsync();
+            await System.Threading.Tasks.Task.WhenAll(ratesTask, reviewsTask);
+
+            _allRates   = ratesTask.Result?.ToList()   ?? _allRates;
+            _allReviews = reviewsTask.Result?.ToList() ?? _allReviews;
+
+            _myExistingRate = _allRates.FirstOrDefault(r =>
+                r.IdBabySitter?.Id == _teen.Id && r.IdParent?.Id == currentParent?.Id);
+            _myExistingReview = _allReviews.FirstOrDefault(r =>
+                r.BabySitterId?.Id == _teen.Id && r.ParentId?.Id == currentParent?.Id);
+
             UpdateAvgRating();
         }
 

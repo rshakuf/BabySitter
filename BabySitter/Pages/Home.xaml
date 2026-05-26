@@ -190,15 +190,19 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Margin="12" CornerRadius="16" Background="White">
+                                <Border x:Name="CardBorder" Margin="12" CornerRadius="16" Background="White">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05"/>
                                     </Border.Effect>
 
-
+                                    <!--
+                                        DataContext is set to Teen (BabySitterTeens) so inner bindings work.
+                                        AverageRating/RatingCount must be read from the outer BabySitterCardVM —
+                                        use ElementName=CardBorder whose DataContext is still the CardVM.
+                                    -->
                                     <uc:UserControlHome DataContext="{Binding Teen}"
-                                                        AverageRating="{Binding AverageRating}"
-                                                        RatingCount="{Binding RatingCount}"/>
+                                                        AverageRating="{Binding DataContext.AverageRating, ElementName=CardBorder}"
+                                                        RatingCount="{Binding DataContext.RatingCount, ElementName=CardBorder}"/>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

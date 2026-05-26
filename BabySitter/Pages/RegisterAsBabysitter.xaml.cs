@@ -118,7 +118,11 @@ namespace BabySitter.Pages
                 return;
             }
 
-            if (pricePerHour >= 80 &&
+            if (pricePerHour <= PriceWarningHelper.LowPriceThreshold &&
+                !PriceWarningHelper.ConfirmLowPrice(pricePerHour, Window.GetWindow(this)))
+                return;
+
+            if (pricePerHour >= PriceWarningHelper.HighPriceThreshold &&
                 !PriceWarningHelper.ConfirmHighPrice(pricePerHour, Window.GetWindow(this)))
                 return;
 

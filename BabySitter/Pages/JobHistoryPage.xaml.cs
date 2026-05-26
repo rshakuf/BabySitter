@@ -1,3 +1,4 @@
+using BabySitter.Helpers;
 using ClApi;
 using Model;
 using System;
@@ -12,6 +13,7 @@ namespace BabySitter.Pages
     public partial class JobHistoryPage : Page
     {
         private readonly ApiService api = new ApiService();
+        private List<BabySitterRate> _allRates = new();
 
         public JobHistoryPage()
         {
@@ -31,6 +33,10 @@ namespace BabySitter.Pages
             {
                 var allReqs = await api.GetAllRequestsAsync() ?? new List<Requests>();
 
+                // Load rates for parent view (needed to show/hide the rating button)
+                if (!isBabysitter)
+                    _allRates = (await api.GetAllBabySitterRatesAsync())?.ToList() ?? new List<BabySitterRate>();
+
                 // Past = date is before today, status was approved (completed job)
                 List<Requests> history;
                 if (isBabysitter)
@@ -38,8 +44,13 @@ namespace BabySitter.Pages
                     var user = (BabySitterTeens)LogInComputer.CurrentUser;
                     history = allReqs
                         .Where(r => r.BabysitterId?.Id == user.Id
-                                 && r.TimeOfRequest.Date < DateTime.Today
+                                 && (r.TimeOfRequest.Date < DateTime.Today ||
+                                     (r.Status == "approved" &&
+                                      r.TimeOfRequest.AddHours(r.LenghtTime > 0 ? r.LenghtTime : 1) <= DateTime.Now))
                                  && (r.Status == "approved" || r.Status == "cancelled_by_babysitter"))
+                        // Deduplicate: first by Id (exact DB duplicates), then by logical key
+                        .GroupBy(r => r.Id).Select(g => g.First())
+                        .GroupBy(r => (r.TimeOfRequest, r.BabysitterId?.Id, r.ParentsId?.Id)).Select(g => g.First())
                         .OrderByDescending(r => r.TimeOfRequest)
                         .ToList();
                 }
@@ -48,8 +59,13 @@ namespace BabySitter.Pages
                     var user = (Parents)LogInComputer.CurrentUser;
                     history = allReqs
                         .Where(r => r.ParentsId?.Id == user.Id
-                                 && r.TimeOfRequest.Date < DateTime.Today
+                                 && (r.TimeOfRequest.Date < DateTime.Today ||
+                                     (r.Status == "approved" &&
+                                      r.TimeOfRequest.AddHours(r.LenghtTime > 0 ? r.LenghtTime : 1) <= DateTime.Now))
                                  && (r.Status == "approved" || r.Status == "cancelled_by_babysitter"))
+                        // Deduplicate: first by Id (exact DB duplicates), then by logical key
+                        .GroupBy(r => r.Id).Select(g => g.First())
+                        .GroupBy(r => (r.TimeOfRequest, r.BabysitterId?.Id, r.ParentsId?.Id)).Select(g => g.First())
                         .OrderByDescending(r => r.TimeOfRequest)
                         .ToList();
                 }
@@ -100,11 +116,14 @@ namespace BabySitter.Pages
                 TotalEarningsText.Text  = $"₪{totalEarnings}";
                 TotalEarningsLabel.Text = isBabysitter ? "סך הכל הכנסה" : "סך הכל הוצאה";
 
+                // Clear previous cards before rebuilding (prevents duplicates on reload)
+                HistoryPanel.Children.Clear();
+
                 // Build cards
                 foreach (var req in history)
                     HistoryPanel.Children.Add(BuildCard(req, isBabysitter, isBabysitter
                         ? babysitterHourlyRate
-                        : (req.BabysitterId?.PriceForAnHour ?? 0)));
+                        : (req.BabysitterId?.PriceForAnHour ?? 0), _allRates));
 
                 ListScroll.Visibility = Visibility.Visible;
             }
@@ -115,7 +134,8 @@ namespace BabySitter.Pages
             }
         }
 
-        private UIElement BuildCard(Requests req, bool isBabysitter, int pricePerHour)
+        private UIElement BuildCard(Requests req, bool isBabysitter, int pricePerHour,
+                                    List<BabySitterRate> rates = null)
         {
             bool cancelled = req.Status == "cancelled_by_babysitter";
 
@@ -204,7 +224,7 @@ namespace BabySitter.Pages
             Grid.SetColumn(left, 0);
             row.Children.Add(left);
 
-            // Right: badge
+            // Right: badge + optional profile button
             var badgeBorder = new Border
             {
                 Background   = badgeBg,
@@ -219,11 +239,165 @@ namespace BabySitter.Pages
                 FontWeight = FontWeights.SemiBold,
                 Foreground = badgeFg
             };
-            Grid.SetColumn(badgeBorder, 1);
-            row.Children.Add(badgeBorder);
+
+            var rightPanel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            rightPanel.Children.Add(badgeBorder);
+
+            // Show parent profile button for babysitter view
+            if (isBabysitter && req.ParentsId != null)
+            {
+                var profileBtn = new Button
+                {
+                    Content    = "👤 פרופיל הורה",
+                    Height     = 30,
+                    Padding    = new Thickness(10, 0, 10, 0),
+                    Margin     = new Thickness(0, 8, 0, 0),
+                    Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EDE7F6")),
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6750A4")),
+                    FontSize   = 12,
+                    FontWeight = FontWeights.SemiBold,
+                    BorderThickness = new Thickness(0),
+                    Cursor     = System.Windows.Input.Cursors.Hand,
+                    Tag        = req.ParentsId
+                };
+                var ps = new Style(typeof(Border));
+                ps.Setters.Add(new Setter(Border.CornerRadiusProperty, new CornerRadius(15)));
+                profileBtn.Resources[typeof(Border)] = ps;
+                profileBtn.Click += (s, e) =>
+                {
+                    var p = (s as Button)?.Tag as Parents;
+                    ParentProfileHelper.ShowProfile(p, Window.GetWindow(this));
+                };
+                rightPanel.Children.Add(profileBtn);
+            }
+
+            // Rating section — parent view, completed jobs only
+            if (!isBabysitter && !cancelled && rates != null)
+            {
+                var currentParent = LogInComputer.CurrentUser as Parents;
+                var existingRate  = rates.FirstOrDefault(r =>
+                    r.IdBabySitter?.Id == req.BabysitterId?.Id &&
+                    r.IdParent?.Id     == currentParent?.Id);
+
+                if (existingRate != null)
+                {
+                    // Show current rating (clickable — lets the parent re-rate)
+                    var starsPanel = new StackPanel
+                    {
+                        Orientation         = Orientation.Horizontal,
+                        Margin              = new Thickness(0, 8, 0, 0),
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Cursor              = System.Windows.Input.Cursors.Hand,
+                        ToolTip             = "לחץ לעדכן דירוג"
+                    };
+                    var gold = new SolidColorBrush(Color.FromRgb(255, 193, 7));
+                    var gray = new SolidColorBrush(Color.FromRgb(204, 204, 204));
+                    for (int i = 1; i <= 5; i++)
+                        starsPanel.Children.Add(new TextBlock
+                        {
+                            Text       = "★",
+                            FontSize   = 20,
+                            Foreground = i <= existingRate.Stars ? gold : gray,
+                            Margin     = new Thickness(1, 0, 1, 0)
+                        });
+                    starsPanel.Tag = req;
+                    starsPanel.MouseLeftButtonUp += async (s, e) =>
+                    {
+                        var r = (s as StackPanel)?.Tag as Requests;
+                        if (r == null) return;
+                        int bsId     = existingRate.IdBabySitter?.Id ?? r.BabysitterId?.Id ?? 0;
+                        int parentId = existingRate.IdParent?.Id     ?? (LogInComputer.CurrentUser as Parents)?.Id ?? 0;
+                        string name  = r.BabysitterId != null
+                            ? $"{r.BabysitterId.FirstName} {r.BabysitterId.LastName}".Trim()
+                            : "";
+                        var dlg = new RateDialog(name, existingRate.Stars)
+                        { Owner = Window.GetWindow(this) };
+                        if (dlg.ShowDialog() != true) return;
+                        try
+                        {
+                            int saved = await api.UpsertBabySitterRateAsync(new BabySitterRate
+                            {
+                                Stars        = dlg.SelectedRating,
+                                IdBabySitter = new BabySitterTeens { Id = bsId },
+                                IdParent     = new Parents         { Id = parentId },
+                                DateOfRate   = DateTime.Today
+                            });
+                            if (saved <= 0) MessageBox.Show("שגיאה בעדכון הדירוג");
+                            await JobHistoryReloadAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("שגיאה: " + ex.Message);
+                        }
+                    };
+                    rightPanel.Children.Add(starsPanel);
+                }
+                else
+                {
+                    var rateBtn = new Button
+                    {
+                        Content         = "דרג ★",
+                        Height          = 34,
+                        Padding         = new Thickness(14, 0, 14, 0),
+                        Background      = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF8E1")),
+                        Foreground      = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F57F17")),
+                        FontWeight      = FontWeights.SemiBold,
+                        FontSize        = 13,
+                        BorderThickness = new Thickness(1),
+                        BorderBrush     = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFE082")),
+                        Margin          = new Thickness(0, 8, 0, 0),
+                        Tag             = req,
+                        Cursor          = System.Windows.Input.Cursors.Hand
+                    };
+                    var rs = new Style(typeof(Border));
+                    rs.Setters.Add(new Setter(Border.CornerRadiusProperty, new CornerRadius(17)));
+                    rateBtn.Resources[typeof(Border)] = rs;
+                    rateBtn.Click += async (s, e) =>
+                    {
+                        var r = (s as Button)?.Tag as Requests;
+                        if (r?.BabysitterId == null) return;
+                        string name = $"{r.BabysitterId.FirstName} {r.BabysitterId.LastName}".Trim();
+                        var dlg = new RateDialog(name) { Owner = Window.GetWindow(this) };
+                        if (dlg.ShowDialog() != true) return;
+                        try
+                        {
+                            var parent = LogInComputer.CurrentUser as Parents;
+                            int saved = await api.UpsertBabySitterRateAsync(new BabySitterRate
+                            {
+                                Stars        = dlg.SelectedRating,
+                                IdBabySitter = new BabySitterTeens { Id = r.BabysitterId.Id },
+                                IdParent     = new Parents         { Id = parent.Id },
+                                DateOfRate   = DateTime.Today
+                            });
+                            if (saved <= 0) MessageBox.Show("שגיאה בשמירת הדירוג");
+                            await JobHistoryReloadAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("שגיאה: " + ex.Message);
+                        }
+                    };
+                    rightPanel.Children.Add(rateBtn);
+                }
+            }
+
+            Grid.SetColumn(rightPanel, 1);
+            row.Children.Add(rightPanel);
 
             card.Child = row;
             return card;
+        }
+
+        /// <summary>Refreshes rates then rebuilds the card list without navigating away.</summary>
+        private async System.Threading.Tasks.Task JobHistoryReloadAsync()
+        {
+            _allRates = (await api.GetAllBabySitterRatesAsync())?.ToList() ?? _allRates;
+            JobHistoryPage_Loaded(this, null);
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)

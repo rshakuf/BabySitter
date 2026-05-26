@@ -68,12 +68,6 @@
                         Click="BabysitterRegisterButton_Click"/>
             </StackPanel>
 
-            <Button Content="אודות האפליקציה"
-                    Style="{StaticResource SecondaryButtonStyle}"
-                    Width="160" Height="36"
-                    Margin="0,14,0,0"
-                    HorizontalAlignment="Left"
-                    Click="AboutUs_Click"/>
         </StackPanel>
 
         <!-- RIGHT SIDE -->
@@ -165,6 +159,15 @@
                             FontSize="11"
                             Height="30"
                             Click="AutoFillBabysitterButton_Click"/>
+
+                    <TextBlock Text="About us"
+                               FontSize="13"
+                               Foreground="#8E44AD"
+                               HorizontalAlignment="Center"
+                               Margin="0,14,0,0"
+                               Cursor="Hand"
+                               TextDecorations="Underline"
+                               MouseLeftButtonUp="AboutUs_Click"/>
                 </StackPanel>
             </Border>
         </Grid>

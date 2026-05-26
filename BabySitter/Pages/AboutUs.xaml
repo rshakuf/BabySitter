@@ -36,7 +36,7 @@
                                FontSize="48" FontWeight="Black"
                                Foreground="White"
                                HorizontalAlignment="Center"/>
-                    <TextBlock Text="מחברים בין הורים לבייביסיטרים — בקלות, במהירות, באמון"
+                    <TextBlock Text="מחברים בין הורים לבייביסיטרים - בקלות, במהירות, באמון"
                                FontSize="18" Foreground="#E8DEF8"
                                HorizontalAlignment="Center"
                                Margin="0,12,0,0" TextWrapping="Wrap"
@@ -59,12 +59,12 @@
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock TextWrapping="Wrap" FontSize="15" Foreground="#49454F" LineHeight="26">
-                        <Run Text="רותם בייביסיטר נולדה מתוך חוויה אישית. אני בעצמי עובדת כבייביסיטרית עבור משפחה אחת, ותמיד רציתי להרחיב את מעגל המשפחות שאני עובדת עבורן — אך לא תמיד קל למצוא. "/>
+                        <Run Text="האתר: רותם-בייביסיטר נולד מתוך חוויה אישית. אני, רותם- המייסדת של האתר, בעצמי עובדת כבייביסיטרית עבור משפחה אחת, ותמיד רציתי להרחיב את מעגל המשפחות שאני עובדת עבורן- אך לא תמיד קל למצוא. "/>
                         <Run Text="ראיתי מקרוב כמה האפליקציה הזו יכולה לעזור: גם לנערים שמחפשים עבודה קלילה, וגם להורים שזקוקים לפתרון מהיר ואמין לשמירה על ילדיהם."/>
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap" FontSize="15" Foreground="#49454F" LineHeight="26" Margin="0,12,0,0">
-                        <Run Text="יש ימים שההורים שאני עובדת עבורם צריכים אותי אך אני לא יכולה — הייתי רוצה שתמיד יהיה להם מענה מהיר. "/>
-                        <Run Text="מתוך הצורך הזה, ומתוך האמונה שעזרה הדדית יכולה לשנות שגרה שלמה — נבנה הפרויקט."/>
+                        <Run Text="עם זאת, יש ימים שההורים שאני עובדת עבורם צריכים אותי אך אני לא יכולה, הייתי רוצה שתמיד יהיה להם מענה מהיר. "/>
+                        <Run Text="מתוך הצורך הזה, ומתוך האמונה שעזרה הדדית יכולה לשנות שגרה שלמה- נבנה הפרויקט."/>
                     </TextBlock>
                 </StackPanel>
             </Border>
@@ -90,7 +90,7 @@
                         <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="#49454F"
                                    LineHeight="24" TextAlignment="Center">
                             <Run Text="רוצים לצאת לעבוד, ליהנות או לטוס לחו&#x22;ל? מצאו בייביסיטר זמין תוך דקות. "/>
-                            <Run Text="הורים רבים מתקשים למצוא שמרטף אמין — האפליקציה פותרת את זה בדיוק."/>
+                            <Run Text="הורים רבים מתקשים למצוא שמרטף אמין- האפליקציה פותרת את זה בדיוק."/>
                         </TextBlock>
                         <Border Background="#EDE7F6" CornerRadius="12" Padding="14,8" Margin="0,16,0,0"
                                 HorizontalAlignment="Center">

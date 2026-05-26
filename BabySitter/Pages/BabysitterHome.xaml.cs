@@ -195,7 +195,7 @@ namespace BabySitter.Pages
             // Cancel button (left side in RTL)
             var cancelBtn = new Button
             {
-                Content = "ביטול שמרת",
+                Content = "ביטול משמרת",
                 Height = 36,
                 Padding = new Thickness(14, 0, 14, 0),
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F5F5F5")),
@@ -213,10 +213,18 @@ namespace BabySitter.Pages
             cancelBtn.Resources[typeof(Border)] = bs;
             cancelBtn.Click += CancelApprovedSlot_Click;
 
+            var approvedBtnPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            approvedBtnPanel.Children.Add(MakeProfileButton(req.ParentsId));
+            approvedBtnPanel.Children.Add(cancelBtn);
+
             Grid.SetColumn(stack, 0);
-            Grid.SetColumn(cancelBtn, 1);
+            Grid.SetColumn(approvedBtnPanel, 1);
             grid.Children.Add(stack);
-            grid.Children.Add(cancelBtn);
+            grid.Children.Add(approvedBtnPanel);
 
             row.Child = grid;
             return row;
@@ -296,7 +304,7 @@ namespace BabySitter.Pages
             });
             headerStack.Children.Add(new TextBlock
             {
-                Text = "ביטול שמרת",
+                Text = "ביטול משמרת",
                 FontSize = 20,
                 FontWeight = FontWeights.Bold,
                 Foreground = Brushes.White,
@@ -310,7 +318,7 @@ namespace BabySitter.Pages
 
             body.Children.Add(new TextBlock
             {
-                Text = "האם אתה בטוח שברצונך לבטל את השמרת?",
+                Text = "האם אתה בטוח שברצונך לבטל את המשמרת?",
                 FontSize = 15,
                 Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#212121")),
                 TextWrapping = TextWrapping.Wrap,
@@ -359,7 +367,7 @@ namespace BabySitter.Pages
 
             var yesBtn = new Button
             {
-                Content = "כן, בטל שמרת",
+                Content = "כן, בטל משמרת",
                 Width = 150, Height = 42,
                 Margin = new Thickness(8, 0, 8, 0),
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E53935")),
@@ -528,6 +536,7 @@ namespace BabySitter.Pages
             };
             buttons.Children.Add(MakeActionButton("אשר ✓", "#43A047", req, ApproveRequest_Click));
             buttons.Children.Add(MakeActionButton("דחה ✗", "#E53935", req, RejectRequest_Click));
+            buttons.Children.Add(MakeProfileButton(req.ParentsId));
 
             Grid.SetColumn(info, 0);
             Grid.SetColumn(buttons, 1);
@@ -536,6 +545,33 @@ namespace BabySitter.Pages
 
             card.Child = grid;
             return card;
+        }
+
+        private Button MakeProfileButton(Parents parent)
+        {
+            var btn = new Button
+            {
+                Content   = "👤",
+                Width     = 36,
+                Height    = 36,
+                Margin    = new Thickness(6, 0, 0, 0),
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EDE7F6")),
+                Foreground = Brushes.White,
+                FontSize   = 16,
+                BorderThickness = new Thickness(0),
+                Tag    = parent,
+                Cursor = Cursors.Hand,
+                ToolTip = "פרופיל הורה"
+            };
+            var s = new Style(typeof(Border));
+            s.Setters.Add(new Setter(Border.CornerRadiusProperty, new CornerRadius(18)));
+            btn.Resources[typeof(Border)] = s;
+            btn.Click += (sender, e) =>
+            {
+                var p = (sender as Button)?.Tag as Parents;
+                Helpers.ParentProfileHelper.ShowProfile(p, Window.GetWindow(this));
+            };
+            return btn;
         }
 
         private Button MakeActionButton(string label, string hex, Requests req, RoutedEventHandler handler)

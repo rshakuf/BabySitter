@@ -43,7 +43,16 @@ namespace BabySitter.Pages
         {
             ShowWelcomeMessage();
             await LoadData();
+
+            // Refresh ratings whenever navigation returns to this page
+            if (NavigationService != null)
+                NavigationService.Navigated += async (s, args) =>
+                {
+                    if (args.Content == this && AllBabysitters.Count > 0)
+                        await LoadData();
+                };
         }
+
 
         // ─── Welcome message ──────────────────────────────────────────────────────
 

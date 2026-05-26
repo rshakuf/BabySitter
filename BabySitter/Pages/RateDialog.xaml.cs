@@ -13,7 +13,8 @@ namespace BabySitter.Pages
         private static readonly SolidColorBrush Gold = new(Color.FromRgb(255, 193, 7));
         private static readonly SolidColorBrush Gray = new(Color.FromRgb(204, 204, 204));
 
-        public RateDialog(string babysitterName)
+        /// <param name="existingRating">Pass the current rating (1-5) to pre-fill for re-rating; 0 = new rating.</param>
+        public RateDialog(string babysitterName, int existingRating = 0)
         {
             InitializeComponent();
             TitleText.Text = babysitterName;
@@ -24,6 +25,16 @@ namespace BabySitter.Pages
             {
                 star.MouseEnter += Star_Hover;
                 star.MouseLeave += Star_Leave;
+            }
+
+            // Pre-fill when re-rating
+            if (existingRating > 0)
+            {
+                SelectedRating      = existingRating;
+                SubmitBtn.IsEnabled = true;
+                SubmitBtn.Content   = "עדכן דירוג";
+                for (int i = 0; i < 5; i++)
+                    _stars[i].Foreground = i < existingRating ? Gold : Gray;
             }
         }
 

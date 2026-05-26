@@ -82,7 +82,75 @@
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
 
-                    <!-- Section 1: Available slots + add form -->
+                    <!-- Section 1: Approved slots -->
+                    <TextBlock Text="שעות מאושרות"
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="#2D3748" Margin="5,0,0,14"/>
+
+                    <StackPanel x:Name="ApprovedLoadingPanel" Orientation="Horizontal"
+                                HorizontalAlignment="Center" Margin="0,6,0,20" Visibility="Collapsed">
+                        <StackPanel.Triggers>
+                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="ADot1" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
+                                        <DoubleAnimation Storyboard.TargetName="ADot2" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="ADot3" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </StackPanel.Triggers>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot1"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot2"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot3"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                    </StackPanel>
+
+                    <StackPanel x:Name="ApprovedSlotsPanel" Margin="0,0,0,30"/>
+
+                    <!-- Section 2: Pending requests -->
+                    <TextBlock Text="בקשות ממתינות לאישור"
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="#2D3748" Margin="5,0,0,14"/>
+
+                    <StackPanel x:Name="PendingLoadingPanel" Orientation="Horizontal"
+                                HorizontalAlignment="Center" Margin="0,6,0,20" Visibility="Collapsed">
+                        <StackPanel.Triggers>
+                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="PDot1" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
+                                        <DoubleAnimation Storyboard.TargetName="PDot2" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="PDot3" Storyboard.TargetProperty="Y"
+                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </StackPanel.Triggers>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot1"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot2"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
+                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot3"/></Ellipse.RenderTransform>
+                        </Ellipse>
+                    </StackPanel>
+
+                    <StackPanel x:Name="PendingRequestsPanel" Margin="0,0,0,30"/>
+
+                    <!-- Section 3: Free slots list -->
                     <TextBlock Text="שעות פניות שלי"
                                FontSize="20" FontWeight="Bold"
                                Foreground="#2D3748" Margin="5,0,0,14"/>
@@ -116,6 +184,7 @@
 
                     <StackPanel x:Name="ScheduleSlotsPanel" Margin="0,0,0,14"/>
 
+                    <!-- Section 4: Add free slot form -->
                     <Border Background="#F0EDFF" CornerRadius="14" Padding="16" Margin="0,0,0,30">
                         <StackPanel>
                             <TextBlock Text="הוסף שעה פנויה חדשה"
@@ -175,74 +244,6 @@
                                        Margin="0,6,0,0"/>
                         </StackPanel>
                     </Border>
-
-                    <!-- Section 2: Approved slots -->
-                    <TextBlock Text="שעות מאושרות"
-                               FontSize="20" FontWeight="Bold"
-                               Foreground="#2D3748" Margin="5,0,0,14"/>
-
-                    <StackPanel x:Name="ApprovedLoadingPanel" Orientation="Horizontal"
-                                HorizontalAlignment="Center" Margin="0,6,0,20" Visibility="Collapsed">
-                        <StackPanel.Triggers>
-                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                <BeginStoryboard>
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="ADot1" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
-                                        <DoubleAnimation Storyboard.TargetName="ADot2" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
-                                        <DoubleAnimation Storyboard.TargetName="ADot3" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </StackPanel.Triggers>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot1"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot2"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot3"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                    </StackPanel>
-
-                    <StackPanel x:Name="ApprovedSlotsPanel" Margin="0,0,0,30"/>
-
-                    <!-- Section 3: Pending requests -->
-                    <TextBlock Text="בקשות ממתינות לאישור"
-                               FontSize="20" FontWeight="Bold"
-                               Foreground="#2D3748" Margin="5,0,0,14"/>
-
-                    <StackPanel x:Name="PendingLoadingPanel" Orientation="Horizontal"
-                                HorizontalAlignment="Center" Margin="0,6,0,20" Visibility="Collapsed">
-                        <StackPanel.Triggers>
-                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                <BeginStoryboard>
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="PDot1" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
-                                        <DoubleAnimation Storyboard.TargetName="PDot2" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
-                                        <DoubleAnimation Storyboard.TargetName="PDot3" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </StackPanel.Triggers>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot1"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot2"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot3"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                    </StackPanel>
-
-                    <StackPanel x:Name="PendingRequestsPanel" Margin="0,0,0,20"/>
 
                 </StackPanel>
             </ScrollViewer>

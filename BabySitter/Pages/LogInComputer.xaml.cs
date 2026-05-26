@@ -51,7 +51,7 @@ namespace BabySitter.Pages
             LogInButton_Click(null, null);
         }
 
-        private void AboutUs_Click(object sender, RoutedEventArgs e)
+        private void AboutUs_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             NavigationService?.Navigate(new AboutUs());
         }

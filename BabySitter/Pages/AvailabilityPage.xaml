@@ -74,20 +74,6 @@
                                            VerticalAlignment="Center" Margin="5,0,0,0"/>
                             </StackPanel>
                         </Border>
-                        <!-- Rate button — shown only when parent had a past approved job and hasn't rated yet -->
-                        <Button x:Name="RateBtn" Visibility="Collapsed"
-                                Content="דרג ★" Height="36" Padding="16,0"
-                                Background="#FFF8E1" Foreground="#F57F17"
-                                FontWeight="SemiBold" FontSize="13"
-                                BorderThickness="1" Cursor="Hand"
-                                Click="RateBtn_Click">
-                            <Button.BorderBrush><SolidColorBrush Color="#FFE082"/></Button.BorderBrush>
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="18"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
                     </StackPanel>
                 </DockPanel>
 

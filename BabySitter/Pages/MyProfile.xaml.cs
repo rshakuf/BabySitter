@@ -75,10 +75,6 @@ namespace BabySitter.Pages
 
                     foreach (var child in kids)
                         KidsPanel.Children.Add(new KidInfoControl(user, cities, child));
-
-                    int missing = user.NumOfKids - kids.Count;
-                    for (int i = 0; i < missing; i++)
-                        KidsPanel.Children.Add(new KidInfoControl(user, cities));
                 }
             }
             catch (Exception ex)
@@ -95,13 +91,25 @@ namespace BabySitter.Pages
             string value = mail.Text.Trim();
             if (!string.IsNullOrEmpty(value) && !IsValidEmail(value))
             {
+                mail.Background         = System.Windows.Media.Brushes.LightCoral;
+                mail.ToolTip            = "כתובת אימייל לא תקינה";
                 MailErrorMsg.Text       = "כתובת מייל לא תקינה";
                 MailErrorMsg.Visibility = Visibility.Visible;
             }
             else
             {
+                mail.ClearValue(TextBox.BackgroundProperty);
+                mail.ToolTip            = null;
                 MailErrorMsg.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void Mail_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Clear error highlight as soon as the user starts correcting
+            mail.ClearValue(TextBox.BackgroundProperty);
+            mail.ToolTip            = null;
+            MailErrorMsg.Visibility = Visibility.Collapsed;
         }
 
         private void TogglePassword(object sender, MouseButtonEventArgs e)
@@ -159,11 +167,16 @@ namespace BabySitter.Pages
                     string mailText = mail.Text.Trim();
                     if (!string.IsNullOrEmpty(mailText) && !IsValidEmail(mailText))
                     {
+                        mail.Background         = System.Windows.Media.Brushes.LightCoral;
+                        mail.ToolTip            = "כתובת אימייל לא תקינה";
                         MailErrorMsg.Text       = "כתובת מייל לא תקינה";
                         MailErrorMsg.Visibility = Visibility.Visible;
                         mail.Focus();
                         return;
                     }
+                    mail.ClearValue(TextBox.BackgroundProperty);
+                    mail.ToolTip            = null;
+                    MailErrorMsg.Visibility = Visibility.Collapsed;
 
                     if (!int.TryParse(pricePerHour.Text.Trim(), out int price) || price <= 0)
                     {
@@ -174,7 +187,11 @@ namespace BabySitter.Pages
                     }
                     PriceErrorMsg.Visibility = Visibility.Collapsed;
 
-                    if (price >= 80 &&
+                    if (price <= PriceWarningHelper.LowPriceThreshold &&
+                        !PriceWarningHelper.ConfirmLowPrice(price, Window.GetWindow(this)))
+                        return;
+
+                    if (price >= PriceWarningHelper.HighPriceThreshold &&
                         !PriceWarningHelper.ConfirmHighPrice(price, Window.GetWindow(this)))
                         return;
 
