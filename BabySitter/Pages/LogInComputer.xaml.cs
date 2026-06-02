@@ -1,5 +1,4 @@
-﻿using ApiInterface;
-using ClApi;
+﻿using ClApi;
 using Model;
 using System;
 using System.Threading.Tasks;
@@ -38,7 +37,7 @@ namespace BabySitter.Pages
         // ⭐ כפתור מילוי אוטומטית הורה
         private void AutoFillButton_Click(object sender, RoutedEventArgs e)
         {
-            userNameTextBox.Text = "1528040991";
+            userNameTextBox.Text = "0528040991";
             PasswordBox.Password = "1234";
             LogInButton_Click(null, null);
         }

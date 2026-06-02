@@ -23,13 +23,19 @@ namespace BabySitter.Pages
 
         public async void PutCityData()
         {
-            cities = await api.GetAllCitiesAsync();
-            List<string> clist = new List<string>();
-
-            foreach (City c in cities)
-                clist.Add(c.CityName);
-
-            cityname.ItemsSource = clist;
+            try
+            {
+                cities = await api.GetAllCitiesAsync();
+                List<string> clist = new List<string>();
+                foreach (City c in cities)
+                    clist.Add(c.CityName);
+                cityname.ItemsSource = clist;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("שגיאה בטעינת ערים — ודאי שהשרת פועל.\n" + ex.Message,
+                                "שגיאת חיבור", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void LogIn_Click(object sender, MouseButtonEventArgs e)

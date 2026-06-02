@@ -171,16 +171,6 @@ namespace Test2
                 Console.WriteLine($"user ID: {c.Id}, user Name: {c.FirstName}");
             }
 
-            // ===== UserProfile =====
-            var profiles = await api.GetAllUserProfilesAsync();
-            Console.WriteLine($"Profiles count: {profiles.Count}");
-
-            await api.InsertUserProfileAsync(new UserProfile { Email = "בדיקה" });
-            var profile = profiles.First();
-            profile.Email = "עודכן";
-            await api.UpdateUserProfileAsync(profile);
-            await api.DeleteUserProfileAsync(profiles.Last().Id);
-
             // ===== Messages =====
             var messages = await api.GetAllMessagesAsync();
             Console.WriteLine($"Messages count: {messages.Count}");
@@ -200,16 +190,6 @@ namespace Test2
             request.Status = "בקשה מעודכנת";
             await api.UpdateRequestAsync(request);
             await api.DeleteRequestAsync(requests.Last().Id);
-
-            // ===== Reviews =====
-            var reviews = await api.GetAllReviewsAsync();
-            Console.WriteLine($"Reviews count: {reviews.Count}");
-
-            await api.InsertReviewAsync(new Reviews { Rating = 5 });
-            var review = reviews.First();
-            review.Rating = 5;
-            await api.UpdateReviewAsync(review);
-            await api.DeleteReviewAsync(reviews.Last().Id);
 
             // ===== Schedule =====
             var schedules = await api.GetAllSchedulesAsync();
