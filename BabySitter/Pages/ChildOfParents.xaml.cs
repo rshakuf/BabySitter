@@ -12,8 +12,9 @@ namespace BabySitter.Pages
     {
         private readonly Parents _parent;
         private readonly ApiService _api = new ApiService();
-        private int savedKidsCount  = 0;
-        private int _loadedKidsCount = 0;
+        private int        savedKidsCount  = 0;
+        private int        _loadedKidsCount = 0;
+        private List<City> _cities          = new List<City>();
 
         public ChildOfParents(Parents p)
         {
@@ -26,7 +27,8 @@ namespace BabySitter.Pages
         {
             try
             {
-                var cities  = await _api.GetAllCitiesAsync();
+                _cities = await _api.GetAllCitiesAsync();
+                var cities  = _cities;
                 var allKids = await _api.GetAllChildrenOfParentsAsync();
                 var myKids  = allKids?
                     .Where(c => c.IdParent?.Id == _parent.Id)
@@ -73,6 +75,16 @@ namespace BabySitter.Pages
         {
             savedKidsCount++;
             ErrorText.Visibility = Visibility.Collapsed;
+        }
+
+        private void AddKid_Click(object sender, RoutedEventArgs e)
+        {
+            var kidControl = new KidInfoControl(_parent, _cities)
+            {
+                Margin = new System.Windows.Thickness(15)
+            };
+            kidControl.KidSaved += OnKidSaved;
+            KidsContainer.Children.Add(kidControl);
         }
 
         private void FinishRegistration(object sender, RoutedEventArgs e)

@@ -63,6 +63,39 @@
                                HorizontalAlignment="Center"
                                Margin="0,0,0,20"/>
 
+                    <!-- Profile picture (babysitter only) -->
+                    <StackPanel x:Name="AvatarSection" HorizontalAlignment="Center"
+                                Margin="0,0,0,24" Visibility="Collapsed">
+                        <Grid Width="100" Height="100" Cursor="Hand"
+                              MouseLeftButtonUp="PickProfilePic_Click"
+                              ToolTip="לחץ לשינוי תמונת פרופיל">
+                            <!-- background circle -->
+                            <Ellipse Width="100" Height="100" Fill="#6C63FF"/>
+                            <!-- letter fallback -->
+                            <TextBlock x:Name="AvatarLetterProfile"
+                                       FontSize="38" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <!-- photo overlay (shown when picture exists) -->
+                            <Ellipse x:Name="AvatarImageEllipseProfile" Width="100" Height="100"
+                                     Visibility="Collapsed">
+                                <Ellipse.Fill>
+                                    <ImageBrush x:Name="AvatarImageBrushProfile" Stretch="UniformToFill"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <!-- camera badge -->
+                            <Border Width="32" Height="32" CornerRadius="16"
+                                    Background="#6C63FF" BorderBrush="White" BorderThickness="2"
+                                    HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                    Margin="2,0,0,2">
+                                <TextBlock Text="📷" FontSize="14"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="לחץ לשינוי תמונה"
+                                   FontSize="12" Foreground="#718096"
+                                   HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                    </StackPanel>
+
                     <Grid Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -191,6 +224,26 @@
 
                             <WrapPanel x:Name="KidsPanel"/>
                         </Border>
+
+                        <!-- Add kid button -->
+                        <Button Content="+ הוסף ילד"
+                                Click="AddKid_Click"
+                                Height="38"
+                                Width="160"
+                                HorizontalAlignment="Center"
+                                Margin="0,12,0,0"
+                                Background="#EDE9FF"
+                                Foreground="#6750A4"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                BorderThickness="0"
+                                Cursor="Hand">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="19"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
                     </StackPanel>
                     <Button x:Name="SaveBtn"
                             Content="שמור שינויים"

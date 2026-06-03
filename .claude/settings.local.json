@@ -6,7 +6,9 @@
       "Bash(Get-Content \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\RotemFinalProject\\\\BabysitterApi\\\\BabysitterApi.csproj\")",
       "PowerShell(Get-Process -Name \"BabysitterApi\" -ErrorAction SilentlyContinue)",
       "Bash(del \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\BabySitter\\\\BabySitter\\\\Helpers\\\\ImageHelper.cs\")",
-      "PowerShell(Remove-Item \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\BabySitter\\\\BabySitter\\\\Helpers\\\\ImageHelper.cs\" -Confirm:$false)"
+      "PowerShell(Remove-Item \"C:\\\\Users\\\\sshak\\\\source\\\\repos\\\\rshakuf\\\\BabySitter\\\\BabySitter\\\\Helpers\\\\ImageHelper.cs\" -Confirm:$false)",
+      "Bash(xargs grep -l \"Messages\\\\|BabySitterRate\")",
+      "Bash(xargs grep -l \"SaveChanges\\\\|abstract.*Update\\\\|class.*DB\")"
     ]
   }
 }

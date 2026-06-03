@@ -15,6 +15,11 @@ namespace BabySitter.Pages
         private readonly ApiService api = new ApiService();
         private List<BabySitterRate> _allRates = new();
 
+        // Stored after first load so JobHistoryReloadAsync can rebuild cards without re-fetching requests
+        private List<Requests> _history        = new();
+        private bool           _isBabysitter;
+        private int            _pricePerHour;
+
         public JobHistoryPage()
         {
             InitializeComponent();
@@ -116,6 +121,11 @@ namespace BabySitter.Pages
                 TotalEarningsText.Text  = $"₪{totalEarnings}";
                 TotalEarningsLabel.Text = isBabysitter ? "סך הכל הכנסה" : "סך הכל הוצאה";
 
+                // Store for use by JobHistoryReloadAsync (rate updates don't change the request list)
+                _history        = history;
+                _isBabysitter   = isBabysitter;
+                _pricePerHour   = babysitterHourlyRate;
+
                 // Clear previous cards before rebuilding (prevents duplicates on reload)
                 HistoryPanel.Children.Clear();
 
@@ -195,15 +205,43 @@ namespace BabySitter.Pages
             // Other-party
             var nameRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 4) };
             nameRow.Children.Add(new TextBlock { Text = otherLabel + " ", FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(103, 80, 164)) });
-            nameRow.Children.Add(new TextBlock { Text = otherName,        FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(29, 27, 32)) });
+
+            if (!isBabysitter && req.BabysitterId != null)
+            {
+                // Clickable underlined name — navigates to the babysitter's availability page
+                var nameLink = new TextBlock
+                {
+                    Text                = otherName,
+                    FontSize            = 13,
+                    Foreground          = new SolidColorBrush(Color.FromRgb(29, 27, 32)),
+                    TextDecorations     = TextDecorations.Underline,
+                    Cursor              = System.Windows.Input.Cursors.Hand,
+                    ToolTip             = "לחץ לצפות בזמינות הבייביסיטר",
+                    Tag                 = req.BabysitterId
+                };
+                nameLink.MouseLeftButtonUp += (s, e) =>
+                {
+                    var teen = (s as TextBlock)?.Tag as BabySitterTeens;
+                    if (teen != null)
+                        NavigationService?.Navigate(new AvailabilityPage(teen));
+                };
+                nameRow.Children.Add(nameLink);
+            }
+            else
+            {
+                nameRow.Children.Add(new TextBlock { Text = otherName, FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(29, 27, 32)) });
+            }
             left.Children.Add(nameRow);
 
             // Hours + earnings
             if (req.LenghtTime > 0)
             {
+                string hoursText = req.LenghtTime == 1 ? "שעה"
+                                 : req.LenghtTime == 2 ? "שעתיים"
+                                 : $"{req.LenghtTime} שעות";
                 left.Children.Add(new TextBlock
                 {
-                    Text = $"⏱ {req.LenghtTime} שעות",
+                    Text = $"⏱ {hoursText}",
                     FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(73, 69, 79))
                 });
 
@@ -393,11 +431,19 @@ namespace BabySitter.Pages
             return card;
         }
 
-        /// <summary>Refreshes rates then rebuilds the card list without navigating away.</summary>
+        /// <summary>
+        /// Re-fetches only the rates (requests don't change when a rating is updated),
+        /// then rebuilds the cards in-place — fully awaited, no fire-and-forget.
+        /// </summary>
         private async System.Threading.Tasks.Task JobHistoryReloadAsync()
         {
             _allRates = (await api.GetAllBabySitterRatesAsync())?.ToList() ?? _allRates;
-            JobHistoryPage_Loaded(this, null);
+
+            HistoryPanel.Children.Clear();
+            foreach (var req in _history)
+                HistoryPanel.Children.Add(BuildCard(req, _isBabysitter, _isBabysitter
+                    ? _pricePerHour
+                    : (req.BabysitterId?.PriceForAnHour ?? 0), _allRates));
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)

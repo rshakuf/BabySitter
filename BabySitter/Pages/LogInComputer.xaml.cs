@@ -15,7 +15,7 @@ namespace BabySitter.Pages
         public static User CurrentUser = null;
         public static string WhoAmI = null;
 
-        // ⭐ נשמר כאן הטלפון אחרי הרשמה
+        //  נשמר כאן הטלפון אחרי הרשמה
         public static string LastRegisteredPhone { get; set; }
 
         public LogInComputer()
@@ -24,7 +24,7 @@ namespace BabySitter.Pages
             Loaded += LogInComputer_Loaded;
         }
 
-        // ⭐ ממלא טלפון אוטומטית אחרי הרשמה
+        //  ממלא טלפון אוטומטית אחרי הרשמה
         private void LogInComputer_Loaded(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(LastRegisteredPhone))
@@ -34,7 +34,7 @@ namespace BabySitter.Pages
             }
         }
 
-        // ⭐ כפתור מילוי אוטומטית הורה
+        //  כפתור מילוי אוטומטית הורה
         private void AutoFillButton_Click(object sender, RoutedEventArgs e)
         {
             userNameTextBox.Text = "0528040991";
@@ -42,7 +42,7 @@ namespace BabySitter.Pages
             LogInButton_Click(null, null);
         }
 
-        // ⭐ כפתור מילוי אוטומטית בייביסיטר
+        //  כפתור מילוי אוטומטית בייביסיטר
         private void AutoFillBabysitterButton_Click(object sender, RoutedEventArgs e)
         {
             userNameTextBox.Text = "0528934411";

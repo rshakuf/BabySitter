@@ -147,9 +147,13 @@ namespace BabySitter.Pages
             {
                 LogInComputer.LastRegisteredPhone = p.Telephone;
 
-                MessageBox.Show("ההורה נרשם בהצלחה 🎉");
+                // Fetch all parents to find the real record with the DB-assigned Id.
+                // (The local 'p' object still has Id=0 because @@IDENTITY only runs on the server.)
+                var allParents = await api.GetAllParentsAsync();
+                var realParent = allParents?.FirstOrDefault(x => x.Telephone == p.Telephone) ?? p;
 
-                NavigationService.Navigate(new ChildOfParents(p));
+                MessageBox.Show("ההורה נרשם בהצלחה 🎉");
+                NavigationService.Navigate(new ChildOfParents(realParent));
             }
             else
             {

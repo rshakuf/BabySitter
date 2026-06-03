@@ -87,8 +87,10 @@ namespace BabySitter.Pages
                 .OrderByDescending(r => r.TimeOfRequest)
                 .ToList();
 
-            var approvedDates = approvedReqs.Select(r => r.TimeOfRequest.Date).ToHashSet();
-            BuildFreeSlots(slots.Where(s => !approvedDates.Contains(s.DateAvailable.Date)).ToList());
+            // Show ALL schedule entries in "שעות פנויות שלי" — the approved-requests section
+            // already shows the bookings separately, so filtering by date here was wrong:
+            // it was hiding the whole day even when only part of it was booked.
+            BuildFreeSlots(slots);
             BuildApprovedSlots(approvedReqs, slots);
             BuildPendingRequests(pendingReqs);
         }
@@ -884,6 +886,12 @@ namespace BabySitter.Pages
             outer.Child = stack;
             dlg.Content = outer;
             dlg.ShowDialog();
+        }
+
+        private void ViewMySchedule_Click(object sender, RoutedEventArgs e)
+        {
+            if (LogInComputer.CurrentUser is BabySitterTeens teen)
+                NavigationService.Navigate(new MyScheduleViewPage(teen));
         }
 
         private void MyProfile_Click(object sender, RoutedEventArgs e)

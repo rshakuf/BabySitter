@@ -51,6 +51,25 @@
                            Margin="0,0,0,10"
                            HorizontalAlignment="Center"/>
 
+                <!-- Add another child -->
+                <Button Content="+ הוסף ילד"
+                        Click="AddKid_Click"
+                        Width="160"
+                        Height="40"
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Foreground="#6750A4"
+                        Background="#EDE9FF"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,0,0,10">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="20"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+
                 <Button Content="סיום הרשמה"
                         Width="220"
                         Height="50"

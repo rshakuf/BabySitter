@@ -151,9 +151,17 @@
                     <StackPanel x:Name="PendingRequestsPanel" Margin="0,0,0,30"/>
 
                     <!-- Section 3: Free slots list -->
-                    <TextBlock Text="שעות פניות שלי"
-                               FontSize="20" FontWeight="Bold"
-                               Foreground="#2D3748" Margin="5,0,0,14"/>
+                    <DockPanel Margin="0,0,0,14">
+                        <Button DockPanel.Dock="Left"
+                                Content="📅 צפה בלוח זמנים שלך (מוצג להורים)"
+                                Style="{StaticResource MaterialTonalButton}"
+                                Click="ViewMySchedule_Click"
+                                VerticalAlignment="Center"/>
+                        <TextBlock Text="שעות פנויות שלי"
+                                   FontSize="20" FontWeight="Bold"
+                                   Foreground="#2D3748" VerticalAlignment="Center"
+                                   Margin="0,0,16,0"/>
+                    </DockPanel>
 
                     <StackPanel x:Name="FreeLoadingPanel" Orientation="Horizontal"
                                 HorizontalAlignment="Center" Margin="0,6,0,14" Visibility="Collapsed">

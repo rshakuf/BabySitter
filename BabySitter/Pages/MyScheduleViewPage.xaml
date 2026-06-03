@@ -1,0 +1,216 @@
+<Page x:Class="BabySitter.Pages.MyScheduleViewPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="#F7F2FA"
+      FlowDirection="RightToLeft"
+      Title="לוח הזמנים שלי">
+
+    <Page.Resources>
+        <Style x:Key="NavPanelStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Opacity" Value="0.6"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="1"/>
+                    <Setter Property="Background" Value="#EDE7F6"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ROW 0: Babysitter header -->
+        <Border Grid.Row="0" Background="White" CornerRadius="18" Padding="20,14" Margin="0,0,0,10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.07"/>
+            </Border.Effect>
+            <StackPanel>
+                <DockPanel>
+                    <!-- Avatar + name -->
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Grid Width="54" Height="54" Margin="0,0,14,0">
+                            <Ellipse Width="54" Height="54" Fill="#6750A4"/>
+                            <TextBlock x:Name="AvatarLetter" Foreground="White" FontSize="24"
+                                       FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Ellipse x:Name="AvatarImageEllipse" Width="54" Height="54" Visibility="Collapsed">
+                                <Ellipse.Fill>
+                                    <ImageBrush x:Name="AvatarImageBrush" Stretch="UniformToFill"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Grid>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="BabysitterNameLabel" FontSize="20" FontWeight="Bold" Foreground="#1C1B1F"/>
+                            <TextBlock x:Name="BabysitterCityLabel" FontSize="13" Foreground="#49454F"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Price + Back button -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Border Background="#E8DEF8" CornerRadius="10" Padding="12,6" Margin="0,0,10,0">
+                            <TextBlock x:Name="BabysitterPriceLabel" FontSize="14" FontWeight="Bold" Foreground="#21005D"/>
+                        </Border>
+                        <Button Content="← חזור"
+                                Height="38" Padding="18,0"
+                                Background="#F3EDF7" Foreground="#6750A4"
+                                FontSize="13" FontWeight="SemiBold"
+                                BorderThickness="0" Cursor="Hand"
+                                Click="Back_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="19"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ROW 1: "Parent view" banner + hint -->
+        <Border Grid.Row="1" Margin="0,0,0,10" CornerRadius="12"
+                Background="#EDE7F6" Padding="14,10">
+            <DockPanel>
+                <!-- Edit hint -->
+                <Border DockPanel.Dock="Left" Background="#FFF3E0" CornerRadius="8" Padding="12,6">
+                    <TextBlock x:Name="EditHintText"
+                               Text="💡 לחץ על שעה ירוקה כדי לסמן אותה להסרה"
+                               FontSize="12" Foreground="#E65100" FontWeight="SemiBold"/>
+                </Border>
+                <!-- Parent-view label -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="👁 " FontSize="15"/>
+                    <TextBlock Text="כך נראה לוח הזמנים שלך להורים"
+                               FontSize="14" FontWeight="SemiBold" Foreground="#4A148C"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ROW 2: 3-column day view -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Prev date -->
+            <Border x:Name="PrevPanel" Grid.Column="2" Style="{StaticResource NavPanelStyle}"
+                    MouseLeftButtonUp="PrevDate_Click">
+                <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,16,0,0">
+                    <TextBlock Text="→" FontSize="18" HorizontalAlignment="Center"
+                               Foreground="#6750A4" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="PrevDateLabel" FontSize="13" FontWeight="SemiBold"
+                               Foreground="#49454F" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Current day -->
+            <Border Grid.Column="1" Background="White" CornerRadius="20" Margin="4,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="3" Opacity="0.09"/>
+                </Border.Effect>
+                <Grid Margin="20,16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock x:Name="CurrentDateLabel" Grid.Row="0"
+                               FontSize="18" FontWeight="Bold" Foreground="#1C1B1F"
+                               HorizontalAlignment="Center" Margin="0,0,0,14"/>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="HourSlotsPanel"/>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Next date -->
+            <Border x:Name="NextPanel" Grid.Column="0" Style="{StaticResource NavPanelStyle}"
+                    MouseLeftButtonUp="NextDate_Click">
+                <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,16,0,0">
+                    <TextBlock Text="←" FontSize="18" HorizontalAlignment="Center"
+                               Foreground="#6750A4" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="NextDateLabel" FontSize="13" FontWeight="SemiBold"
+                               Foreground="#49454F" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ROW 3: Legend + remove button -->
+        <Border Grid.Row="3" Background="White" CornerRadius="16" Padding="20,12" Margin="0,10,0,0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="8" ShadowDepth="1" Opacity="0.06"/>
+            </Border.Effect>
+            <DockPanel>
+                <!-- Legend -->
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <Border Background="#A5D6A7" CornerRadius="8" Padding="10,4" Margin="0,0,8,0">
+                        <TextBlock Text="פנוי" FontSize="12"/>
+                    </Border>
+                    <Border Background="#EF9A9A" CornerRadius="8" Padding="10,4" Margin="0,0,8,0">
+                        <TextBlock Text="🔒 תפוס" FontSize="12"/>
+                    </Border>
+                    <Border Background="#FFE0B2" CornerRadius="8" Padding="10,4" Margin="0,0,8,0"
+                            BorderBrush="#FFB74D" BorderThickness="1">
+                        <TextBlock Text="⏳ ממתין לאישורך" FontSize="12" Foreground="#E65100"/>
+                    </Border>
+                    <Border Background="#FFCC80" CornerRadius="8" Padding="10,4" Margin="0,0,8,0"
+                            BorderBrush="#FF9800" BorderThickness="1">
+                        <TextBlock Text="✂️ להסרה" FontSize="12"/>
+                    </Border>
+                    <Border Background="#A5D6A7" CornerRadius="8" Padding="10,4" Margin="0,0,8,0"
+                            BorderBrush="#2E7D32" BorderThickness="1.5">
+                        <TextBlock Text="✓ להוספה" FontSize="12"/>
+                    </Border>
+                    <Border Background="#EDE7F6" CornerRadius="8" Padding="10,4" Margin="0,0,8,0">
+                        <TextBlock Text="✓ כבר בלוח" FontSize="12" Foreground="#6750A4"/>
+                    </Border>
+                    <Border Background="#EEEEEE" CornerRadius="8" Padding="10,4">
+                        <TextBlock Text="עבר" FontSize="12" Foreground="#BDBDBD"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Action area -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock x:Name="RemovalSummary" FontSize="13" Foreground="#4A148C"
+                               FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <Button x:Name="RemoveHoursBtn"
+                            Content="שמור שינויים ✓"
+                            Height="42" Padding="24,0"
+                            Background="#6750A4" Foreground="White"
+                            FontSize="14" FontWeight="Bold"
+                            BorderThickness="0" Cursor="Hand"
+                            IsEnabled="False"
+                            Click="RemoveHours_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="21"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Loading overlay -->
+        <Border x:Name="LoadingOverlay" Grid.Row="2" Background="#80FFFFFF"
+                CornerRadius="20" Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="⏳ טוען לוח זמנים..." FontSize="16" Foreground="#6750A4"
+                           FontWeight="SemiBold" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

@@ -1,8 +1,10 @@
 using BabySitter.Helpers;
 using ClApi;
+using Microsoft.Win32;
 using Model;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -14,9 +16,12 @@ namespace BabySitter.Pages
     public partial class MyProfile : Page
     {
         private readonly ApiService api = new ApiService();
-        private bool showPass = false;
+        private bool   showPass = false;
+        private string _newProfilePicBase64   = null;   // preview only – raw bytes as Base64
+        private string _newProfilePicFileName = null;   // filename returned by the server (stored in DB)
 
-        private List<ChildOfParent> kids = new List<ChildOfParent>();
+        private List<ChildOfParent> kids   = new List<ChildOfParent>();
+        private List<City>          _cities = new List<City>();
 
         public MyProfile()
         {
@@ -28,7 +33,8 @@ namespace BabySitter.Pages
         {
             try
             {
-                var cities = await api.GetAllCitiesAsync();
+                _cities = await api.GetAllCitiesAsync();
+                var cities = _cities;
                 cityComboBox.ItemsSource = cities;
 
                 if (LogInComputer.WhoAmI == "babysitter")
@@ -49,6 +55,10 @@ namespace BabySitter.Pages
                     EmailPriceSection.Visibility = Visibility.Visible;
                     mail.Text         = user.Mail ?? "";
                     pricePerHour.Text = user.PriceForAnHour > 0 ? user.PriceForAnHour.ToString() : "";
+
+                    // Show avatar section and load current picture
+                    AvatarSection.Visibility = Visibility.Visible;
+                    ApplyAvatarToProfile(user.ProfilePicture, user.FirstName);
                 }
                 else if (LogInComputer.WhoAmI == "parent")
                 {
@@ -74,7 +84,7 @@ namespace BabySitter.Pages
                     KidsPanel.Children.Clear();
 
                     foreach (var child in kids)
-                        KidsPanel.Children.Add(new KidInfoControl(user, cities, child));
+                        KidsPanel.Children.Add(new KidInfoControl(user, cities, child, hideSaveButton: true));
                 }
             }
             catch (Exception ex)
@@ -112,6 +122,63 @@ namespace BabySitter.Pages
             MailErrorMsg.Visibility = Visibility.Collapsed;
         }
 
+        // ── Profile picture ───────────────────────────────────────────────────────
+
+        /// Opens a file dialog, previews the image immediately, then uploads it to the
+        /// server which saves the file and returns a filename to store in the DB.
+        private async void PickProfilePic_Click(object sender, MouseButtonEventArgs e)
+        {
+            var dlg = new OpenFileDialog
+            {
+                Title  = "בחר תמונת פרופיל",
+                Filter = "קבצי תמונה|*.jpg;*.jpeg;*.png;*.bmp;*.gif|כל הקבצים|*.*"
+            };
+
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                byte[] bytes = File.ReadAllBytes(dlg.FileName);
+
+                // Validate reasonable size (max 5 MB)
+                if (bytes.Length > 5 * 1024 * 1024)
+                {
+                    MessageBox.Show("התמונה גדולה מדי (מקסימום 5MB). בחר תמונה קטנה יותר.");
+                    return;
+                }
+
+                // Show preview immediately (Base64 in memory, not yet saved)
+                _newProfilePicBase64 = Convert.ToBase64String(bytes);
+                ApplyAvatarToProfile(_newProfilePicBase64, fname.Text.Trim());
+
+                // Upload to server → get back the saved filename
+                var user = (BabySitterTeens)LogInComputer.CurrentUser;
+                _newProfilePicFileName = await api.UploadProfilePictureAsync(user.Id, _newProfilePicBase64);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("שגיאה בטעינת התמונה: " + ex.Message);
+            }
+        }
+
+        /// Displays base64 image (or initial letter) in the profile-page avatar circle.
+        private void ApplyAvatarToProfile(string base64, string firstName)
+        {
+            var bmp = ImageHelper.BitmapFromBase64(base64);
+            if (bmp != null)
+            {
+                AvatarImageBrushProfile.ImageSource       = bmp;
+                AvatarImageEllipseProfile.Visibility      = Visibility.Visible;
+                AvatarLetterProfile.Visibility            = Visibility.Collapsed;
+            }
+            else
+            {
+                AvatarImageEllipseProfile.Visibility = Visibility.Collapsed;
+                AvatarLetterProfile.Visibility       = Visibility.Visible;
+                AvatarLetterProfile.Text = firstName?.Length > 0 ? firstName[0].ToString().ToUpper() : "?";
+            }
+        }
+
         private void TogglePassword(object sender, MouseButtonEventArgs e)
         {
             showPass = !showPass;
@@ -132,6 +199,16 @@ namespace BabySitter.Pages
 
         private bool IsValidPhone(string text) =>
             Regex.IsMatch(text, @"^05\d{8}$");
+
+        private void AddKid_Click(object sender, RoutedEventArgs e)
+        {
+            var user = (Parents)LogInComputer.CurrentUser;
+            var card = new KidInfoControl(user, _cities, hideSaveButton: true)
+            {
+                Margin = new System.Windows.Thickness(8)
+            };
+            KidsPanel.Children.Add(card);
+        }
 
         private async void SaveChanges(object sender, RoutedEventArgs e)
         {
@@ -203,8 +280,35 @@ namespace BabySitter.Pages
                     user.Mail           = mailText;
                     user.PriceForAnHour = price;
 
+                    // Apply newly-picked photo filename (server already saved the file)
+                    string base64ToRestore = null;
+                    if (_newProfilePicFileName != null)
+                    {
+                        // Temporarily set filename so the DB gets the short filename value
+                        base64ToRestore  = _newProfilePicBase64;   // keep Base64 for in-memory display
+                        user.ProfilePicture = _newProfilePicFileName;
+                    }
+
                     int result = await api.UpdateBabySitterTeenAsync(user);
-                    MessageBox.Show(result > 0 ? "נשמר!" : "שגיאה בשמירה");
+                    if (result > 0)
+                    {
+                        // Restore Base64 to the in-memory user so the avatar still displays
+                        // correctly when the profile page is reopened without a full re-login.
+                        // (The DB holds the short filename; on next login it converts back to Base64.)
+                        if (base64ToRestore != null)
+                            user.ProfilePicture = base64ToRestore;
+
+                        _newProfilePicBase64   = null;
+                        _newProfilePicFileName = null;
+                        MessageBox.Show("נשמר!");
+                    }
+                    else
+                    {
+                        // Rollback the in-memory ProfilePicture if the save failed
+                        if (base64ToRestore != null)
+                            user.ProfilePicture = base64ToRestore;
+                        MessageBox.Show("שגיאה בשמירה");
+                    }
                 }
                 else if (LogInComputer.WhoAmI == "parent")
                 {
@@ -217,7 +321,25 @@ namespace BabySitter.Pages
                     user.Password   = showPass ? passVisible.Text : pass.Password;
 
                     int result = await api.UpdateParentAsync(user);
-                    MessageBox.Show(result > 0 ? "נשמר!" : "שגיאה בשמירה");
+
+                    if (result > 0)
+                    {
+                        // Save / update all kid cards
+                        bool allKidsOk = true;
+                        foreach (UIElement el in KidsPanel.Children)
+                        {
+                            if (el is KidInfoControl kidCard)
+                            {
+                                bool ok = await kidCard.SaveAsync();
+                                if (!ok) allKidsOk = false;
+                            }
+                        }
+                        MessageBox.Show(allKidsOk ? "נשמר!" : "הפרטים האישיים נשמרו, אך חלק מפרטי הילדים לא הושלמו");
+                    }
+                    else
+                    {
+                        MessageBox.Show("שגיאה בשמירה");
+                    }
                 }
             }
             catch (Exception ex)

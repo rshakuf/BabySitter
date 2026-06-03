@@ -153,12 +153,20 @@ namespace BabySitter.Pages
         private List<DateTime> BuildAvailableDates(List<Schedule> slots, List<Requests> blocked)
         {
             var dates = new SortedSet<DateTime>();
+
+            // Include any date that has at least one free hour (parent can still book)
             foreach (var slot in slots)
             {
                 var freeHours = GetFreeHours(slot.DateAvailable.Date, new[] { slot }, blocked);
                 if (freeHours.Any())
                     dates.Add(slot.DateAvailable.Date);
             }
+
+            // Also include dates that have bookings but no schedule entry —
+            // so the parent can always see red "taken" hours on booked days.
+            foreach (var req in blocked.Where(r => r.TimeOfRequest.Date >= DateTime.Today))
+                dates.Add(req.TimeOfRequest.Date);
+
             return dates.ToList();
         }
 
@@ -220,7 +228,13 @@ namespace BabySitter.Pages
             bool isToday       = date.Date == DateTime.Today;
             int  nowHour       = DateTime.Now.Hour;
 
-            foreach (int h in scheduledHours.OrderBy(x => x))
+            // Union: show every hour that is either scheduled OR has a booking.
+            // This ensures taken hours that were removed from the schedule still
+            // appear in red so the parent can see the babysitter is actually busy.
+            var allHours = new HashSet<int>(scheduledHours);
+            allHours.UnionWith(takenHours);
+
+            foreach (int h in allHours.OrderBy(x => x))
             {
                 SlotState state;
                 if (isPastDay || (isToday && h <= nowHour))
