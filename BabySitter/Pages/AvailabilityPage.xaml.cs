@@ -78,14 +78,15 @@ namespace BabySitter.Pages
                 for (int i = 0; i < 5; i++)
                     stars[i].Foreground = i < round ? gold : gray;
                 AvgRatingText.Text = $"{avg:F1}  ({myRates.Count} דירוגים)";
+                SeeReviewsLink.Visibility = Visibility.Visible;
             }
             else
             {
                 for (int i = 0; i < 5; i++) stars[i].Foreground = gray;
                 AvgRatingText.Text = _parentCanRate ? "לחץ לדרג" : "אין דירוג";
+                SeeReviewsLink.Visibility = Visibility.Collapsed;
             }
 
-            // Always show the chip when there are ratings OR when the current parent can rate
             if (myRates.Any() || _parentCanRate)
                 AvgRatingChip.Visibility = Visibility.Visible;
         }
@@ -462,35 +463,33 @@ namespace BabySitter.Pages
         private async void AvgRatingChip_Click(object sender, MouseButtonEventArgs e)
         {
             int prefill = _myExistingRate?.Stars ?? 0;
-            var dialog  = new RateDialog($"{_teen.FirstName} {_teen.LastName}", prefill)
+            var dialog  = new RateDialog(
+                $"{_teen.FirstName} {_teen.LastName}",
+                prefill,
+                _myExistingRate?.Tags,
+                _myExistingRate?.ReviewText)
             {
                 Owner = Window.GetWindow(this)
             };
 
             if (dialog.ShowDialog() != true) return;
 
-            int newStars      = dialog.SelectedRating;
+            int newStars = dialog.SelectedRating;
             if (newStars == 0) return;
 
             var currentParent = LogInComputer.CurrentUser as Parents;
 
-            // ── BabySitterRate ─────────────────────────────────────────────────────
-            if (_myExistingRate != null)
+            // Always use Upsert with a minimal object to avoid JSON-serialization issues
+            // with deeply-nested IdBabySitter/IdParent graphs.
+            await _api.UpsertBabySitterRateAsync(new BabySitterRate
             {
-                _myExistingRate.Stars      = newStars;
-                _myExistingRate.DateOfRate = DateTime.Today;
-                await _api.UpdateBabySitterRateAsync(_myExistingRate);
-            }
-            else
-            {
-                await _api.InsertBabySitterRateAsync(new BabySitterRate
-                {
-                    Stars        = newStars,
-                    IdBabySitter = _teen,
-                    IdParent     = currentParent,
-                    DateOfRate   = DateTime.Today
-                });
-            }
+                Stars        = newStars,
+                IdBabySitter = new BabySitterTeens { Id = _teen.Id },
+                IdParent     = new Parents         { Id = currentParent.Id },
+                DateOfRate   = DateTime.Today,
+                Tags         = dialog.SelectedTags,
+                ReviewText   = dialog.ReviewText
+            });
 
             // Reload rates so future re-rating updates the correct record
             _allRates = (await _api.GetAllBabySitterRatesAsync())?.ToList() ?? _allRates;
@@ -515,6 +514,171 @@ namespace BabySitter.Pages
             });
             PrevPanel.Visibility = Visibility.Hidden;
             NextPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void SeeReviews_Click(object sender, MouseButtonEventArgs e)
+        {
+            var rates = _allRates.Where(r => r.IdBabySitter?.Id == _teen.Id).OrderByDescending(r => r.DateOfRate).ToList();
+            if (!rates.Any()) return;
+
+            var dlg = new Window
+            {
+                Title = $"ביקורות על {_teen.FirstName} {_teen.LastName}",
+                Width = 480, Height = 560,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = Window.GetWindow(this),
+                ResizeMode = ResizeMode.NoResize,
+                Background = new SolidColorBrush(Color.FromRgb(247, 242, 250)),
+                FlowDirection = FlowDirection.RightToLeft
+            };
+
+            var outer = new Border
+            {
+                Background   = System.Windows.Media.Brushes.White,
+                CornerRadius = new CornerRadius(20),
+                Margin       = new Thickness(16)
+            };
+            outer.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                { BlurRadius = 20, ShadowDepth = 3, Opacity = 0.10, Color = Colors.Black };
+
+            var mainStack = new StackPanel();
+
+            // Header
+            var header = new Border
+            {
+                Background   = new SolidColorBrush(Color.FromRgb(103, 80, 164)),
+                CornerRadius = new CornerRadius(20, 20, 0, 0),
+                Padding      = new Thickness(24, 16, 24, 16)
+            };
+            double avg = rates.Average(r => r.Stars);
+            header.Child = new TextBlock
+            {
+                Text      = $"ביקורות  •  ממוצע {avg:F1} ★  ({rates.Count})",
+                FontSize  = 17, FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White
+            };
+            mainStack.Children.Add(header);
+
+            // Review cards
+            var scroll = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Margin = new Thickness(16, 12, 16, 16)
+            };
+            var panel = new StackPanel();
+
+            var gold = new SolidColorBrush(Color.FromRgb(255, 193, 7));
+            var gray = new SolidColorBrush(Color.FromRgb(204, 204, 204));
+
+            foreach (var rate in rates)
+            {
+                var card = new Border
+                {
+                    Background      = new SolidColorBrush(Color.FromRgb(249, 246, 255)),
+                    CornerRadius    = new CornerRadius(12),
+                    Margin          = new Thickness(0, 0, 0, 10),
+                    Padding         = new Thickness(16, 12, 16, 12),
+                    BorderBrush     = new SolidColorBrush(Color.FromRgb(237, 231, 246)),
+                    BorderThickness = new Thickness(1)
+                };
+                var cs = new StackPanel();
+
+                // Parent name + date row
+                var topGrid = new Grid();
+                topGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                topGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                var parentName = rate.IdParent != null
+                    ? $"{rate.IdParent.FirstName} {rate.IdParent.LastName}".Trim()
+                    : "הורה";
+                var nameTb = new TextBlock
+                {
+                    Text = parentName, FontSize = 14, FontWeight = FontWeights.SemiBold,
+                    Foreground = new SolidColorBrush(Color.FromRgb(28, 27, 31))
+                };
+                var dateTb = new TextBlock
+                {
+                    Text = rate.DateOfRate != default ? rate.DateOfRate.ToString("dd/MM/yyyy") : "",
+                    FontSize = 12, Foreground = new SolidColorBrush(Color.FromRgb(121, 116, 126)),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                Grid.SetColumn(nameTb, 0); Grid.SetColumn(dateTb, 1);
+                topGrid.Children.Add(nameTb); topGrid.Children.Add(dateTb);
+                cs.Children.Add(topGrid);
+
+                // Stars
+                var starsRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
+                for (int i = 1; i <= 5; i++)
+                    starsRow.Children.Add(new TextBlock
+                    {
+                        Text = "★", FontSize = 18, Margin = new Thickness(0, 0, 2, 0),
+                        Foreground = i <= rate.Stars ? gold : gray
+                    });
+                starsRow.Children.Add(new TextBlock
+                {
+                    Text = $"  {rate.Stars}/5", FontSize = 12, VerticalAlignment = VerticalAlignment.Center,
+                    Foreground = new SolidColorBrush(Color.FromRgb(73, 69, 79))
+                });
+                cs.Children.Add(starsRow);
+
+                // Tags
+                if (!string.IsNullOrWhiteSpace(rate.Tags))
+                {
+                    var tagsWrap = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
+                    foreach (var tag in rate.Tags.Split(',').Select(t => t.Trim()).Where(t => t.Length > 0))
+                    {
+                        tagsWrap.Children.Add(new Border
+                        {
+                            Background   = new SolidColorBrush(Color.FromRgb(237, 231, 246)),
+                            CornerRadius = new CornerRadius(12),
+                            Padding      = new Thickness(10, 4, 10, 4),
+                            Margin       = new Thickness(0, 0, 6, 4),
+                            Child        = new TextBlock
+                            {
+                                Text = tag, FontSize = 12,
+                                Foreground = new SolidColorBrush(Color.FromRgb(103, 80, 164))
+                            }
+                        });
+                    }
+                    cs.Children.Add(tagsWrap);
+                }
+
+                // Review text
+                if (!string.IsNullOrWhiteSpace(rate.ReviewText))
+                {
+                    cs.Children.Add(new Border
+                    {
+                        Background      = new SolidColorBrush(Color.FromRgb(243, 240, 255)),
+                        CornerRadius    = new CornerRadius(8),
+                        Padding         = new Thickness(12, 8, 12, 8),
+                        Margin          = new Thickness(0, 8, 0, 0),
+                        BorderBrush     = new SolidColorBrush(Color.FromRgb(208, 188, 255)),
+                        BorderThickness = new Thickness(1),
+                        Child           = new TextBlock
+                        {
+                            Text         = $"\"{rate.ReviewText}\"",
+                            FontSize     = 13,
+                            FontStyle    = FontStyles.Italic,
+                            Foreground   = new SolidColorBrush(Color.FromRgb(74, 20, 140)),
+                            TextWrapping = TextWrapping.Wrap
+                        }
+                    });
+                }
+
+                card.Child = cs;
+                panel.Children.Add(card);
+            }
+
+            scroll.Content = panel;
+            mainStack.Children.Add(scroll);
+            outer.Child = mainStack;
+            dlg.Content = outer;
+            dlg.ShowDialog();
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
         }
     }
 }

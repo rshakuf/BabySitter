@@ -35,7 +35,7 @@
             </Border.Effect>
             <StackPanel>
 
-                <!-- Top row: avatar · name · city · price · phone · rating -->
+                <!-- Top row: avatar · name · city · price · phone · rating · back -->
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                         <Grid Width="54" Height="54" Margin="0,0,14,0">
@@ -54,6 +54,17 @@
                         </StackPanel>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <Button Content="חזרה" Click="BackButton_Click"
+                                Height="36" Padding="20,0" Margin="0,0,10,0"
+                                Background="#EDE9FF" Foreground="#6750A4"
+                                FontSize="14" FontWeight="SemiBold"
+                                BorderThickness="0" Cursor="Hand">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="18"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
                         <Border Background="#E8DEF8" CornerRadius="10" Padding="12,6" Margin="0,0,10,0">
                             <TextBlock x:Name="BabysitterPriceLabel" FontSize="14" FontWeight="Bold" Foreground="#21005D"/>
                         </Border>
@@ -62,7 +73,7 @@
                         </Border>
                         <!-- Average rating — shown after data loads -->
                         <Border x:Name="AvgRatingChip" Background="#FFF8E1" CornerRadius="10"
-                                Padding="10,6" Margin="0,0,10,0" Visibility="Collapsed">
+                                Padding="10,6" Margin="0,0,6,0" Visibility="Collapsed">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock x:Name="AvgS1" Text="★" FontSize="16" Margin="1,0" Foreground="#CCCCCC"/>
                                 <TextBlock x:Name="AvgS2" Text="★" FontSize="16" Margin="1,0" Foreground="#CCCCCC"/>
@@ -74,6 +85,16 @@
                                            VerticalAlignment="Center" Margin="5,0,0,0"/>
                             </StackPanel>
                         </Border>
+                        <!-- "See reviews" link — shown when there are ratings -->
+                        <TextBlock x:Name="SeeReviewsLink"
+                                   Text="ראה ביקורות"
+                                   FontSize="12" Foreground="#6750A4"
+                                   TextDecorations="Underline"
+                                   Cursor="Hand"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Visibility="Collapsed"
+                                   MouseLeftButtonUp="SeeReviews_Click"/>
                     </StackPanel>
                 </DockPanel>
 

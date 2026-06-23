@@ -353,7 +353,8 @@ namespace BabySitter.Pages
                         string name  = r.BabysitterId != null
                             ? $"{r.BabysitterId.FirstName} {r.BabysitterId.LastName}".Trim()
                             : "";
-                        var dlg = new RateDialog(name, existingRate.Stars)
+                        var dlg = new RateDialog(name, existingRate.Stars,
+                            existingRate.Tags, existingRate.ReviewText)
                         { Owner = Window.GetWindow(this) };
                         if (dlg.ShowDialog() != true) return;
                         try
@@ -363,7 +364,9 @@ namespace BabySitter.Pages
                                 Stars        = dlg.SelectedRating,
                                 IdBabySitter = new BabySitterTeens { Id = bsId },
                                 IdParent     = new Parents         { Id = parentId },
-                                DateOfRate   = DateTime.Today
+                                DateOfRate   = DateTime.Today,
+                                Tags         = dlg.SelectedTags,
+                                ReviewText   = dlg.ReviewText
                             });
                             if (saved <= 0) MessageBox.Show("שגיאה בעדכון הדירוג");
                             await JobHistoryReloadAsync();
@@ -410,7 +413,9 @@ namespace BabySitter.Pages
                                 Stars        = dlg.SelectedRating,
                                 IdBabySitter = new BabySitterTeens { Id = r.BabysitterId.Id },
                                 IdParent     = new Parents         { Id = parent.Id },
-                                DateOfRate   = DateTime.Today
+                                DateOfRate   = DateTime.Today,
+                                Tags         = dlg.SelectedTags,
+                                ReviewText   = dlg.ReviewText
                             });
                             if (saved <= 0) MessageBox.Show("שגיאה בשמירת הדירוג");
                             await JobHistoryReloadAsync();

@@ -21,6 +21,23 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!-- Back button overlay -->
+            <Button Content="חזרה" Click="Back_Click"
+                    Grid.RowSpan="3"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="0,4,0,0"
+                    Height="36" Padding="20,0"
+                    Background="#EDE9FF" Foreground="#6750A4"
+                    FontSize="14" FontWeight="SemiBold"
+                    BorderThickness="0" Cursor="Hand"
+                    Panel.ZIndex="100">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="18"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
             <!-- Header -->
             <DockPanel Grid.Row="0" Margin="0,0,0,24">
                 <StackPanel>
@@ -29,10 +46,6 @@
                     <TextBlock x:Name="SubtitleText"
                                FontSize="16" Foreground="#49454F" Margin="2,5,0,0"/>
                 </StackPanel>
-                <Button Content="חזרה"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Style="{StaticResource MaterialTonalButton}"
-                        Click="Back_Click"/>
             </DockPanel>
 
             <!-- Summary bar -->

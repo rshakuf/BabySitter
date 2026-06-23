@@ -5,253 +5,250 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
       Title="BabysitterHome"
-      Background="#F7F2FA"
+      Background="#F0E9F7"
       FlowDirection="RightToLeft"
-      d:DesignHeight="720" d:DesignWidth="1280">
+      d:DesignHeight="760" d:DesignWidth="1280">
 
     <Page.Resources>
+        <!-- Premium Neon/Purple Button Style -->
         <Style x:Key="SlotButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#6C63FF"/>
+            <Setter Property="Background" Value="#6750A4"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Background="{TemplateBinding Background}" CornerRadius="20">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,0"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#574BFF"/>
+                    <Setter Property="Background" Value="#523F85"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Glassmorphic KPI Card Style -->
+        <Style x:Key="KpiCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#E6FFFFFF"/>
+            <Setter Property="CornerRadius" Value="16,4,16,16"/>
+            <Setter Property="Padding" Value="20,16"/>
+            <Setter Property="BorderBrush" Value="#33FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="2" Opacity="0.05" Color="Black"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
 
-    <Border Margin="20" Background="#FFFBFE" CornerRadius="28">
+    <!-- Main Glassmorphic Container -->
+    <Border Margin="24" Background="#CCFFFBFE" CornerRadius="32" BorderBrush="#80FFFFFF" BorderThickness="1.5">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="30" ShadowDepth="4" Opacity="0.1"/>
+            <DropShadowEffect BlurRadius="40" ShadowDepth="8" Opacity="0.12" Color="#1C1B1F"/>
         </Border.Effect>
 
-        <Grid Margin="24">
+        <Grid Margin="28">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <!-- Row 0: Header -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 1: KPI Stats Panel -->
                 <RowDefinition Height="*"/>
+                <!-- Row 2: Main Dynamic Content -->
             </Grid.RowDefinitions>
 
-            <!-- ROW 0: Header -->
-            <DockPanel Grid.Row="0" Margin="0,0,0,30">
+            <!-- ================= ROW 0: HEADER WITH NOTIFICATION BELL ================= -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,24">
                 <StackPanel>
-                    <TextBlock Text="האזור האישי שלי"
-                               FontSize="34" FontWeight="Bold" Foreground="#1C1B1F"/>
-                    <TextBlock x:Name="WelcomeText"
-                               FontSize="18" Foreground="#6750A4" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                    <TextBlock Text="האזור האישי שלי" FontSize="32" FontWeight="Black" Foreground="#1C1B1F"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                        <TextBlock x:Name="WelcomeText" Text="שלום, נועה &lt;3" FontSize="16" Foreground="#6750A4" FontWeight="SemiBold"/>
 
-                    <!-- Stars row — shown after ratings load -->
-                    <StackPanel x:Name="StarsRow" Orientation="Horizontal" Margin="0,6,0,0"
-                                Visibility="Collapsed">
-                        <TextBlock x:Name="BStar1" Text="★" FontSize="22" Margin="0,0,2,0" Foreground="#CCCCCC"/>
-                        <TextBlock x:Name="BStar2" Text="★" FontSize="22" Margin="0,0,2,0" Foreground="#CCCCCC"/>
-                        <TextBlock x:Name="BStar3" Text="★" FontSize="22" Margin="0,0,2,0" Foreground="#CCCCCC"/>
-                        <TextBlock x:Name="BStar4" Text="★" FontSize="22" Margin="0,0,2,0" Foreground="#CCCCCC"/>
-                        <TextBlock x:Name="BStar5" Text="★" FontSize="22" Margin="0,0,8,0" Foreground="#CCCCCC"/>
-                        <TextBlock x:Name="BRatingText" FontSize="13" Foreground="#49454F" VerticalAlignment="Center"/>
-                        <TextBlock Text="  |  לחץ לפרטים" FontSize="12" Foreground="#6750A4"
-                                   VerticalAlignment="Center" Cursor="Hand"
-                                   TextDecorations="Underline" Margin="4,0,0,0"
-                                   MouseLeftButtonUp="RatingDetails_Click"/>
+                        <!-- Stars row -->
+                        <StackPanel x:Name="StarsRow" Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="BStar1" Text="★" FontSize="18" Foreground="#FFB74D" Margin="0,0,2,0"/>
+                            <TextBlock x:Name="BStar2" Text="★" FontSize="18" Foreground="#FFB74D" Margin="0,0,2,0"/>
+                            <TextBlock x:Name="BStar3" Text="★" FontSize="18" Foreground="#FFB74D" Margin="0,0,2,0"/>
+                            <TextBlock x:Name="BStar4" Text="★" FontSize="18" Foreground="#FFB74D" Margin="0,0,2,0"/>
+                            <TextBlock x:Name="BStar5" Text="★" FontSize="18" Foreground="#CCCCCC" Margin="0,0,6,0"/>
+                            <TextBlock x:Name="BRatingText" Text="4.2 (12 ביקורות)" FontSize="13" Foreground="#49454F" VerticalAlignment="Center"/>
+                            <TextBlock Text="•  הצג פרטים" FontSize="12" Foreground="#6750A4" VerticalAlignment="Center" Cursor="Hand" Margin="8,0,0,0" TextDecorations="Underline" MouseLeftButtonUp="RatingDetails_Click"/>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
+
+                <!-- Top Left Control Actions -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Content="אודות" Style="{StaticResource MaterialTonalButton}"
-                            Margin="0,0,12,0" Click="GoToAboutUs_Click"/>
-                    <Button Content="היסטוריית עבודה" Style="{StaticResource MaterialTonalButton}"
-                            Margin="0,0,12,0" Click="GoToHistory_Click"/>
-                    <Button Content="הפרופיל שלי" Style="{StaticResource MaterialFilledButton}"
-                            Click="MyProfile_Click"/>
+
+                    <!-- Notification Bell with dynamic badge -->
+                    <Grid Margin="0,0,20,0" Cursor="Hand" ToolTip="בקשות ממתינות">
+                        <TextBlock Text="🔔" FontSize="26" VerticalAlignment="Center" Foreground="#49454F"/>
+                        <Border x:Name="BellBadgeBorder"
+                                Background="#E53935" CornerRadius="8"
+                                Width="16" Height="16"
+                                HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Margin="0,2,-2,0"
+                                Visibility="Collapsed">
+                            <TextBlock x:Name="BellBadgeText"
+                                       Foreground="White" FontSize="10" FontWeight="Bold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+
+                    <Button Content="אודות" Style="{StaticResource MaterialTonalButton}" Margin="0,0,8,0" Click="GoToAboutUs_Click"/>
+                    <Button Content="היסטוריית עבודה" Style="{StaticResource MaterialTonalButton}" Margin="0,0,8,0" Click="GoToHistory_Click"/>
+                    <Button Content="לוח הזמנים שלי" Style="{StaticResource MaterialTonalButton}" Margin="0,0,8,0" Click="ViewMySchedule_Click"/>
+                    <Button Content="הפרופיל שלי" Style="{StaticResource MaterialFilledButton}" Margin="0,0,8,0" Click="MyProfile_Click"/>
+                    <Button Content="התנתק ↩" Click="Logout_Click"
+                            Height="36" Padding="16,0"
+                            Background="#FFEBEE" Foreground="#C62828"
+                            FontSize="13" FontWeight="SemiBold"
+                            BorderThickness="0" Cursor="Hand">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="18"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
                 </StackPanel>
             </DockPanel>
 
-            <!-- ROW 1: Stacked sections -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <!-- ================= NEW FEATURE: ROW 1: KPI STATS CARDS ================= -->
+            <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,28">
+                <!-- Card 1: Monthly Earnings -->
+                <Border Style="{StaticResource KpiCardStyle}" Margin="0,0,12,0">
+                    <DockPanel>
+                        <TextBlock Text="💰" FontSize="28" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="רווחים החודש" FontSize="13" Foreground="#79747E" FontWeight="Medium"/>
+                            <TextBlock x:Name="MonthlyEarningsText" Text="₪0" FontSize="22" FontWeight="Bold" Foreground="#2E7D32" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- Card 2: Hours Tracked -->
+                <Border Style="{StaticResource KpiCardStyle}" Margin="6,0,6,0">
+                    <DockPanel>
+                        <TextBlock Text="⏱️" FontSize="28" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="שעות עבודה שבוצעו" FontSize="13" Foreground="#79747E" FontWeight="Medium"/>
+                            <TextBlock x:Name="HoursWorkedText" Text="0 שעות" FontSize="22" FontWeight="Bold" Foreground="#1C1B1F" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- Card 3: Pending Alerts Counters -->
+                <Border Style="{StaticResource KpiCardStyle}" Margin="12,0,0,0" Background="#FFF3E0" BorderBrush="#FFE0B2">
+                    <DockPanel>
+                        <TextBlock Text="✨" FontSize="28" DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="בקשות שממתינות לך" FontSize="13" Foreground="#E65100" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="PendingCountText" Text="0 בקשות חדשות" FontSize="22" FontWeight="Bold" Foreground="#F57C00" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ================= LOADING OVERLAY ================= -->
+            <Border x:Name="LoadingOverlay"
+                    Grid.Row="0" Grid.RowSpan="3"
+                    Background="#CCF7F2FA" CornerRadius="20"
+                    Visibility="Collapsed"
+                    Panel.ZIndex="200">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="⏳" FontSize="52" HorizontalAlignment="Center"/>
+                    <TextBlock Text="טוען נתונים..." FontSize="20" FontWeight="Bold"
+                               Foreground="#6750A4" HorizontalAlignment="Center" Margin="0,12,0,8"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Ellipse x:Name="Dot1" Width="12" Height="12" Fill="#6750A4" Margin="5,0" Opacity="1"/>
+                        <Ellipse x:Name="Dot2" Width="12" Height="12" Fill="#6750A4" Margin="5,0" Opacity="0.4"/>
+                        <Ellipse x:Name="Dot3" Width="12" Height="12" Fill="#6750A4" Margin="5,0" Opacity="0.4"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ================= ROW 2: MAIN WORKSPACE SCROLLVIEWER ================= -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0,0,8,0">
                 <StackPanel>
 
-                    <!-- Section 1: Approved slots -->
-                    <TextBlock Text="שעות מאושרות"
-                               FontSize="20" FontWeight="Bold"
-                               Foreground="#2D3748" Margin="5,0,0,14"/>
+                    <!-- Main Split Layout: Content List on Right, Fast Interactive Scheduler Form on Left -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3.5*"/>
+                            <!-- Lists of tasks/requests -->
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="2*"/>
+                            <!-- Fast Scheduler Panel Widget -->
+                        </Grid.ColumnDefinitions>
 
-                    <StackPanel x:Name="ApprovedLoadingPanel" Orientation="Horizontal"
-                                HorizontalAlignment="Center" Margin="0,6,0,20" Visibility="Collapsed">
-                        <StackPanel.Triggers>
-                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                <BeginStoryboard>
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="ADot1" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
-                                        <DoubleAnimation Storyboard.TargetName="ADot2" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
-                                        <DoubleAnimation Storyboard.TargetName="ADot3" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </StackPanel.Triggers>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot1"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot2"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="ADot3"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                    </StackPanel>
+                        <!-- RIGHT COLUMN: Active Status Lists -->
+                        <StackPanel Grid.Column="0">
 
-                    <StackPanel x:Name="ApprovedSlotsPanel" Margin="0,0,0,30"/>
+                            <!-- Section 1: Approved slots -->
+                            <TextBlock Text="📅 שעות מאושרות וקרובות" FontSize="18" FontWeight="Bold" Foreground="#1C1B1F" Margin="4,0,0,12"/>
+                            <!-- Loading indicator remains structural -->
+                            <StackPanel x:Name="ApprovedLoadingPanel" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
+                            <StackPanel x:Name="ApprovedSlotsPanel" Margin="0,0,0,24"/>
 
-                    <!-- Section 2: Pending requests -->
-                    <TextBlock Text="בקשות ממתינות לאישור"
-                               FontSize="20" FontWeight="Bold"
-                               Foreground="#2D3748" Margin="5,0,0,14"/>
+                            <!-- Section 2: Pending requests -->
+                            <TextBlock Text="📩 בקשות חדשות מהורים" FontSize="18" FontWeight="Bold" Foreground="#1C1B1F" Margin="4,8,0,12"/>
+                            <StackPanel x:Name="PendingLoadingPanel" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
+                            <StackPanel x:Name="PendingRequestsPanel" Margin="0,0,0,24"/>
 
-                    <StackPanel x:Name="PendingLoadingPanel" Orientation="Horizontal"
-                                HorizontalAlignment="Center" Margin="0,6,0,20" Visibility="Collapsed">
-                        <StackPanel.Triggers>
-                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                <BeginStoryboard>
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="PDot1" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
-                                        <DoubleAnimation Storyboard.TargetName="PDot2" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
-                                        <DoubleAnimation Storyboard.TargetName="PDot3" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </StackPanel.Triggers>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot1"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot2"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="PDot3"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                    </StackPanel>
-
-                    <StackPanel x:Name="PendingRequestsPanel" Margin="0,0,0,30"/>
-
-                    <!-- Section 3: Free slots list -->
-                    <DockPanel Margin="0,0,0,14">
-                        <Button DockPanel.Dock="Left"
-                                Content="📅 צפה בלוח זמנים שלך (מוצג להורים)"
-                                Style="{StaticResource MaterialTonalButton}"
-                                Click="ViewMySchedule_Click"
-                                VerticalAlignment="Center"/>
-                        <TextBlock Text="שעות פנויות שלי"
-                                   FontSize="20" FontWeight="Bold"
-                                   Foreground="#2D3748" VerticalAlignment="Center"
-                                   Margin="0,0,16,0"/>
-                    </DockPanel>
-
-                    <StackPanel x:Name="FreeLoadingPanel" Orientation="Horizontal"
-                                HorizontalAlignment="Center" Margin="0,6,0,14" Visibility="Collapsed">
-                        <StackPanel.Triggers>
-                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                <BeginStoryboard>
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="FDot1" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0"/>
-                                        <DoubleAnimation Storyboard.TargetName="FDot2" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.15"/>
-                                        <DoubleAnimation Storyboard.TargetName="FDot3" Storyboard.TargetProperty="Y"
-                                                         From="0" To="-8" Duration="0:0:0.4" AutoReverse="True" BeginTime="0:0:0.3"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </StackPanel.Triggers>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="FDot1"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="FDot2"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                        <Ellipse Width="10" Height="10" Fill="#6750A4" Margin="4,0">
-                            <Ellipse.RenderTransform><TranslateTransform x:Name="FDot3"/></Ellipse.RenderTransform>
-                        </Ellipse>
-                    </StackPanel>
-
-                    <StackPanel x:Name="ScheduleSlotsPanel" Margin="0,0,0,14"/>
-
-                    <!-- Section 4: Add free slot form -->
-                    <Border Background="#F0EDFF" CornerRadius="14" Padding="16" Margin="0,0,0,30">
-                        <StackPanel>
-                            <TextBlock Text="הוסף שעה פנויה חדשה"
-                                       FontSize="14" FontWeight="SemiBold"
-                                       Foreground="#4A5568" Margin="0,0,0,12"/>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="תאריך" FontSize="11"
-                                               Foreground="#4A5568" Margin="0,0,0,4"/>
-                                    <DatePicker x:Name="NewSlotDate" FontSize="13" Height="36"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="שעת התחלה" FontSize="11"
-                                               Foreground="#4A5568" Margin="0,0,0,4"/>
-                                    <Border Background="White" CornerRadius="8" Height="36">
-                                        <TextBox x:Name="NewSlotStart" Text="09:00"
-                                                 FontSize="13" BorderThickness="0"
-                                                 VerticalContentAlignment="Center"
-                                                 Padding="10,0" Background="Transparent"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="4">
-                                    <TextBlock Text="שעת סיום" FontSize="11"
-                                               Foreground="#4A5568" Margin="0,0,0,4"/>
-                                    <Border Background="White" CornerRadius="8" Height="36">
-                                        <TextBox x:Name="NewSlotEnd" Text="17:00"
-                                                 FontSize="13" BorderThickness="0"
-                                                 VerticalContentAlignment="Center"
-                                                 Padding="10,0" Background="Transparent"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <Button x:Name="AddSlotBtn"
-                                        Grid.Column="6"
-                                        Content="+ הוסף משמרת"
-                                        Click="AddSlot_Click"
-                                        Style="{StaticResource SlotButtonStyle}"
-                                        Height="36" Width="150"
-                                        VerticalAlignment="Bottom"/>
-                            </Grid>
-
-                            <TextBlock x:Name="SlotErrorMsg" Text=""
-                                       Foreground="#C53030" FontSize="12"
-                                       Margin="0,6,0,0"/>
+                            <!-- Section 3: Free slots list -->
+                            <TextBlock Text="⏳ שעות פנויות שהצהרת" FontSize="18" FontWeight="Bold" Foreground="#1C1B1F" Margin="4,8,0,12"/>
+                            <StackPanel x:Name="FreeLoadingPanel" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12" Visibility="Collapsed"/>
+                            <StackPanel x:Name="ScheduleSlotsPanel" Margin="0,0,0,16"/>
                         </StackPanel>
-                    </Border>
+
+                        <!-- LEFT COLUMN: NEW FEATURE WIDGET: Modern Interactive Fast Add & Weekly Visual Grid -->
+                        <StackPanel Grid.Column="2">
+                            <Border Background="#F3EDF7" CornerRadius="24" Padding="20" BorderBrush="#E8DEF8" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="הוספת ימי זמינות במהירות" FontSize="16" FontWeight="Bold" Foreground="#6750A4" Margin="0,0,0,14"/>
+
+                                    <!-- Styled Inputs -->
+                                    <TextBlock Text="בחר תאריך משמרת" FontSize="12" FontWeight="SemiBold" Foreground="#49454F" Margin="0,0,0,6"/>
+                                    <DatePicker x:Name="NewSlotDate" Height="40" Margin="0,0,0,14" Background="White"/>
+
+                                    <Grid Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="שעת התחלה" FontSize="12" FontWeight="SemiBold" Foreground="#49454F" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="NewSlotStart" Text="09:00" Height="38" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="SemiBold" Background="White" BorderBrush="#79747E"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="שעת סיום" FontSize="12" FontWeight="SemiBold" Foreground="#49454F" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="NewSlotEnd" Text="17:00" Height="38" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="SemiBold" Background="White" BorderBrush="#79747E"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Button x:Name="AddSlotBtn" Content="+ פרסם שעות זמינות" Style="{StaticResource SlotButtonStyle}" Height="42" HorizontalAlignment="Stretch" Click="AddSlot_Click"/>
+                                    <TextBlock x:Name="SlotErrorMsg" Foreground="#BA1A1A" FontSize="11" Margin="0,8,0,0" HorizontalAlignment="Center"/>
+
+                                    <Separator Margin="0,20" Background="#E8DEF8"/>
+
+                                    <!-- Weekly Status Tracker — built in code-behind -->
+                                    <TextBlock Text="מבט חטוף על השבוע שלך" FontSize="13" FontWeight="Bold" Foreground="#49454F" Margin="0,0,0,10"/>
+                                    <UniformGrid x:Name="WeeklyGrid" Columns="5" Rows="1" Height="55"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
 
                 </StackPanel>
             </ScrollViewer>

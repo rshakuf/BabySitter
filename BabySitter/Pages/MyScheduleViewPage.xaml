@@ -54,23 +54,22 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Price + Back button -->
+                    <!-- Price chip + back button -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <Border Background="#E8DEF8" CornerRadius="10" Padding="12,6" Margin="0,0,10,0">
-                            <TextBlock x:Name="BabysitterPriceLabel" FontSize="14" FontWeight="Bold" Foreground="#21005D"/>
-                        </Border>
-                        <Button Content="← חזור"
-                                Height="38" Padding="18,0"
-                                Background="#F3EDF7" Foreground="#6750A4"
-                                FontSize="13" FontWeight="SemiBold"
-                                BorderThickness="0" Cursor="Hand"
-                                Click="Back_Click">
+                        <Button Content="חזרה" Click="Back_Click"
+                                Height="36" Padding="20,0" Margin="0,0,10,0"
+                                Background="#EDE9FF" Foreground="#6750A4"
+                                FontSize="14" FontWeight="SemiBold"
+                                BorderThickness="0" Cursor="Hand">
                             <Button.Resources>
                                 <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="19"/>
+                                    <Setter Property="CornerRadius" Value="18"/>
                                 </Style>
                             </Button.Resources>
                         </Button>
+                        <Border Background="#E8DEF8" CornerRadius="10" Padding="12,6" Margin="0,0,10,0">
+                            <TextBlock x:Name="BabysitterPriceLabel" FontSize="14" FontWeight="Bold" Foreground="#21005D"/>
+                        </Border>
                     </StackPanel>
                 </DockPanel>
             </StackPanel>

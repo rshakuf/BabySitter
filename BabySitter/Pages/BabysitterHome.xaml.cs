@@ -49,7 +49,7 @@ namespace BabySitter.Pages
 
         private async System.Threading.Tasks.Task LoadAll(BabySitterTeens user)
         {
-            // Show loaders immediately, before any awaits
+            LoadingOverlay.Visibility = Visibility.Visible;
             FreeLoadingPanel.Visibility = Visibility.Visible;
             ScheduleSlotsPanel.Visibility = Visibility.Collapsed;
             ApprovedLoadingPanel.Visibility = Visibility.Visible;
@@ -68,8 +68,12 @@ namespace BabySitter.Pages
                 .ToList();
             UpdateMyStars();
 
-            var slots = (schedulesTask.Result ?? Enumerable.Empty<Schedule>())
-                .Where(s => s.BabysitterId?.Id == user.Id && s.DateAvailable.Date >= DateTime.Today)
+            var allMySlots = (schedulesTask.Result ?? Enumerable.Empty<Schedule>())
+                .Where(s => s.BabysitterId?.Id == user.Id)
+                .ToList();
+
+            var slots = allMySlots
+                .Where(s => s.DateAvailable.Date >= DateTime.Today)
                 .OrderBy(s => s.DateAvailable).ThenBy(s => s.Starttime)
                 .ToList();
 
@@ -87,12 +91,122 @@ namespace BabySitter.Pages
                 .OrderByDescending(r => r.TimeOfRequest)
                 .ToList();
 
-            // Show ALL schedule entries in "שעות פנויות שלי" — the approved-requests section
-            // already shows the bookings separately, so filtering by date here was wrong:
-            // it was hiding the whole day even when only part of it was booked.
+            // ── KPI cards ────────────────────────────────────────────────────────
+            // Pending count (all pending, not just future)
+            int pendingCount = allReqs.Count(r => r.BabysitterId?.Id == user.Id && r.Status == "pending");
+            PendingCountText.Text = pendingCount == 1 ? "בקשה חדשה 1" : $"{pendingCount} בקשות חדשות";
+
+            // Bell badge
+            if (pendingCount > 0)
+            {
+                BellBadgeText.Text      = pendingCount.ToString();
+                BellBadgeBorder.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                BellBadgeBorder.Visibility = Visibility.Collapsed;
+            }
+
+            // Hours worked and earnings: approved/completed requests THIS calendar month, past dates
+            var startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var workedThisMonth = allReqs
+                .Where(r => r.BabysitterId?.Id == user.Id
+                         && (r.Status == "approved" || r.Status == "completed")
+                         && r.TimeOfRequest >= startOfMonth
+                         && r.TimeOfRequest.Date <= DateTime.Today)
+                .ToList();
+
+            double totalHours = workedThisMonth.Sum(r => (double)r.LenghtTime);
+            HoursWorkedText.Text = $"{totalHours:F1} שעות";
+
+            decimal earnings = (decimal)(totalHours * user.PriceForAnHour);
+            MonthlyEarningsText.Text = $"₪{earnings:N0}";
+
+            // ── Weekly grid ──────────────────────────────────────────────────────
+            BuildWeeklyGrid(allReqs, allMySlots, user);
+
+            // ── Section panels ────────────────────────────────────────────────────
             BuildFreeSlots(slots);
             BuildApprovedSlots(approvedReqs, slots);
             BuildPendingRequests(pendingReqs);
+
+            LoadingOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        // ── Weekly mini grid ──────────────────────────────────────────────────────
+
+        private void BuildWeeklyGrid(List<Requests> allReqs, List<Schedule> allSlots, BabySitterTeens user)
+        {
+            WeeklyGrid.Children.Clear();
+
+            // Find the Sunday that starts the current week
+            var today = DateTime.Today;
+            var sunday = today.AddDays(-(int)today.DayOfWeek); // DayOfWeek.Sunday == 0
+
+            string[] dayNames = { "א'", "ב'", "ג'", "ד'", "ה'" };
+
+            for (int i = 0; i < 5; i++) // Sunday → Thursday
+            {
+                var day = sunday.AddDays(i);
+                bool isToday = day == today;
+
+                bool hasApproved = allReqs.Any(r =>
+                    r.BabysitterId?.Id == user.Id &&
+                    r.Status == "approved" &&
+                    r.TimeOfRequest.Date == day);
+
+                bool hasPending = allReqs.Any(r =>
+                    r.BabysitterId?.Id == user.Id &&
+                    r.Status == "pending" &&
+                    r.TimeOfRequest.Date == day);
+
+                bool hasFreeSlot = allSlots.Any(s =>
+                    s.BabysitterId?.Id == user.Id &&
+                    s.DateAvailable.Date == day);
+
+                string bg, fg, symbol, tip;
+
+                if (hasApproved)
+                { bg = "#E8F5E9"; fg = "#2E7D32"; symbol = "✓"; tip = "משמרת מאושרת"; }
+                else if (hasPending)
+                { bg = "#FFF3E0"; fg = "#E65100"; symbol = "⏳"; tip = "בקשה ממתינה לאישור"; }
+                else if (hasFreeSlot)
+                { bg = "#F3EDF7"; fg = "#6750A4"; symbol = "🔓"; tip = "הצהרת שאתה פנוי"; }
+                else
+                { bg = "#F5F5F5"; fg = "#757575"; symbol = "-"; tip = "אין משמרות מתוכננות"; }
+
+                var border = new Border
+                {
+                    Background      = new SolidColorBrush((Color)ColorConverter.ConvertFromString(bg)),
+                    CornerRadius    = new CornerRadius(8),
+                    Margin          = new Thickness(2),
+                    ToolTip         = tip,
+                    BorderBrush     = isToday
+                                        ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6750A4"))
+                                        : null,
+                    BorderThickness = isToday ? new Thickness(2) : new Thickness(0)
+                };
+
+                var sp = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+                sp.Children.Add(new TextBlock
+                {
+                    Text = dayNames[i],
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    FontSize = 11,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(fg))
+                });
+                sp.Children.Add(new TextBlock
+                {
+                    Text = symbol,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    FontSize   = symbol == "🔓" ? 11 : 14,
+                    FontWeight = symbol == "✓"  ? FontWeights.Bold : FontWeights.Normal,
+                    Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(fg))
+                });
+
+                border.Child = sp;
+                WeeklyGrid.Children.Add(border);
+            }
         }
 
         // ── Free slots ────────────────────────────────────────────────────────────
@@ -876,6 +990,52 @@ namespace BabySitter.Pages
                 });
                 cardStack.Children.Add(starsPanel);
 
+                // Tags
+                if (!string.IsNullOrWhiteSpace(rate.Tags))
+                {
+                    var tagsWrap = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
+                    foreach (var tag in rate.Tags.Split(',').Select(t => t.Trim()).Where(t => t.Length > 0))
+                    {
+                        tagsWrap.Children.Add(new Border
+                        {
+                            Background   = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EDE7F6")),
+                            CornerRadius = new CornerRadius(12),
+                            Padding      = new Thickness(10, 4, 10, 4),
+                            Margin       = new Thickness(0, 0, 6, 4),
+                            Child        = new TextBlock
+                            {
+                                Text = tag,
+                                FontSize = 12,
+                                Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#6750A4"))
+                            }
+                        });
+                    }
+                    cardStack.Children.Add(tagsWrap);
+                }
+
+                // Free-text review
+                if (!string.IsNullOrWhiteSpace(rate.ReviewText))
+                {
+                    var reviewBorder = new Border
+                    {
+                        Background      = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3F0FF")),
+                        CornerRadius    = new CornerRadius(8),
+                        Padding         = new Thickness(12, 8, 12, 8),
+                        Margin          = new Thickness(0, 8, 0, 0),
+                        BorderBrush     = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#D0BCFF")),
+                        BorderThickness = new Thickness(1)
+                    };
+                    reviewBorder.Child = new TextBlock
+                    {
+                        Text        = $"\"  {rate.ReviewText}  \"",
+                        FontSize    = 13,
+                        FontStyle   = FontStyles.Italic,
+                        Foreground  = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4A148C")),
+                        TextWrapping = TextWrapping.Wrap
+                    };
+                    cardStack.Children.Add(reviewBorder);
+                }
+
                 card.Child = cardStack;
                 reviewsPanel.Children.Add(card);
             }
@@ -907,6 +1067,13 @@ namespace BabySitter.Pages
         private void GoToHistory_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new JobHistoryPage());
+        }
+
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            LogInComputer.CurrentUser = null;
+            LogInComputer.WhoAmI     = null;
+            NavigationService?.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
         }
     }
 }

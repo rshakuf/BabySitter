@@ -45,11 +45,27 @@
     </Page.Background>
 
     <Grid>
-        <Border Width="650" 
-                VerticalAlignment="Center" 
-                Background="#D9FFFFFF" 
-                CornerRadius="25" 
-                Margin="40" 
+        <!-- Back button — top left corner -->
+        <Button Content="חזרה" Click="BackButton_Click"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="16"
+                Height="36" Padding="20,0"
+                Background="#EDE9FF" Foreground="#6750A4"
+                FontSize="14" FontWeight="SemiBold"
+                BorderThickness="0" Cursor="Hand"
+                Panel.ZIndex="100">
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="18"/>
+                </Style>
+            </Button.Resources>
+        </Button>
+
+        <Border Width="650"
+                VerticalAlignment="Center"
+                Background="#D9FFFFFF"
+                CornerRadius="25"
+                Margin="40"
                 Padding="40"
                 Effect="{StaticResource CardShadow}">
 

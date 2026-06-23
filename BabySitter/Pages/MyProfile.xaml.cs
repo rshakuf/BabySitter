@@ -200,6 +200,12 @@ namespace BabySitter.Pages
         private bool IsValidPhone(string text) =>
             Regex.IsMatch(text, @"^05\d{8}$");
 
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
+
         private void AddKid_Click(object sender, RoutedEventArgs e)
         {
             var user = (Parents)LogInComputer.CurrentUser;

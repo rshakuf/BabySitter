@@ -9,16 +9,14 @@
         <StackPanel Margin="60,40,60,60">
 
             <!-- Back button -->
-            <Button Content="→  חזרה"
+            <Button Content="חזרה"
                     HorizontalAlignment="Right"
-                    Width="110" Height="36"
-                    Margin="0,0,0,30"
-                    Background="Transparent"
-                    Foreground="#6750A4"
+                    Height="36" Padding="20,0"
+                    Margin="0,0,0,20"
+                    Background="#EDE9FF" Foreground="#6750A4"
                     FontSize="14" FontWeight="SemiBold"
-                    BorderThickness="1" Cursor="Hand"
+                    BorderThickness="0" Cursor="Hand"
                     Click="BackButton_Click">
-                <Button.BorderBrush><SolidColorBrush Color="#6750A4"/></Button.BorderBrush>
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="18"/>

@@ -209,5 +209,17 @@ namespace BabySitter.Pages
         {
             NavigationService.Navigate(new JobHistoryPage());
         }
+
+        private void GoToPayments(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new ParentPaymentsPage());
+        }
+
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            LogInComputer.CurrentUser = null;
+            LogInComputer.WhoAmI     = null;
+            NavigationService?.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
+        }
     }
 }
