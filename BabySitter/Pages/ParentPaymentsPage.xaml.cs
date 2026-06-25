@@ -80,7 +80,7 @@ namespace BabySitter.Pages
             catch (Exception ex)
             {
                 LoadingPanel.Visibility = Visibility.Collapsed;
-                MessageBox.Show("שגיאה בטעינה: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בטעינה: " + ex.Message, Window.GetWindow(this));
             }
         }
 

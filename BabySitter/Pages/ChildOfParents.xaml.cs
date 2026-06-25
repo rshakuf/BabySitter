@@ -1,3 +1,4 @@
+using BabySitter.Helpers;
 using ClApi;
 using Model;
 using System;
@@ -38,7 +39,7 @@ namespace BabySitter.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת ילדים: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בטעינת ילדים: " + ex.Message, Window.GetWindow(this));
             }
         }
 

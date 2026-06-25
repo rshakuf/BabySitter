@@ -95,7 +95,7 @@ namespace BabySitter.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת לוח הזמנים: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בטעינת לוח הזמנים: " + ex.Message, Window.GetWindow(this));
             }
             finally
             {
@@ -429,11 +429,7 @@ namespace BabySitter.Pages
                 lines.Add($"הוספה: {ad.Count} שעות  ({HourLabel(ad.First())} – {HourLabel(ad.Last() + 1)})");
             }
 
-            var confirm = MessageBox.Show(
-                $"לשמור את השינויים ב-{date:dd/MM/yyyy}?\n\n{string.Join("\n", lines)}",
-                "שמירת שינויים", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (confirm != MessageBoxResult.Yes) return;
+            if (!CustomDialogHelper.ShowConfirm($"לשמור את השינויים ב-{date:dd/MM/yyyy}?\n\n{string.Join("\n", lines)}", "שמירת שינויים", Window.GetWindow(this))) return;
 
             LoadingOverlay.Visibility = Visibility.Visible;
             try
@@ -471,7 +467,7 @@ namespace BabySitter.Pages
             catch (Exception ex)
             {
                 LoadingOverlay.Visibility = Visibility.Collapsed;
-                MessageBox.Show("שגיאה בשמירת השינויים: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בשמירת השינויים: " + ex.Message, Window.GetWindow(this));
             }
         }
 

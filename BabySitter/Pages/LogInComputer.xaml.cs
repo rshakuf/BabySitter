@@ -1,4 +1,5 @@
-﻿using ClApi;
+﻿using BabySitter.Helpers;
+using ClApi;
 using Model;
 using System;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace BabySitter.Pages
             if (string.IsNullOrWhiteSpace(userNameTextBox.Text) ||
                 string.IsNullOrWhiteSpace(PasswordBox.Password))
             {
-                MessageBox.Show("הכנס טלפון וסיסמה");
+                CustomDialogHelper.ShowWarning("הכנס טלפון וסיסמה", Window.GetWindow(this));
                 return;
             }
 
@@ -121,11 +122,11 @@ namespace BabySitter.Pages
                     return;
                 }
 
-                MessageBox.Show("טלפון או סיסמה שגויים");
+                CustomDialogHelper.ShowWarning("טלפון או סיסמה שגויים", Window.GetWindow(this));
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאת התחברות: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאת התחברות: " + ex.Message, Window.GetWindow(this));
             }
         }
     }

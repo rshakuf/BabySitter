@@ -96,16 +96,6 @@ namespace BabySitter.Pages
             int pendingCount = allReqs.Count(r => r.BabysitterId?.Id == user.Id && r.Status == "pending");
             PendingCountText.Text = pendingCount == 1 ? "בקשה חדשה 1" : $"{pendingCount} בקשות חדשות";
 
-            // Bell badge
-            if (pendingCount > 0)
-            {
-                BellBadgeText.Text      = pendingCount.ToString();
-                BellBadgeBorder.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                BellBadgeBorder.Visibility = Visibility.Collapsed;
-            }
 
             // Hours worked and earnings: approved/completed requests THIS calendar month, past dates
             var startOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
@@ -817,24 +807,18 @@ namespace BabySitter.Pages
             var slot = btn.Tag as Schedule;
             if (slot == null) return;
 
-            var confirm = MessageBox.Show(
-                $"למחוק את הזמינות בתאריך {slot.DateAvailable:dd/MM/yyyy}?",
-                "מחיקת זמינות",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (confirm != MessageBoxResult.Yes) return;
+            if (!Helpers.CustomDialogHelper.ShowConfirm($"למחוק את הזמינות בתאריך {slot.DateAvailable:dd/MM/yyyy}?", "מחיקת זמינות", Window.GetWindow(this))) return;
 
             try
             {
                 int result = await api.DeleteScheduleAsync(slot.Id);
-                if (result <= 0) { MessageBox.Show("הזמינות לא נמחקה"); return; }
+                if (result <= 0) { Helpers.CustomDialogHelper.ShowError("הזמינות לא נמחקה", Window.GetWindow(this)); return; }
                 if (LogInComputer.CurrentUser is BabySitterTeens user)
                     await LoadAll(user);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה במחיקה: " + ex.Message);
+                Helpers.CustomDialogHelper.ShowError("שגיאה במחיקה: " + ex.Message, Window.GetWindow(this));
             }
         }
 

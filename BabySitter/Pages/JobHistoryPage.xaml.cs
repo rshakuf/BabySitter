@@ -140,7 +140,7 @@ namespace BabySitter.Pages
             catch (Exception ex)
             {
                 LoadingPanel.Visibility = Visibility.Collapsed;
-                MessageBox.Show("שגיאה בטעינת היסטוריה: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בטעינת היסטוריה: " + ex.Message, Window.GetWindow(this));
             }
         }
 
@@ -368,12 +368,12 @@ namespace BabySitter.Pages
                                 Tags         = dlg.SelectedTags,
                                 ReviewText   = dlg.ReviewText
                             });
-                            if (saved <= 0) MessageBox.Show("שגיאה בעדכון הדירוג");
+                            if (saved <= 0) CustomDialogHelper.ShowError("שגיאה בעדכון הדירוג", Window.GetWindow(this));
                             await JobHistoryReloadAsync();
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("שגיאה: " + ex.Message);
+                            CustomDialogHelper.ShowError("שגיאה: " + ex.Message, Window.GetWindow(this));
                         }
                     };
                     rightPanel.Children.Add(starsPanel);
@@ -417,12 +417,12 @@ namespace BabySitter.Pages
                                 Tags         = dlg.SelectedTags,
                                 ReviewText   = dlg.ReviewText
                             });
-                            if (saved <= 0) MessageBox.Show("שגיאה בשמירת הדירוג");
+                            if (saved <= 0) CustomDialogHelper.ShowError("שגיאה בשמירת הדירוג", Window.GetWindow(this));
                             await JobHistoryReloadAsync();
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("שגיאה: " + ex.Message);
+                            CustomDialogHelper.ShowError("שגיאה: " + ex.Message, Window.GetWindow(this));
                         }
                     };
                     rightPanel.Children.Add(rateBtn);

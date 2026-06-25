@@ -44,16 +44,19 @@
                 </StackPanel>
             </DockPanel>
 
-            <!-- Legend -->
+            <!-- Filter chips -->
             <WrapPanel Grid.Row="1" Margin="0,0,0,20">
-                <Border Background="#FFE082" CornerRadius="12" Padding="12,5" Margin="0,0,10,0">
+                <Border x:Name="FilterPending"  Background="#FFE082" CornerRadius="12" Padding="12,5" Margin="0,0,10,0"
+                        Cursor="Hand" Tag="pending"  MouseLeftButtonUp="Filter_Click">
                     <TextBlock Text="⏳  ממתין לאישור" FontSize="12" FontWeight="SemiBold"/>
                 </Border>
-                <Border Background="#A5D6A7" CornerRadius="12" Padding="12,5" Margin="0,0,10,0">
+                <Border x:Name="FilterApproved" Background="#A5D6A7" CornerRadius="12" Padding="12,5" Margin="0,0,10,0"
+                        Cursor="Hand" Tag="approved" MouseLeftButtonUp="Filter_Click">
                     <TextBlock Text="✓  אושר" FontSize="12" FontWeight="SemiBold"/>
                 </Border>
-                <Border Background="#EF9A9A" CornerRadius="12" Padding="12,5">
-                    <TextBlock Text="✗  נדחה" FontSize="12" FontWeight="SemiBold"/>
+                <Border x:Name="FilterRejected" Background="#EF9A9A" CornerRadius="12" Padding="12,5"
+                        Cursor="Hand" Tag="rejected" MouseLeftButtonUp="Filter_Click">
+                    <TextBlock Text="✗  נדחה / בוטל" FontSize="12" FontWeight="SemiBold"/>
                 </Border>
             </WrapPanel>
 

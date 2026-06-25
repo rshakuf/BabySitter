@@ -89,7 +89,7 @@ namespace BabySitter.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת הנתונים: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בטעינת הנתונים: " + ex.Message, Window.GetWindow(this));
             }
         }
 
@@ -143,7 +143,7 @@ namespace BabySitter.Pages
                 // Validate reasonable size (max 5 MB)
                 if (bytes.Length > 5 * 1024 * 1024)
                 {
-                    MessageBox.Show("התמונה גדולה מדי (מקסימום 5MB). בחר תמונה קטנה יותר.");
+                    CustomDialogHelper.ShowWarning("התמונה גדולה מדי (מקסימום 5MB). בחר תמונה קטנה יותר.", Window.GetWindow(this));
                     return;
                 }
 
@@ -157,7 +157,7 @@ namespace BabySitter.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת התמונה: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בטעינת התמונה: " + ex.Message, Window.GetWindow(this));
             }
         }
 
@@ -221,19 +221,19 @@ namespace BabySitter.Pages
             if (string.IsNullOrWhiteSpace(fname.Text) ||
                 string.IsNullOrWhiteSpace(lname.Text))
             {
-                MessageBox.Show("נא למלא שם פרטי ושם משפחה");
+                CustomDialogHelper.ShowWarning("נא למלא שם פרטי ושם משפחה", Window.GetWindow(this));
                 return;
             }
 
             if (!IsValidPhone(phone.Text))
             {
-                MessageBox.Show("טלפון לא תקין. צריך להתחיל ב־05 ולהכיל 10 ספרות");
+                CustomDialogHelper.ShowWarning("טלפון לא תקין. צריך להתחיל ב־05 ולהכיל 10 ספרות", Window.GetWindow(this));
                 return;
             }
 
             if (cityComboBox.SelectedItem == null)
             {
-                MessageBox.Show("נא לבחור עיר");
+                CustomDialogHelper.ShowWarning("נא לבחור עיר", Window.GetWindow(this));
                 return;
             }
 
@@ -306,14 +306,14 @@ namespace BabySitter.Pages
 
                         _newProfilePicBase64   = null;
                         _newProfilePicFileName = null;
-                        MessageBox.Show("נשמר!");
+                        CustomDialogHelper.ShowSuccess("נשמר!", Window.GetWindow(this));
                     }
                     else
                     {
                         // Rollback the in-memory ProfilePicture if the save failed
                         if (base64ToRestore != null)
                             user.ProfilePicture = base64ToRestore;
-                        MessageBox.Show("שגיאה בשמירה");
+                        CustomDialogHelper.ShowError("שגיאה בשמירה", Window.GetWindow(this));
                     }
                 }
                 else if (LogInComputer.WhoAmI == "parent")
@@ -340,17 +340,17 @@ namespace BabySitter.Pages
                                 if (!ok) allKidsOk = false;
                             }
                         }
-                        MessageBox.Show(allKidsOk ? "נשמר!" : "הפרטים האישיים נשמרו, אך חלק מפרטי הילדים לא הושלמו");
+                        CustomDialogHelper.ShowSuccess(allKidsOk ? "נשמר!" : "הפרטים האישיים נשמרו, אך חלק מפרטי הילדים לא הושלמו", Window.GetWindow(this));
                     }
                     else
                     {
-                        MessageBox.Show("שגיאה בשמירה");
+                        CustomDialogHelper.ShowError("שגיאה בשמירה", Window.GetWindow(this));
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה: " + ex.Message, Window.GetWindow(this));
             }
             finally
             {

@@ -1,6 +1,8 @@
+using BabySitter.Helpers;
 using ClApi;
 using Model;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,7 +15,10 @@ namespace BabySitter.Pages
 {
     public partial class RequestsParents : Page
     {
-        private readonly ApiService api = new ApiService();
+        private readonly ApiService            api          = new ApiService();
+        private List<Requests> _allMine      = new();
+        private List<Schedule> _allSchedules = new();
+        private string                         _activeFilter = null; // null=all, "pending","approved","rejected"
 
         public RequestsParents()
         {
@@ -26,10 +31,71 @@ namespace BabySitter.Pages
             NavigationService?.GoBack();
         }
 
+        // ── Filter toggle ──────────────────────────────────────────────────────────
+
+        private void Filter_Click(object sender, MouseButtonEventArgs e)
+        {
+            string tag = (sender as Border)?.Tag as string;
+            _activeFilter = (_activeFilter == tag) ? null : tag;
+            UpdateFilterVisuals();
+            ApplyFilter();
+        }
+
+        private void UpdateFilterVisuals()
+        {
+            SetChipActive(FilterPending,  "pending");
+            SetChipActive(FilterApproved, "approved");
+            SetChipActive(FilterRejected, "rejected");
+        }
+
+        private void SetChipActive(Border chip, string filter)
+        {
+            bool active = _activeFilter == filter;
+            chip.BorderThickness = new Thickness(active ? 2.5 : 0);
+            chip.BorderBrush     = active
+                ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#5C4D9A"))
+                : null;
+            chip.Opacity = (_activeFilter == null || active) ? 1.0 : 0.4;
+        }
+
+        private void ApplyFilter()
+        {
+            RequestsPanel.Children.Clear();
+
+            var filtered = _activeFilter switch
+            {
+                "pending"  => _allMine.Where(r => r.Status == "pending").ToList(),
+                "approved" => _allMine.Where(r => r.Status == "approved").ToList(),
+                "rejected" => _allMine.Where(r => r.Status == "rejected" || r.Status == "cancelled_by_babysitter").ToList(),
+                _          => _allMine
+            };
+
+            if (!filtered.Any())
+            {
+                EmptyPanel.Visibility           = Visibility.Visible;
+                RequestsScrollViewer.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            EmptyPanel.Visibility           = Visibility.Collapsed;
+            RequestsScrollViewer.Visibility = Visibility.Visible;
+
+            foreach (var req in filtered)
+            {
+                var matchingSlot = _allSchedules?.FirstOrDefault(s =>
+                    s.BabysitterId?.Id == req.BabysitterId?.Id &&
+                    s.DateAvailable.Date == req.TimeOfRequest.Date &&
+                    s.Starttime == TimeOnly.FromTimeSpan(req.TimeOfRequest.TimeOfDay));
+                RequestsPanel.Children.Add(BuildCard(req, matchingSlot));
+            }
+        }
+
+        // ── Data loading ──────────────────────────────────────────────────────────
+
         private async Task LoadRequests()
         {
-            LoadingPanel.Visibility = Visibility.Visible;
-            EmptyPanel.Visibility = Visibility.Collapsed;
+            LoadingPanel.Visibility         = Visibility.Visible;
+            EmptyPanel.Visibility           = Visibility.Collapsed;
             RequestsScrollViewer.Visibility = Visibility.Collapsed;
 
             try
@@ -38,7 +104,7 @@ namespace BabySitter.Pages
                 if (currentParent == null) return;
 
                 var allRequests  = await api.GetAllRequestsAsync();
-                var allSchedules = await api.GetAllSchedulesAsync();
+                _allSchedules    = (await api.GetAllSchedulesAsync())?.ToList() ?? new();
 
                 // Auto-delete past requests that were never approved
                 var stale = allRequests
@@ -50,7 +116,7 @@ namespace BabySitter.Pages
                 foreach (var old in stale)
                     await api.DeleteRequestAsync(old.Id);
 
-                var mine = allRequests
+                _allMine = allRequests
                     .Where(r => r.ParentsId?.Id == currentParent.Id
                              && r.TimeOfRequest.Date >= DateTime.Today
                              && !(r.Status == "approved" &&
@@ -58,30 +124,19 @@ namespace BabySitter.Pages
                     .OrderByDescending(r => r.TimeOfRequest)
                     .ToList();
 
-                RequestsPanel.Children.Clear();
-
-                if (!mine.Any())
+                if (!_allMine.Any())
                 {
                     EmptyPanel.Visibility = Visibility.Visible;
                     return;
                 }
 
-                foreach (var req in mine)
-                {
-                    // Find matching schedule to get end time
-                    var matchingSlot = allSchedules?.FirstOrDefault(s =>
-                        s.BabysitterId?.Id == req.BabysitterId?.Id &&
-                        s.DateAvailable.Date == req.TimeOfRequest.Date &&
-                        s.Starttime == TimeOnly.FromTimeSpan(req.TimeOfRequest.TimeOfDay));
-
-                    RequestsPanel.Children.Add(BuildCard(req, matchingSlot));
-                }
-
+                UpdateFilterVisuals();
+                ApplyFilter();
                 RequestsScrollViewer.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת בקשות: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בטעינת בקשות: " + ex.Message, Window.GetWindow(this));
             }
             finally
             {
@@ -241,9 +296,7 @@ namespace BabySitter.Pages
             var req = (sender as Button)?.Tag as Requests;
             if (req == null) return;
 
-            var result = MessageBox.Show("האם לבטל את הבקשה?", "ביטול בקשה",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result != MessageBoxResult.Yes) return;
+            if (!CustomDialogHelper.ShowConfirm("האם לבטל את הבקשה?", "ביטול בקשה", Window.GetWindow(this))) return;
 
             await api.DeleteRequestAsync(req.Id);
             await LoadRequests();

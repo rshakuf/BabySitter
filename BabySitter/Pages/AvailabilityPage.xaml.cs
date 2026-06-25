@@ -26,7 +26,8 @@ namespace BabySitter.Pages
         // hour → state for the currently displayed day
         private Dictionary<int, SlotState> _hourStates = new();
 
-        private List<BabySitterRate> _allRates = new();
+        private List<BabySitterRate> _allRates    = new();
+        private List<Requests>       _allRequests = new();
 
         public AvailabilityPage(BabySitterTeens teen)
         {
@@ -104,7 +105,8 @@ namespace BabySitter.Pages
                 var ratesTask     = _api.GetAllBabySitterRatesAsync();
                 await System.Threading.Tasks.Task.WhenAll(schedulesTask, requestsTask, ratesTask);
 
-                _allRates = ratesTask.Result?.ToList() ?? new List<BabySitterRate>();
+                _allRates    = ratesTask.Result?.ToList()     ?? new List<BabySitterRate>();
+                _allRequests = requestsTask.Result?.ToList() ?? new List<Requests>();
                 // UpdateRateButton first — sets _parentCanRate so UpdateAvgRating shows the chip correctly
                 UpdateRateButton(requestsTask.Result);
                 UpdateAvgRating();
@@ -141,7 +143,7 @@ namespace BabySitter.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת זמינות: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בטעינת זמינות: " + ex.Message, Window.GetWindow(this));
             }
             finally
             {
@@ -391,15 +393,36 @@ namespace BabySitter.Pages
             {
                 if (sorted[i] != sorted[i - 1] + 1)
                 {
-                    MessageBox.Show("יש לבחור שעות עוקבות (רצופות) בלבד.", "שגיאה בבחירה",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomDialogHelper.ShowWarning("יש לבחור שעות עוקבות (רצופות) בלבד.", Window.GetWindow(this));
                     return;
                 }
             }
 
-            var date = _availableDates[_currentDateIndex];
-            int startHour = sorted.First();
+            var date       = _availableDates[_currentDateIndex];
+            int startHour  = sorted.First();
             int lenghtTime = sorted.Count;
+
+            // Check if the parent already has an overlapping booking with any babysitter
+            var parent = LogInComputer.CurrentUser as Parents;
+            if (parent != null)
+            {
+                var selStart = date.Date.AddHours(startHour);
+                var selEnd   = date.Date.AddHours(startHour + lenghtTime);
+
+                var conflict = _allRequests.FirstOrDefault(r =>
+                    r.ParentsId?.Id == parent.Id &&
+                    (r.Status == "approved" || r.Status == "pending") &&
+                    selStart < r.TimeOfRequest.AddHours(r.LenghtTime > 0 ? r.LenghtTime : 1) &&
+                    selEnd   > r.TimeOfRequest);
+
+                if (conflict != null)
+                {
+                    string bsName = $"{conflict.BabysitterId?.FirstName} {conflict.BabysitterId?.LastName}".Trim();
+                    string msg = $"כבר יש לך הזמנה לבייביסיטר {bsName} באותן שעות.\nהאם אתה בטוח שברצונך להזמין עוד בייביסיטר?";
+                    if (!CustomDialogHelper.ShowConfirm(msg, "הזמנה כפולה", Window.GetWindow(this)))
+                        return;
+                }
+            }
 
             var req = new Requests
             {
@@ -414,14 +437,12 @@ namespace BabySitter.Pages
             {
                 SendRequestBtn.IsEnabled = false;
                 await _api.InsertRequestAsync(req);
-                MessageBox.Show(
-                    $"הבקשה נשלחה!\n{date:dd/MM/yyyy}  {startHour:D2}:00 - {startHour + lenghtTime:D2}:00",
-                    "בקשה נשלחה", MessageBoxButton.OK, MessageBoxImage.Information);
+                CustomDialogHelper.ShowSuccess($"הבקשה נשלחה!\n{date:dd/MM/yyyy}  {startHour:D2}:00 - {startHour + lenghtTime:D2}:00", Window.GetWindow(this));
                 NavigationService?.Navigate(new RequestsParents());
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בשליחת הבקשה: " + ex.Message);
+                CustomDialogHelper.ShowError("שגיאה בשליחת הבקשה: " + ex.Message, Window.GetWindow(this));
                 SendRequestBtn.IsEnabled = true;
             }
         }

@@ -77,6 +77,11 @@ namespace BabySitter.Pages
                 _stars[i].Foreground = i < rating ? Gold : Gray;
         }
 
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+        }
+
         private void Submit_Click(object sender, RoutedEventArgs e)
         {
             var tags = _tagBoxes

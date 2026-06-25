@@ -37,8 +37,7 @@ namespace BabySitter.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת ערים — ודאי שהשרת פועל.\n" + ex.Message,
-                                "שגיאת חיבור", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialogHelper.ShowError("שגיאה בטעינת ערים — ודאי שהשרת פועל.\n" + ex.Message, Window.GetWindow(this));
             }
         }
 
@@ -84,14 +83,14 @@ namespace BabySitter.Pages
             // 1. שם
             if (string.IsNullOrWhiteSpace(fname.Text) || string.IsNullOrWhiteSpace(lname.Text))
             {
-                MessageBox.Show("נא למלא שם פרטי ושם משפחה");
+                CustomDialogHelper.ShowWarning("נא למלא שם פרטי ושם משפחה", Window.GetWindow(this));
                 return;
             }
 
             // 2. תאריך לידה — DatePicker מחזיר null אם לא נבחר תאריך
             if (dateofbirth.SelectedDate == null)
             {
-                MessageBox.Show("נא לבחור תאריך לידה");
+                CustomDialogHelper.ShowWarning("נא לבחור תאריך לידה", Window.GetWindow(this));
                 return;
             }
 
@@ -101,14 +100,14 @@ namespace BabySitter.Pages
 
             if (age < 14 || age > 80)
             {
-                MessageBox.Show("גיל הבייביסיטר צריך להיות בין 14 ל-80");
+                CustomDialogHelper.ShowWarning("גיל הבייביסיטר צריך להיות בין 14 ל-80", Window.GetWindow(this));
                 return;
             }
 
             // 3. עיר
             if (cityname.SelectedIndex < 0)
             {
-                MessageBox.Show("נא לבחור עיר");
+                CustomDialogHelper.ShowWarning("נא לבחור עיר", Window.GetWindow(this));
                 return;
             }
 
@@ -116,13 +115,13 @@ namespace BabySitter.Pages
             string phoneText = phone.Text.Trim();
             if (!IsValidPhone(phoneText))
             {
-                MessageBox.Show("מספר טלפון לא תקין.\nדוגמה: 0501234567");
+                CustomDialogHelper.ShowWarning("מספר טלפון לא תקין.\nדוגמה: 0501234567", Window.GetWindow(this));
                 return;
             }
             // 5. מחיר
             if (!int.TryParse(price.Text, out int pricePerHour) || pricePerHour <= 0)
             {
-                MessageBox.Show("נא להזין מחיר תקין לשעה");
+                CustomDialogHelper.ShowWarning("נא להזין מחיר תקין לשעה", Window.GetWindow(this));
                 return;
             }
 
@@ -138,13 +137,13 @@ namespace BabySitter.Pages
             string mail = recommenderMail.Text.Trim();
             if (string.IsNullOrEmpty(mail))
             {
-                MessageBox.Show("נא להזין כתובת מייל");
+                CustomDialogHelper.ShowWarning("נא להזין כתובת מייל", Window.GetWindow(this));
                 recommenderMail.Focus();
                 return;
             }
             if (!IsValidEmail(mail))
             {
-                MessageBox.Show("כתובת המייל אינה תקינה\nדוגמה: name@example.com");
+                CustomDialogHelper.ShowWarning("כתובת המייל אינה תקינה\nדוגמה: name@example.com", Window.GetWindow(this));
                 recommenderMail.Focus();
                 return;
             }
@@ -152,13 +151,13 @@ namespace BabySitter.Pages
             // 7. ✅ סיסמה — עכשיו קורא ישירות מה-PasswordBox האמיתי
             if (string.IsNullOrWhiteSpace(pass.Password))
             {
-                MessageBox.Show("נא להזין סיסמה");
+                CustomDialogHelper.ShowWarning("נא להזין סיסמה", Window.GetWindow(this));
                 return;
             }
 
             if (pass.Password != confirmpass.Password)
             {
-                MessageBox.Show("הסיסמאות לא תואמות");
+                CustomDialogHelper.ShowWarning("הסיסמאות לא תואמות", Window.GetWindow(this));
                 return;
             }
 
@@ -182,12 +181,12 @@ namespace BabySitter.Pages
             if (result > 0)
             {
                 LogInComputer.LastRegisteredPhone = phoneText;
-                MessageBox.Show("הבייביסיטר נרשם בהצלחה! 🎉");
+                CustomDialogHelper.ShowSuccess("הבייביסיטר נרשם בהצלחה! 🎉", Window.GetWindow(this));
                 NavigationService.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
             }
             else
             {
-                MessageBox.Show("שגיאה בהרשמה, נסו שנית");
+                CustomDialogHelper.ShowError("שגיאה בהרשמה, נסו שנית", Window.GetWindow(this));
             }
         }
 

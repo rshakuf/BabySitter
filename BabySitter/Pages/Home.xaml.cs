@@ -102,7 +102,7 @@ namespace BabySitter.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"שגיאה בטעינת נתונים: {ex.Message}");
+                Helpers.CustomDialogHelper.ShowError($"שגיאה בטעינת נתונים: {ex.Message}", Window.GetWindow(this));
             }
             finally
             {

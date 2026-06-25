@@ -1,4 +1,5 @@
-﻿using ClApi;
+﻿using BabySitter.Helpers;
+using ClApi;
 using Model;
 using System;
 using System.Collections.Generic;
@@ -33,8 +34,7 @@ namespace BabySitter.Pages
             }
             catch (Exception ex)
             {
-                MessageBox.Show("שגיאה בטעינת ערים — ודאי שהשרת פועל.\n" + ex.Message,
-                                "שגיאת חיבור", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomDialogHelper.ShowError("שגיאה בטעינת ערים — ודאי שהשרת פועל.\n" + ex.Message, Window.GetWindow(this));
             }
         }
 
@@ -65,14 +65,14 @@ namespace BabySitter.Pages
             // 1. שם
             if (string.IsNullOrWhiteSpace(fname.Text) || string.IsNullOrWhiteSpace(lname.Text))
             {
-                MessageBox.Show("נא למלא שם פרטי ושם משפחה");
+                CustomDialogHelper.ShowWarning("נא למלא שם פרטי ושם משפחה", Window.GetWindow(this));
                 return;
             }
 
             // 2. תאריך לידה
             if (dateofbirth.SelectedDate == null)
             {
-                MessageBox.Show("נא לבחור תאריך לידה");
+                CustomDialogHelper.ShowWarning("נא לבחור תאריך לידה", Window.GetWindow(this));
                 return;
             }
 
@@ -82,14 +82,14 @@ namespace BabySitter.Pages
 
             if (age < 18 || age > 120)
             {
-                MessageBox.Show("גיל ההורה צריך להיות בין 18 ל-120");
+                CustomDialogHelper.ShowWarning("גיל ההורה צריך להיות בין 18 ל-120", Window.GetWindow(this));
                 return;
             }
 
             // 3. עיר
             if (cityname.SelectedIndex < 0)
             {
-                MessageBox.Show("נא לבחור עיר");
+                CustomDialogHelper.ShowWarning("נא לבחור עיר", Window.GetWindow(this));
                 return;
             }
 
@@ -97,21 +97,21 @@ namespace BabySitter.Pages
             string phoneText = phone.Text.Trim();
             if (!IsValidPhone(phoneText))
             {
-                MessageBox.Show("מספר טלפון לא תקין\nדוגמה: 0501234567");
+                CustomDialogHelper.ShowWarning("מספר טלפון לא תקין\nדוגמה: 0501234567", Window.GetWindow(this));
                 return;
             }
 
             // 5. מספר ילדים
             if (!int.TryParse(numofkids.Text, out int kids) || kids <= 0)
             {
-                MessageBox.Show("נא להזין מספר ילדים תקין");
+                CustomDialogHelper.ShowWarning("נא להזין מספר ילדים תקין", Window.GetWindow(this));
                 return;
             }
 
             // 6. סיסמה
             if (string.IsNullOrWhiteSpace(pass.Password))
             {
-                MessageBox.Show("נא להזין סיסמה");
+                CustomDialogHelper.ShowWarning("נא להזין סיסמה", Window.GetWindow(this));
                 return;
             }
 
@@ -152,12 +152,12 @@ namespace BabySitter.Pages
                 var allParents = await api.GetAllParentsAsync();
                 var realParent = allParents?.FirstOrDefault(x => x.Telephone == p.Telephone) ?? p;
 
-                MessageBox.Show("ההורה נרשם בהצלחה 🎉");
+                CustomDialogHelper.ShowSuccess("ההורה נרשם בהצלחה! 🎉", Window.GetWindow(this));
                 NavigationService.Navigate(new ChildOfParents(realParent));
             }
             else
             {
-                MessageBox.Show("שגיאה בהרשמה");
+                CustomDialogHelper.ShowError("שגיאה בהרשמה", Window.GetWindow(this));
             }
            
         }
