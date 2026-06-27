@@ -81,13 +81,13 @@ namespace BabySitter.Pages
 
             var approvedReqs = allReqs
                 .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "approved"
-                         && r.TimeOfRequest.Date >= DateTime.Today)
+                         && r.TimeOfRequest.AddHours(r.LenghtTime > 0 ? r.LenghtTime : 1) > DateTime.Now)
                 .OrderBy(r => r.TimeOfRequest)
                 .ToList();
 
             var pendingReqs = allReqs
                 .Where(r => r.BabysitterId?.Id == user.Id && r.Status == "pending"
-                         && r.TimeOfRequest.Date >= DateTime.Today)
+                         && r.TimeOfRequest.AddHours(r.LenghtTime > 0 ? r.LenghtTime : 1) > DateTime.Now)
                 .OrderByDescending(r => r.TimeOfRequest)
                 .ToList();
 
