@@ -49,32 +49,12 @@
                       FontSize="13"
                       DisplayMemberPath="CityName"/>
 
-            <!-- Save button -->
-            <Button x:Name="SaveBtn"
-                    Content="שמור"
-                    Height="36"
-                    Background="#6750A4" Foreground="White"
-                    FontSize="13" FontWeight="SemiBold"
-                    BorderThickness="0" Cursor="Hand"
-                    Click="SaveKid_Click">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="18"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
-
-            <!-- Messages -->
+            <!-- Validation error (shown by parent's save button) -->
             <TextBlock x:Name="ErrorText"
                        Text="" Foreground="#C53030"
                        FontSize="12" Visibility="Collapsed"
-                       HorizontalAlignment="Center" Margin="0,6,0,0"
+                       HorizontalAlignment="Center" Margin="0,4,0,0"
                        TextWrapping="Wrap"/>
-
-            <TextBlock x:Name="SavedText"
-                       Text="נשמר ✓" Foreground="#2E7D32"
-                       FontSize="12" Visibility="Collapsed"
-                       HorizontalAlignment="Center" Margin="0,6,0,0"/>
 
         </StackPanel>
     </Border>

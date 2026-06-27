@@ -11,9 +11,8 @@ namespace BabySitter.Pages
 {
     public partial class ChildOfParents : Page
     {
-        private readonly Parents _parent;
+        private readonly Parents    _parent;
         private readonly ApiService _api = new ApiService();
-        private int        savedKidsCount  = 0;
         private int        _loadedKidsCount = 0;
         private List<City> _cities          = new List<City>();
 
@@ -29,13 +28,12 @@ namespace BabySitter.Pages
             try
             {
                 _cities = await _api.GetAllCitiesAsync();
-                var cities  = _cities;
                 var allKids = await _api.GetAllChildrenOfParentsAsync();
                 var myKids  = allKids?
                     .Where(c => c.IdParent?.Id == _parent.Id)
                     .ToList() ?? new List<ChildOfParent>();
                 _loadedKidsCount = myKids.Count;
-                CreateKidControls(cities, myKids);
+                CreateKidControls(_cities, myKids);
             }
             catch (Exception ex)
             {
@@ -47,55 +45,50 @@ namespace BabySitter.Pages
         {
             KidsContainer.Children.Clear();
 
-            // Show cards for kids already saved in the DB (edit mode)
             foreach (var kid in existingKids)
-            {
-                var kidControl = new KidInfoControl(_parent, cities, kid)
-                {
-                    Margin = new Thickness(15)
-                };
-                kidControl.KidSaved += OnKidSaved;
-                KidsContainer.Children.Add(kidControl);
-            }
+                KidsContainer.Children.Add(new KidInfoControl(_parent, cities, kid) { Margin = new Thickness(15) });
 
-            // Show empty cards for kids not yet entered
-            int target    = _parent.NumOfKids > 0 ? _parent.NumOfKids : 1;
-            int remaining = target - existingKids.Count;
+            int remaining = Math.Max((_parent.NumOfKids > 0 ? _parent.NumOfKids : 1) - existingKids.Count, 0);
             for (int i = 0; i < remaining; i++)
-            {
-                var kidControl = new KidInfoControl(_parent, cities)
-                {
-                    Margin = new Thickness(15)
-                };
-                kidControl.KidSaved += OnKidSaved;
-                KidsContainer.Children.Add(kidControl);
-            }
-        }
-
-        private void OnKidSaved()
-        {
-            savedKidsCount++;
-            ErrorText.Visibility = Visibility.Collapsed;
+                KidsContainer.Children.Add(new KidInfoControl(_parent, cities) { Margin = new Thickness(15) });
         }
 
         private void AddKid_Click(object sender, RoutedEventArgs e)
         {
-            var kidControl = new KidInfoControl(_parent, _cities)
-            {
-                Margin = new System.Windows.Thickness(15)
-            };
-            kidControl.KidSaved += OnKidSaved;
-            KidsContainer.Children.Add(kidControl);
+            KidsContainer.Children.Add(new KidInfoControl(_parent, _cities) { Margin = new Thickness(15) });
         }
 
-        private void FinishRegistration(object sender, RoutedEventArgs e)
+        private async void FinishRegistration(object sender, RoutedEventArgs e)
         {
-            // Allow finish if at least one kid was saved this session,
-            // OR the parent already had kids stored in the DB (loaded on entry)
-            if (savedKidsCount > 0 || _loadedKidsCount > 0)
-                NavigationService.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
-            else
+            ErrorText.Visibility = Visibility.Collapsed;
+            FinishBtn.IsEnabled  = false;
+
+            int  savedCount = 0;
+            bool hasError   = false;
+
+            foreach (UIElement el in KidsContainer.Children)
+            {
+                if (el is not KidInfoControl card) continue;
+
+                // Track how many kids this card actually saves
+                Action onSaved = () => savedCount++;
+                card.KidSaved += onSaved;
+                bool ok = await card.SaveAsync();
+                card.KidSaved -= onSaved;
+
+                if (!ok) { hasError = true; break; }
+            }
+
+            FinishBtn.IsEnabled = true;
+            if (hasError) return; // per-card error already shown
+
+            if (savedCount == 0 && _loadedKidsCount == 0)
+            {
                 ErrorText.Visibility = Visibility.Visible;
+                return;
+            }
+
+            NavigationService.Navigate(new Uri("Pages/LogInComputer.xaml", UriKind.Relative));
         }
     }
 }

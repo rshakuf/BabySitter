@@ -84,7 +84,7 @@ namespace BabySitter.Pages
                     KidsPanel.Children.Clear();
 
                     foreach (var child in kids)
-                        KidsPanel.Children.Add(new KidInfoControl(user, cities, child, hideSaveButton: true));
+                        KidsPanel.Children.Add(new KidInfoControl(user, cities, child));
                 }
             }
             catch (Exception ex)
@@ -170,13 +170,33 @@ namespace BabySitter.Pages
                 AvatarImageBrushProfile.ImageSource       = bmp;
                 AvatarImageEllipseProfile.Visibility      = Visibility.Visible;
                 AvatarLetterProfile.Visibility            = Visibility.Collapsed;
+                DeletePicLink.Visibility                  = Visibility.Visible;
             }
             else
             {
                 AvatarImageEllipseProfile.Visibility = Visibility.Collapsed;
                 AvatarLetterProfile.Visibility       = Visibility.Visible;
-                AvatarLetterProfile.Text = firstName?.Length > 0 ? firstName[0].ToString().ToUpper() : "?";
+                AvatarLetterProfile.Text             = firstName?.Length > 0 ? firstName[0].ToString().ToUpper() : "?";
+                DeletePicLink.Visibility             = Visibility.Collapsed;
             }
+        }
+
+        private async void DeletePic_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (!CustomDialogHelper.ShowConfirm("האם למחוק את תמונת הפרופיל?", "מחיקת תמונה", Window.GetWindow(this)))
+                return;
+
+            var user = (BabySitterTeens)LogInComputer.CurrentUser;
+            bool ok = await api.DeleteProfilePictureAsync(user.Id);
+            if (!ok)
+            {
+                CustomDialogHelper.ShowError("שגיאה במחיקת התמונה. נסה שוב.", Window.GetWindow(this));
+                return;
+            }
+            user.ProfilePicture    = null;
+            _newProfilePicBase64   = null;
+            _newProfilePicFileName = null;
+            ApplyAvatarToProfile(null, user.FirstName);
         }
 
         private void TogglePassword(object sender, MouseButtonEventArgs e)
@@ -209,7 +229,7 @@ namespace BabySitter.Pages
         private void AddKid_Click(object sender, RoutedEventArgs e)
         {
             var user = (Parents)LogInComputer.CurrentUser;
-            var card = new KidInfoControl(user, _cities, hideSaveButton: true)
+            var card = new KidInfoControl(user, _cities)
             {
                 Margin = new System.Windows.Thickness(8)
             };
@@ -286,33 +306,33 @@ namespace BabySitter.Pages
                     user.Mail           = mailText;
                     user.PriceForAnHour = price;
 
-                    // Apply newly-picked photo filename (server already saved the file)
-                    string base64ToRestore = null;
+                    // Send only the short filename to the server; send null if no new photo
+                    // (so the server skips overwriting the existing profilePicture in the DB).
+                    string existingPicBase64 = user.ProfilePicture;
+                    string base64ToRestore   = null;
                     if (_newProfilePicFileName != null)
                     {
-                        // Temporarily set filename so the DB gets the short filename value
-                        base64ToRestore  = _newProfilePicBase64;   // keep Base64 for in-memory display
+                        base64ToRestore     = _newProfilePicBase64;
                         user.ProfilePicture = _newProfilePicFileName;
+                    }
+                    else
+                    {
+                        user.ProfilePicture = null; // server will skip profilePicture column
                     }
 
                     int result = await api.UpdateBabySitterTeenAsync(user);
+
+                    // Restore the in-memory Base64 regardless of success/failure
+                    user.ProfilePicture = base64ToRestore ?? existingPicBase64;
+
                     if (result > 0)
                     {
-                        // Restore Base64 to the in-memory user so the avatar still displays
-                        // correctly when the profile page is reopened without a full re-login.
-                        // (The DB holds the short filename; on next login it converts back to Base64.)
-                        if (base64ToRestore != null)
-                            user.ProfilePicture = base64ToRestore;
-
                         _newProfilePicBase64   = null;
                         _newProfilePicFileName = null;
                         CustomDialogHelper.ShowSuccess("נשמר!", Window.GetWindow(this));
                     }
                     else
                     {
-                        // Rollback the in-memory ProfilePicture if the save failed
-                        if (base64ToRestore != null)
-                            user.ProfilePicture = base64ToRestore;
                         CustomDialogHelper.ShowError("שגיאה בשמירה", Window.GetWindow(this));
                     }
                 }
